@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2023
  *
  */
-
 #pragma once
+#include "include/Bus.hpp"
 
 class RV32ISim {
   public:
@@ -17,7 +17,7 @@ class RV32ISim {
      * @brief Construct a new RV32ISim object
      *
      */
-    RV32ISim();
+    RV32ISim(Bus* bus);
 
     /**
      * @brief Destroy the RV32ISim object
@@ -57,43 +57,21 @@ class RV32ISim {
      * @return true \
      * @return false
      */
-    inline bool hasNext() const { return ((pc < length) & !ecall); }
+    inline bool hasNext() const { return ((pc < length) & !ecall); } // TODO: AQI!!!! ver esta variaveisZZ
 
     void printRegisters();
     void printProgram();
 
   private:
-    int length;   // Program length in number of instructions
-    int pc;       // Program counter
-    int regs[32]; //
-    bool ecall;   // For program termination
+    uint32_t length;   // Program length in number of instructions
+    uint32_t capacity; // Memory capacity
+    uint32_t pc;       // Program counter
+    uint32_t regs[32]; //
+    bool ecall;        // For program termination
 
-    unsigned int capacity; // Memory capacity
-    unsigned char* mem;    // Main memory
+    // unsigned char* mem;    // Main memory
 
-    /**
-     * @brief Saves 1-4 bytes from the integer w to memory
-     * Byte ordering is little endian format
-     *
-     * @param w integer to be saved
-     * @param idx memory idx to save least sig. byte to
-     * @param bytes number of bytes to save
-     * @return true
-     * @return false
-     */
-    bool save(int w, unsigned int idx, unsigned int bytes);
-
-    /**
-     * @brief Single function to load from memory
-     *
-     * @param w register to place content passed by reference
-     * @param sp pointer to location of least significant byte (little endian format)
-     * @param bytes number of bytes to load
-     * @param u Default false is unsigned
-     * @return true
-     * @return false
-     */
-    bool load(int& w, unsigned int sp, unsigned int bytes, bool u = false);
+    Bus* bus = nullptr;
 
     /**
      * @brief Test function used to print content of memory

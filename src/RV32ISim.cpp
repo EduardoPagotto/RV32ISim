@@ -13,33 +13,35 @@
 #include <fstream>
 #include <iostream>
 
-RV32ISim::RV32ISim() {
+RV32ISim::RV32ISim(Bus* bus) {
     pc = 0;
     length = 0;
-    mem = NULL;
+    // mem = NULL;
     capacity = 0;
     ecall = false;
+    this->bus = bus;
+
     // Init registers
     for (int i = 0; i < 32; i++) {
         regs[i] = 0;
     }
 
     // Preallocating memory.
-    mem = new unsigned char[0x100000];
-    capacity = 0x100000;
+    // mem = new unsigned char[0x100000];
+    // capacity = 0x100000;
 
     // Fill memory
-    for (unsigned int i = 0; i < capacity; i++) {
-        mem[i] = 0;
-    }
+    // for (unsigned int i = 0; i < capacity; i++) {
+    //     mem[i] = 0;
+    // }
 }
 
 RV32ISim::~RV32ISim() {
     // Implemnt
-    if (mem != NULL) {
-        delete[] mem;
-        mem = NULL;
-    }
+    // if (mem != NULL) {
+    //     delete[] mem;
+    //     mem = NULL;
+    // }
 }
 
 // bool RV32ISim::readFromFile(const char* filepath) {
@@ -85,9 +87,9 @@ bool RV32ISim::writeToFile(const char* filepath) {
 void RV32ISim::step() {
 
     // Get fields
-    int instr = 0;
-    load(instr, 4 * pc, 4);
-    printAsHex(instr); // REMOVE
+    uint32_t instr = 0;
+    bus->load(instr, 4 * pc, 4); // load(instr, 4 * pc, 4);
+    printAsHex(instr);           // REMOVE
     int opcode = instr & 0x7f;
     int funct3 = (instr >> 12) & 0x7;
     int imm = (instr >> 20);
@@ -101,23 +103,23 @@ void RV32ISim::step() {
             switch (funct3) {
                 case 0x0: // lb
                     std::cout << "lb x" << rd << " " << imm << "(x" << rs1 << ")" << '\n';
-                    load(regs[rd], regs[rs1] + imm, 1);
+                    bus->load(regs[rd], regs[rs1] + imm, 1);
                     break;
                 case 0x1: // lH
                     std::cout << "lh x" << rd << " " << imm << "(x" << rs1 << ")" << '\n';
-                    load(regs[rd], regs[rs1] + imm, 2);
+                    bus->load(regs[rd], regs[rs1] + imm, 2);
                     break;
                 case 0x2: // lW
                     std::cout << "lw x" << rd << " " << imm << "(x" << rs1 << ")" << '\n';
-                    load(regs[rd], regs[rs1] + imm, 4);
+                    bus->load(regs[rd], regs[rs1] + imm, 4);
                     break;
                 case 0x4: // lbu
                     std::cout << "lbu x" << rd << " " << imm << "(x" << rs1 << ")" << '\n';
-                    load(regs[rd], regs[rs1] + imm, 1, true);
+                    bus->load(regs[rd], regs[rs1] + imm, 1, true);
                     break;
                 case 0x5: // lhu
                     std::cout << "lhu x" << rd << " " << imm << "(x" << rs1 << ")" << '\n';
-                    load(regs[rd], regs[rs1] + imm, 2, true);
+                    bus->load(regs[rd], regs[rs1] + imm, 2, true);
                     break;
             }
             break;
@@ -181,17 +183,17 @@ void RV32ISim::step() {
                 case 0x0:
                     std::cout << "sb x" << rs2 << " " << imm << "("
                               << "x" << rs1 << ")" << '\n';
-                    save(regs[rs2], regs[rs1] + imm, 1);
+                    bus->store(regs[rs2], regs[rs1] + imm, 1);
                     break;
                 case 0x1:
                     std::cout << "sh x" << rs2 << " " << imm << "("
                               << "x" << rs1 << ")" << '\n';
-                    save(regs[rs2], regs[rs1] + imm, 2);
+                    bus->store(regs[rs2], regs[rs1] + imm, 2);
                     break;
                 case 0x2:
                     std::cout << "sw x" << rs2 << " " << imm << "("
                               << "x" << rs1 << ")" << '\n';
-                    save(regs[rs2], regs[rs1] + imm, 4);
+                    bus->store(regs[rs2], regs[rs1] + imm, 4);
                     // std::cout << "Memory saved " << (unsigned int)
                     // mem[regs[rs1]+imm] << " at address: " << regs[rs1]+imm
                     // << '\n'; //REMOVE
@@ -336,34 +338,11 @@ void RV32ISim::printRegisters() {
 void RV32ISim::printProgram() {
     std::cout << "Program" << '\n' << std::endl;
     for (int i = 0; i < length; i++) {
-        int instr;
-        load(instr, 4 * i, 4);
+        uint32_t instr;
+        bus->load(instr, 4 * i, 4);
         printAsHex(instr);
         std::cout << "" << '\n';
     }
-}
-
-bool RV32ISim::save(int w, unsigned int idx, unsigned int bytes) {
-    for (unsigned int i = 0; i < bytes; i++) {
-        mem[idx + i] = (unsigned char)(w >> (8 * i)) & 0xff;
-    }
-    return true;
-}
-
-bool RV32ISim::load(int& w, unsigned int sp, unsigned int bytes, bool u) {
-    w = 0;
-    for (unsigned int i = 0; i < bytes; i++) {
-        w = w | ((unsigned int)mem[sp + i]) << (8 * i);
-    }
-
-    if (u != true) {
-        if ((mem[sp + bytes - 1] >> 7) == 1) { // For sign extension
-            for (int i = 4; i > bytes; i--) {
-                w = w | 0xff << (8 * (i - 1));
-            }
-        }
-    }
-    return true;
 }
 
 void RV32ISim::printAsHex(unsigned int instr) {

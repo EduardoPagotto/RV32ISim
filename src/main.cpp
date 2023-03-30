@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     bus.loadFile(filepath, idRom);
 
     // Construct simulator object
-    RV32ISim simulate;
+    RV32ISim simulate(&bus);
 
     // bool read = simulate.readFromFile(filepath); // Read the input file
     // if (!read) {
