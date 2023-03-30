@@ -42,38 +42,38 @@ RV32ISim::~RV32ISim() {
     }
 }
 
-bool RV32ISim::readFromFile(const char* filepath) {
-    FILE* fp;
-    unsigned int* buffer;
-    long int fileSize;
+// bool RV32ISim::readFromFile(const char* filepath) {
+//     FILE* fp;
+//     unsigned int* buffer;
+//     long int fileSize;
 
-    fp = fopen(filepath, "rb");
-    if (fp == NULL) {
-        return false;
-    }
+//     fp = fopen(filepath, "rb");
+//     if (fp == NULL) {
+//         return false;
+//     }
 
-    fseek(fp, 0, SEEK_END);
-    fileSize = ftell(fp); // size of file in bytes
-    fseek(fp, 0, SEEK_SET);
+//     fseek(fp, 0, SEEK_END);
+//     fileSize = ftell(fp); // size of file in bytes
+//     fseek(fp, 0, SEEK_SET);
 
-    length = fileSize / 4;
-    buffer = new unsigned int[length]; // Allocate buffer
+//     length = fileSize / 4;
+//     buffer = new unsigned int[length]; // Allocate buffer
 
-    fread(buffer, sizeof(buffer), length, fp);
-    fclose(fp);
+//     fread(buffer, sizeof(buffer), length, fp);
+//     fclose(fp);
 
-    // Save the program to the memory
-    for (int i = 0; i < length; i++) {
-        save(buffer[i], i * 4, 4);
-    }
+//     // Save the program to the memory
+//     for (int i = 0; i < length; i++) {
+//         save(buffer[i], i * 4, 4);
+//     }
 
-    // Reclaim memory
-    delete[] buffer;
-    buffer = NULL;
+//     // Reclaim memory
+//     delete[] buffer;
+//     buffer = NULL;
 
-    // File was read
-    return true;
-}
+//     // File was read
+//     return true;
+// }
 
 bool RV32ISim::writeToFile(const char* filepath) {
     std::ofstream outfile(filepath, std::ios::binary);
