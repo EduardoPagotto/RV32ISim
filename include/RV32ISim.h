@@ -13,16 +13,16 @@
 #include "include/Bus.hpp"
 
 struct Instr {
-    uint32_t instr;
-    uint32_t opcode;
     uint32_t funct3;
-    uint32_t imm;
     uint32_t rd;
     uint32_t rs1;
     uint32_t rs2;
+    int32_t opcode;
+    int32_t imm;
+    int32_t instr;
 
-    Instr(const uint32_t& instr)
-        : instr(instr), opcode(instr & 0x7f), funct3((instr >> 12) & 0x7), imm((instr >> 20)), rd((instr >> 7) & 0x1f),
+    Instr(const int32_t& instr)
+        : instr(instr), opcode(instr & 0x7f), funct3((instr >> 12) & 0x7), imm(instr >> 20), rd((instr >> 7) & 0x1f),
           rs1((instr >> 15) & 0x1f), rs2((instr >> 20) & 0x1f) {}
 };
 

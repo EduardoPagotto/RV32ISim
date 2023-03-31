@@ -110,13 +110,13 @@ void RV32ISim::ulai(const Instr& i) {
 }
 
 void RV32ISim::auipc(const Instr& i) {
-    uint32_t imm = ((i.instr >> 12) << 12);
+    int32_t imm = (i.instr >> 12) << 12;
     std::cout << "auipc x" << i.rd << " " << imm << '\n';
     regs[i.rd] = cpu_pc * 4 + imm;
 }
 
 void RV32ISim::saveRegister(const Instr& i) {
-    uint32_t imm = (i.imm >> 5) << 5 | i.rd; // Get immediate field
+    int32_t imm = (i.imm >> 5) << 5 | i.rd; // Get immediate field
     switch (i.funct3) {
         case 0x0:
             std::cout << "sb x" << i.rs2 << " " << imm << "("
@@ -201,7 +201,7 @@ void RV32ISim::lui(const Instr& i) {
 }
 
 void RV32ISim::branchCase(const Instr& i) {
-    uint32_t offset = ((i.instr >> 25) << 5) + ((i.instr >> 7) & 0x1f) - 1;
+    int32_t offset = ((i.instr >> 25) << 5) + ((i.instr >> 7) & 0x1f) - 1;
     if (offset > 0) {
         offset++;
     }
@@ -256,7 +256,7 @@ void RV32ISim::jalr(const Instr& i) {
 
 void RV32ISim::jal(const Instr& i) {
     // Get imm
-    uint32_t imm = (i.instr >> 30) << 20;         // Get instr[20]
+    int32_t imm = (i.instr >> 30) << 20;          // Get instr[20]
     imm = imm | (((i.instr >> 12) & 0xff) << 12); // Get instr[19:12]
     imm = imm | (((i.instr >> 20) & 0x1) << 11);  // Get instr[11]
     imm = imm | (((i.instr >> 21) & 0x3ff) << 1); // Get instr[10:1]
@@ -274,7 +274,7 @@ void RV32ISim::step() {
     bus->load(instr, 4 * cpu_pc, 4);
     printAsHex(instr); // REMOVE
 
-    Instr i(instr);
+    Instr i(static_cast<int32_t>(instr));
 
     switch (i.opcode) {
         case 0x03:
