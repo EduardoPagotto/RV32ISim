@@ -42,7 +42,7 @@ class RV32ISim {
 
     /**
      * @brief Step through the program by decoding and executing next instruction pointed
-     * to by pc. This function contain the implementation of the RISC-V 32RVI
+     * to by cpu_pc. This function contain the implementation of the RISC-V 32RVI
      * instruction subset For different subset/functionality this function must be
      * overwritten.
      */
@@ -54,13 +54,13 @@ class RV32ISim {
      * @return true \
      * @return false
      */
-    inline bool hasNext() const { return ((bus->hasData(pc)) & !ecall); } // TODO: AQI!!!! ver esta variaveisZZ
+    inline bool hasNext() const { return ((bus->hasData(cpu_pc)) & !ecall); } // TODO: AQI!!!! ver esta variaveisZZ
 
     void printRegisters();
     void printProgram();
 
   private:
-    uint32_t pc;       // Program counter
+    uint32_t cpu_pc;   // Program counter
     uint32_t regs[32]; //
     bool ecall;        // For program termination
     Bus* bus = nullptr;

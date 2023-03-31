@@ -14,7 +14,7 @@
 #include <iostream>
 
 RV32ISim::RV32ISim(Bus* bus) {
-    pc = 0;
+    cpu_pc = 0;
     ecall = false;
     this->bus = bus;
 
@@ -112,7 +112,7 @@ void RV32ISim::ulai(const Instr& i) {
 void RV32ISim::auipc(const Instr& i) {
     uint32_t imm = ((i.instr >> 12) << 12);
     std::cout << "auipc x" << i.rd << " " << imm << '\n';
-    regs[i.rd] = pc * 4 + imm;
+    regs[i.rd] = cpu_pc * 4 + imm;
 }
 
 void RV32ISim::saveRegister(const Instr& i) {
@@ -209,37 +209,37 @@ void RV32ISim::branchCase(const Instr& i) {
         case 0x0:
             std::cout << "beq x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
             if (regs[i.rs1] == regs[i.rs2]) {
-                pc = pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x1:
             std::cout << "bne x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
             if (regs[i.rs1] != regs[i.rs2]) {
-                pc = pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x4:
             std::cout << "blt x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
             if (regs[i.rs1] < regs[i.rs2]) {
-                pc = pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x5:
             std::cout << "bge x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
             if (regs[i.rs1] >= regs[i.rs2]) {
-                pc = pc + (offset >> 2) - 1;
+                cpu_pc = cpu_pc + (offset >> 2) - 1;
             }
             break;
         case 0x6:
             std::cout << "bltu x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
             if (regs[i.rs1] < (unsigned)regs[i.rs2]) {
-                pc = pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x7:
             std::cout << "bgeu x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
             if (regs[i.rs1] >= (unsigned)regs[i.rs2]) {
-                pc = pc + (offset >> 2) - 1;
+                cpu_pc = cpu_pc + (offset >> 2) - 1;
             }
             break;
     }
@@ -249,9 +249,9 @@ void RV32ISim::jalr(const Instr& i) {
 
     std::cout << "jalr x" << i.rd << " x" << i.rs1 << " " << i.imm << std::endl;
 
-    regs[i.rd] = (pc + 1) << 2;
-    pc = (regs[i.rs1] + i.imm) >> 2;
-    pc = pc - 1;
+    regs[i.rd] = (cpu_pc + 1) << 2;
+    cpu_pc = (regs[i.rs1] + i.imm) >> 2;
+    cpu_pc = cpu_pc - 1;
 }
 
 void RV32ISim::jal(const Instr& i) {
@@ -263,15 +263,15 @@ void RV32ISim::jal(const Instr& i) {
 
     std::cout << "jal x" << i.rd << " " << imm << std::endl;
 
-    regs[i.rd] = (pc + 1) << 2;
-    pc = pc + (imm >> 2) - 1; // Because of inc after switch
+    regs[i.rd] = (cpu_pc + 1) << 2;
+    cpu_pc = cpu_pc + (imm >> 2) - 1; // Because of inc after switch
 }
 
 void RV32ISim::step() {
 
     // Get fields
     uint32_t instr = 0;
-    bus->load(instr, 4 * pc, 4);
+    bus->load(instr, 4 * cpu_pc, 4);
     printAsHex(instr); // REMOVE
 
     Instr i(instr);
@@ -311,7 +311,7 @@ void RV32ISim::step() {
     }
     regs[0] = 0; // jalr x0 xX is not supposed to cast exception, so this is
                  // the easier way
-    pc++;        // Increment program counter
+    cpu_pc++;    // Increment program counter
 }
 
 void RV32ISim::printRegisters() {
