@@ -12,6 +12,20 @@
 
 #include "include/Bus.hpp"
 
+struct Instr {
+    uint32_t instr;
+    uint32_t opcode;
+    uint32_t funct3;
+    uint32_t imm;
+    uint32_t rd;
+    uint32_t rs1;
+    uint32_t rs2;
+
+    Instr(const uint32_t& instr)
+        : instr(instr), opcode(instr & 0x7f), funct3((instr >> 12) & 0x7), imm((instr >> 20)), rd((instr >> 7) & 0x1f),
+          rs1((instr >> 15) & 0x1f), rs2((instr >> 20) & 0x1f) {}
+};
+
 class RV32ISim {
   public:
     RV32ISim(Bus* bus);
@@ -57,4 +71,14 @@ class RV32ISim {
      * @param instr instruction
      */
     void printAsHex(unsigned int instr);
+
+    void loadRegister(const Instr& i);
+    void ulai(const Instr& i);
+    void auipc(const Instr& i);
+    void saveRegister(const Instr& i);
+    void ula(const Instr& i);
+    void lui(const Instr& i);
+    void branchCase(const Instr& i);
+    void jalr(const Instr& i);
+    void jal(const Instr& i);
 };
