@@ -11,6 +11,7 @@ class Bus {
 
     bool store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes);
     bool load(uint32_t& retVal, const uint32_t& address, const uint8_t& bytes, const bool& u = false);
+    bool hasData(const uint32_t& address) const;
     void loadFile(const std::string& file, const uint32_t& index);
 
   private:

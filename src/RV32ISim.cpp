@@ -15,9 +15,6 @@
 
 RV32ISim::RV32ISim(Bus* bus) {
     pc = 0;
-    length = 0;
-    // mem = NULL;
-    capacity = 0;
     ecall = false;
     this->bus = bus;
 
@@ -25,57 +22,9 @@ RV32ISim::RV32ISim(Bus* bus) {
     for (int i = 0; i < 32; i++) {
         regs[i] = 0;
     }
-
-    // Preallocating memory.
-    // mem = new unsigned char[0x100000];
-    // capacity = 0x100000;
-
-    // Fill memory
-    // for (unsigned int i = 0; i < capacity; i++) {
-    //     mem[i] = 0;
-    // }
 }
 
-RV32ISim::~RV32ISim() {
-    // Implemnt
-    // if (mem != NULL) {
-    //     delete[] mem;
-    //     mem = NULL;
-    // }
-}
-
-// bool RV32ISim::readFromFile(const char* filepath) {
-//     FILE* fp;
-//     unsigned int* buffer;
-//     long int fileSize;
-
-//     fp = fopen(filepath, "rb");
-//     if (fp == NULL) {
-//         return false;
-//     }
-
-//     fseek(fp, 0, SEEK_END);
-//     fileSize = ftell(fp); // size of file in bytes
-//     fseek(fp, 0, SEEK_SET);
-
-//     length = fileSize / 4;
-//     buffer = new unsigned int[length]; // Allocate buffer
-
-//     fread(buffer, sizeof(buffer), length, fp);
-//     fclose(fp);
-
-//     // Save the program to the memory
-//     for (int i = 0; i < length; i++) {
-//         save(buffer[i], i * 4, 4);
-//     }
-
-//     // Reclaim memory
-//     delete[] buffer;
-//     buffer = NULL;
-
-//     // File was read
-//     return true;
-// }
+RV32ISim::~RV32ISim() {}
 
 bool RV32ISim::writeToFile(const char* filepath) {
     std::ofstream outfile(filepath, std::ios::binary);
@@ -337,12 +286,18 @@ void RV32ISim::printRegisters() {
 
 void RV32ISim::printProgram() {
     std::cout << "Program" << '\n' << std::endl;
-    for (int i = 0; i < length; i++) {
+
+    uint32_t addr = 0;
+    do {
+
         uint32_t instr;
-        bus->load(instr, 4 * i, 4);
+        bus->load(instr, 4 * addr, 4);
         printAsHex(instr);
         std::cout << "" << '\n';
-    }
+
+        addr++;
+
+    } while (bus->hasData(addr));
 }
 
 void RV32ISim::printAsHex(unsigned int instr) {

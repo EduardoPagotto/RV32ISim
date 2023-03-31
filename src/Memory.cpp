@@ -3,11 +3,16 @@
 Memory::Memory(const uint32_t& start, const uint32_t& size, const uint8_t& status) : Device(status), start(start) {
     this->top = start + size;
     this->mem.reserve(size + 10);
-    for (uint16_t i = 0; i < size; i++)
+    for (uint32_t i = 0; i < size; i++)
         this->mem.push_back(0xFC);
 }
 
 Memory::~Memory() { this->mem.clear(); }
+
+void Memory::fill(const uint8_t& val) {
+    for (uint32_t i = 0; i < this->mem.size(); i++)
+        this->mem[i] = val;
+}
 
 bool Memory::store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes) {
 

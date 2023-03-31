@@ -9,12 +9,12 @@ class Memory : public Device {
 
     virtual bool store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes) override;
     virtual bool load(uint32_t& retVal, const uint32_t& address, const uint8_t& bytes, const bool& u = false) override;
-
-  protected:
-    inline bool okRead(const uint32_t& address, const uint8_t& size) const {
+    virtual void fill(const uint8_t& val) override;
+    virtual inline bool okRead(const uint32_t& address, const uint8_t& size) const override {
         return (status & DSTAT_ENABLED) && (address >= start) && (address < top + size);
     }
-    inline bool okWrite(const uint32_t& address, const uint8_t& size) const {
+
+    virtual inline bool okWrite(const uint32_t& address, const uint8_t& size) const {
         return ((status & (DSTAT_READWRITE | DSTAT_ENABLED)) == 0x5) && (address >= start) && ((address + size) < top);
     }
 

@@ -68,7 +68,7 @@
 				"program": "${workspaceFolder}/bin/sim",
 				"args": [
 					"tests/addlarge.bin",
-					"teste.res"
+					"registers.res"
 				],
 				"cwd": "${workspaceFolder}"
 			}

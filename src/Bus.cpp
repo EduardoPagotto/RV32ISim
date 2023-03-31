@@ -7,6 +7,14 @@ uint32_t Bus::add(Device* dev) {
     return index;
 }
 
+bool Bus::hasData(const uint32_t& address) const {
+    for (auto& v : vDevs) {
+        if (v->okRead(address, 0))
+            return true;
+    }
+    return false;
+}
+
 bool Bus::store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes) {
 
     for (auto& v : vDevs) {
