@@ -1,24 +1,21 @@
-#include <include/Memory.hpp>
+#include <include/Device.hpp>
 
-Memory::Memory(const uint32_t& start, const uint32_t& size, const uint8_t& status) : Device(status), start(start) {
-    this->top = start + size;
+Device::Device(const uint32_t& start, const uint32_t& size, const uint8_t& status)
+    : status(status), start(start), top(start + size) {
+
     this->mem.reserve(size + 10);
     for (uint32_t i = 0; i < size; i++)
         this->mem.push_back(0xFC);
 }
 
-Memory::~Memory() { this->mem.clear(); }
+Device::~Device() { this->mem.clear(); }
 
-void Memory::fill(const uint8_t& val) {
-    for (uint32_t i = 0; i < this->mem.size(); i++)
-        this->mem[i] = val;
-}
-
-bool Memory::store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes) {
+bool Device::store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes) {
 
     if (okWrite(address, bytes)) {
 
         uint32_t addrFinal = address - start;
+        status |= DEV_CHANGED; // set changed
 
         for (uint8_t i = 0; i < bytes; i++)
             this->mem[addrFinal + i] = (uint8_t)(reg >> (8 * i)) & 0xff;
@@ -28,13 +25,13 @@ bool Memory::store(const uint32_t& reg, const uint32_t& address, const uint8_t& 
     return false;
 }
 
-bool Memory::load(uint32_t& retVal, const uint32_t& address, const uint8_t& bytes, const bool& u) {
+bool Device::load(uint32_t& retVal, const uint32_t& address, const uint8_t& bytes, const bool& u) {
 
-    if (okRead(address, bytes)) {
+    if (isValid(address, bytes)) {
 
         retVal = 0;
 
-        status &= ~DSTAT_CHANGED;
+        status &= ~DEV_CHANGED; // Clean changed
         uint32_t addrFinal = address - start;
 
         for (uint8_t i = 0; i < bytes; i++) {

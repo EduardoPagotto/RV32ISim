@@ -10,7 +10,7 @@ set (IncludesSim ${CMAKE_SOURCE_DIR})
 
 add_executable (sim RV32ISim.cpp 
                     Bus.cpp
-                    Memory.cpp
+                    Device.cpp
                     main.cpp)
 
 target_link_libraries(sim ${LibsSim})

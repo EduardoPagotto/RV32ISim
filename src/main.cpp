@@ -4,7 +4,7 @@
  * RV32I simulator program
  */
 
-#include "include/Memory.hpp"
+#include "include/Device.hpp"
 #include "include/RV32ISim.h"
 #include <iostream>
 #include <string>
@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
     const char* filepath = argv[1];
 
     Bus bus;
-    uint32_t idRom = bus.add(new Memory(0x0000, 0x1000, DSTAT_ENABLED));                   // ROM
-    uint32_t idRam = bus.add(new Memory(0x1000, 0x1000, DSTAT_ENABLED | DSTAT_READWRITE)); // RAM
+    uint32_t idRom = bus.add(new Device(0x0000, 0x1000, DEV_OPENED));          // ROM
+    uint32_t idRam = bus.add(new Device(0x1000, 0x1000, DEV_OPENED | DEV_RW)); // RAM
 
     bus.loadFile(filepath, idRom);
 

@@ -9,7 +9,7 @@ uint32_t Bus::add(Device* dev) {
 
 bool Bus::hasData(const uint32_t& address) const {
     for (auto& v : vDevs) {
-        if (v->okRead(address, 0))
+        if (v->isValid(address, 0))
             return true;
     }
     return false;
