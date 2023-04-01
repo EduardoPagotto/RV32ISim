@@ -17,3 +17,10 @@ Binary deve ser compilado como RISCV 32 ISA code.
 ```bash
 ./sim tests/addlarge.bin
 ```
+
+## compilar codigo e emular no qemu
+riscv64-unknow-elf-gcc -march=rv32g -mabi=ilp32 -static -mcmodel=medany -fvisibitity=hiddem -nostdlib -nostartfiles -Tteste.ld teste.s -o teste.o
+riscv64-unknow-elf-objcopy -O ihex hello hello.hex
+
+qemu-system-riscv32 -machine help
+qemu-system-riscv32 -machine sifive_e -nographic -bios none -kenel teste
