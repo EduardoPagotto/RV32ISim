@@ -6,16 +6,16 @@ SECTIONS
 {
     . = 0x0000;                 /* ROM */
     .text : { *(.text) }
-    .gnu_build_id : { *(.note.gnu_build_id) }
+    /* .gnu_build_id : { *(.note.gnu_build_id) } */
     .rodata : { * (.rodata) }
 
-    . = 0x4000;                 /* RAM */
+    . = 0x0100;                 /* RAM */
     .data : { *(.data) }
-    .sdata : { *(.sdata) }
+    /* .sdata : { *(.sdata) } */
     .bss : { *(.bss) }
-    .debug : { *(.debug) }
+    /* .debug : { *(.debug) } */
 
-    . += 0x8000;                  /* STACK */
+    . += 0x10;                  /* STACK */
     stack_top = .;
 
     _end = .;
