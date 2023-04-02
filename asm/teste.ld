@@ -3,10 +3,15 @@ OUTPUT_FORMAT("elf32-littleriscv")
 
 ENTRY( _start )
 
+__start_memory_rom = 0x0;
+__size_memory_rom = 0x100;
+__start_memory_ram = 0x100;
+__size_memory_ram = 0x400;
+ 
 MEMORY
 {
-  ROM (rx)  : ORIGIN = 0x0, LENGTH = 0x100
-  RAM (!rx) : ORIGIN = 0x100, LENGTH = 0x100
+  ROM (rx)  : ORIGIN = __start_memory_rom, LENGTH = __size_memory_rom
+  RAM (!rx) : ORIGIN = __start_memory_ram, LENGTH = __size_memory_ram
 }
 
 
@@ -39,6 +44,7 @@ SECTIONS
     { 
         . = ALIGN(4);
         *(.bss) 
+        *(.comment)
         . = ALIGN(4);
     } > RAM
 
@@ -52,11 +58,15 @@ SECTIONS
    {
       . = ALIGN(4);
       _sstack = .;
-      . = . + 0x40;
+      . = . + (__size_memory_ram - SIZEOF(.data) - SIZEOF(.bss) - 0x32);
       . = ALIGN(4);
        _estack = .;
    } > RAM
 
+    /* .symtab : { *(.symtab)} 
+    .shstrtab : { *(.shstrtab)}
+    .strtab : { *(.strtab)}
+    .symtab : { *(.symtab)} */
 
     _end = .;
 }
