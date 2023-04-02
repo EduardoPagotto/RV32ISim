@@ -161,3 +161,5 @@ refs:
 - https://www.youtube.com/watch?v=PMzbRMsGpwU
 - https://www.youtube.com/watch?v=QfXav1X7EP8
 - https://www.youtube.com/watch?v=GFlkl2DKqiY
+- https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html
+- https://blog.thea.codes/the-most-thoroughly-commented-linker-script/

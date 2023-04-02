@@ -32,21 +32,15 @@ $ llvm-objdump --version | grep riscv
     riscv32    - 32-bit RISC-V
     riscv64    - 64-bit RISC-V
 
-clang --target=riscv32 -march=rv32i teste.s -c -o teste.o
-
-clang --target=riscv32 -march=rv32i -Tteste.ld -nostdlib -nostartfiles -c -o teste.o teste.s
 
 --
-clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -c -o teste.o teste.s
-clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -L. -Wl,-T,teste.ld teste.o  
+clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -c -o pgm.o teste.s
+clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -L. -Wl,-T,teste.ld pgm.o  
 ------****
-clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -L. -Wl,-T,teste.ld  -o teste.o teste.s
-
-clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -L. -Wl,-T,teste.ld,-Map=output.map  -o teste.o teste.s
+clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -L. -Wl,-T,teste.ld,-Map=pgm.map -o pgm.o teste.s
 
 
 
+llvm-objdump -D pgm.o > pgm.s
 
-
-
-llvm-objdump -D teste.o > aa.s
+llvm-objcopy -O ihex pgm.o pgm.hex
