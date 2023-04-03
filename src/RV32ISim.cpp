@@ -22,6 +22,42 @@ RV32ISim::RV32ISim(Bus* bus) {
     for (int i = 0; i < 32; i++) {
         regs[i] = 0;
     }
+
+    regAlias.push_back("r0 "); // 0  -> zero
+    regAlias.push_back("ra "); // 1  -> return address
+    regAlias.push_back("sp "); // 2  -> stackp pointer
+    regAlias.push_back("gp "); // 3  -> global pointer
+    regAlias.push_back("tp "); // 4  -> thread pointer
+    regAlias.push_back("t0 "); // 5  -> temporary / alternative link
+    regAlias.push_back("t1 "); // 6  -> temporary
+    regAlias.push_back("t2 "); // 7  -> temporary
+
+    regAlias.push_back("s0 "); // 8  -> saved / frame pointer
+    regAlias.push_back("s1 "); // 9  -> saved
+    regAlias.push_back("a0 "); // 10 -> func arg / return value
+    regAlias.push_back("a1 "); // 11 -> func arg / return value
+    regAlias.push_back("a2 "); // 12 -> func arg
+    regAlias.push_back("a3 "); // 13 -> func arg
+    regAlias.push_back("a4 "); // 14 -> func arg
+    regAlias.push_back("a5 "); // 15 -> func arg
+
+    regAlias.push_back("a6 "); // 16 -> func arg
+    regAlias.push_back("a7 "); // 17 -> func arg
+    regAlias.push_back("s2 "); // 18 -> saved
+    regAlias.push_back("s3 "); // 19 -> saved
+    regAlias.push_back("s4 "); // 20 -> saved
+    regAlias.push_back("s5 "); // 21 -> saved
+    regAlias.push_back("s6 "); // 22 -> saved
+    regAlias.push_back("s7 "); // 23 -> saved
+
+    regAlias.push_back("s8 "); // 24 -> saved
+    regAlias.push_back("s9 "); // 25 -> saved
+    regAlias.push_back("s10"); // 26 -> saved
+    regAlias.push_back("s11"); // 27 -> saved
+    regAlias.push_back("t3 "); // 28 -> temporary
+    regAlias.push_back("t4 "); // 29 -> temporary
+    regAlias.push_back("t5 "); // 30 -> temporary
+    regAlias.push_back("t6 "); // 31 -> temporary
 }
 
 RV32ISim::~RV32ISim() {}
@@ -36,23 +72,23 @@ bool RV32ISim::writeToFile(const char* filepath) {
 void RV32ISim::loadRegister(const Instr& i) {
     switch (i.funct3) {
         case 0x0: // lb
-            std::cout << "lb x" << i.rd << " " << i.imm << "(x" << i.rs1 << ")" << '\n';
+            std::cout << "lb    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1);
             break;
         case 0x1: // lH
-            std::cout << "lh x" << i.rd << " " << i.imm << "(x" << i.rs1 << ")" << '\n';
+            std::cout << "lh    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2);
             break;
         case 0x2: // lW
-            std::cout << "lw x" << i.rd << " " << i.imm << "(x" << i.rs1 << ")" << '\n';
+            std::cout << "lw    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 4);
             break;
         case 0x4: // lbu
-            std::cout << "lbu x" << i.rd << " " << i.imm << "(x" << i.rs1 << ")" << '\n';
+            std::cout << "lbu   " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1, true);
             break;
         case 0x5: // lhu
-            std::cout << "lhu x" << i.rd << " " << i.imm << "(x" << i.rs1 << ")" << '\n';
+            std::cout << "lhu   " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2, true);
             break;
     }
@@ -62,15 +98,15 @@ void RV32ISim::ulai(const Instr& i) {
 
     switch (i.funct3) {
         case 0x0:
-            std::cout << "addi x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+            std::cout << "addi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             regs[i.rd] = regs[i.rs1] + i.imm;
             break;
         case 0x1: //
-            std::cout << "slli x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+            std::cout << "slli  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             regs[i.rd] = regs[i.rs1] << i.imm;
             break;
         case 0x2:
-            std::cout << "slti x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+            std::cout << "slti  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             if (regs[i.rs1] < i.imm) {
                 regs[i.rd] = 1;
             } else {
@@ -78,7 +114,8 @@ void RV32ISim::ulai(const Instr& i) {
             }
             break;
         case 0x3:
-            std::cout << "sltiu x" << i.rd << " x" << i.rs1 << " " << (unsigned int)(i.imm & 0xfff) << '\n';
+            std::cout << "sltiu " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (unsigned int)(i.imm & 0xfff)
+                      << '\n';
             if (regs[i.rs1] < ((unsigned int)(i.imm & 0xfff))) {
                 regs[i.rd] = 1;
             } else {
@@ -86,24 +123,24 @@ void RV32ISim::ulai(const Instr& i) {
             }
             break;
         case 0x4:
-            std::cout << "xori x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+            std::cout << "xori  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             regs[i.rd] = regs[i.rs1] ^ i.imm;
             break;
         case 0x5:
             if ((i.imm & 0xf00) == 0) { // TODO: check!
-                std::cout << "slri x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+                std::cout << "slri  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
                 regs[i.rd] = regs[i.rs1] >> i.imm;
             } else {
-                std::cout << "srai x" << i.rd << " x" << i.rs1 << " " << (i.imm & 0x1f) << '\n';
+                std::cout << "srai  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (i.imm & 0x1f) << '\n';
                 regs[i.rd] = regs[i.rs1] >> (i.imm & 0x1f);
             }
             break;
         case 0x6:
-            std::cout << "ori x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+            std::cout << "ori   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             regs[i.rd] = regs[i.rs1] | i.imm;
             break;
         case 0x7:
-            std::cout << "andi x" << i.rd << " x" << i.rs1 << " " << i.imm << '\n';
+            std::cout << "andi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             regs[i.rd] = regs[i.rs1] & i.imm;
             break;
     }
@@ -111,7 +148,7 @@ void RV32ISim::ulai(const Instr& i) {
 
 void RV32ISim::auipc(const Instr& i) {
     int32_t imm = (i.instr >> 12) << 12;
-    std::cout << "auipc x" << i.rd << " " << imm << '\n';
+    std::cout << "auipc " << regAlias[i.rd] << " " << imm << '\n';
     regs[i.rd] = cpu_pc * 4 + imm;
 }
 
@@ -119,18 +156,15 @@ void RV32ISim::saveRegister(const Instr& i) {
     int32_t imm = (i.imm >> 5) << 5 | i.rd; // Get immediate field
     switch (i.funct3) {
         case 0x0:
-            std::cout << "sb x" << i.rs2 << " " << imm << "("
-                      << "x" << i.rs1 << ")" << '\n';
+            std::cout << "sb    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 1);
             break;
         case 0x1:
-            std::cout << "sh x" << i.rs2 << " " << imm << "("
-                      << "x" << i.rs1 << ")" << '\n';
+            std::cout << "sh    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 2);
             break;
         case 0x2:
-            std::cout << "sw x" << i.rs2 << " " << imm << "("
-                      << "x" << i.rs1 << ")" << '\n';
+            std::cout << "sw    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ")" << '\n';
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 4);
             // std::cout << "Memory saved " << (unsigned int)
             // mem[regs[rs1]+imm] << " at address: " << regs[rs1]+imm
@@ -144,19 +178,19 @@ void RV32ISim::ula(const Instr& i) {
     switch (i.funct3) {
         case 0x0:
             if ((i.instr >> 25) == 0) {
-                std::cout << "add x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+                std::cout << "add   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
                 regs[i.rd] = regs[i.rs1] + regs[i.rs2];
             } else {
-                std::cout << "sub x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+                std::cout << "sub   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
                 regs[i.rd] = regs[i.rs1] - regs[i.rs2];
             }
             break;
         case 0x1:
-            std::cout << "sll x" << i.rd << " x" << i.rs1 << " x" << (regs[i.rs2] & 0x1f) << '\n';
+            std::cout << "sll   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2 & 0x1f] << '\n';
             regs[i.rd] = regs[i.rs1] << (regs[i.rs2] & 0x1f);
             break;
         case 0x2:
-            std::cout << "slt x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+            std::cout << "slt   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
             if (regs[i.rs1] < regs[i.rs2]) {
                 regs[i.rd] = 1;
             } else {
@@ -164,7 +198,7 @@ void RV32ISim::ula(const Instr& i) {
             }
             break;
         case 0x3:
-            std::cout << "sltu x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+            std::cout << "sltu  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
             if (regs[i.rs1] < (unsigned int)regs[i.rs2]) {
                 regs[i.rd] = 1;
             } else {
@@ -172,31 +206,33 @@ void RV32ISim::ula(const Instr& i) {
             }
             break;
         case 0x4:
-            std::cout << "xor x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+            std::cout << "xor   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regs[i.rs2] << '\n';
             regs[i.rd] = regs[i.rs1] ^ regs[i.rs2];
             break;
         case 0x5:
             if ((i.instr >> 25) == 0) {
-                std::cout << "srl x" << i.rd << " x" << i.rs1 << " x" << (regs[i.rs2] & 0x1f) << '\n';
+                std::cout << "srl   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (regAlias[i.rs2 & 0x1f])
+                          << '\n';
                 regs[i.rd] = ((unsigned int)regs[i.rs1]) >> (regs[i.rs2] & 0x1f);
             } else {
-                std::cout << "sra x" << i.rd << " x" << i.rs1 << " x" << (regs[i.rs2] & 0x1f) << '\n';
+                std::cout << "sra   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (regAlias[i.rs2 & 0x1f])
+                          << '\n';
                 regs[i.rd] = regs[i.rs1] >> (regs[i.rs2] & 0x1f);
             }
             break;
         case 0x6:
-            std::cout << "OR x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+            std::cout << "OR    " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
             regs[i.rd] = regs[i.rs1] | regs[i.rs2];
             break;
         case 0x7:
-            std::cout << "and x" << i.rd << " x" << i.rs1 << " x" << i.rs2 << '\n';
+            std::cout << "and   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
             regs[i.rd] = regs[i.rs1] & regs[i.rs2];
             break;
     }
 }
 
 void RV32ISim::lui(const Instr& i) {
-    std::cout << "lui x" << i.rd << " " << ((i.instr >> 12) & 0xfffff) << '\n';
+    std::cout << "lui   " << regAlias[i.rd] << " " << ((i.instr >> 12) & 0xfffff) << '\n';
     regs[i.rd] = ((i.instr >> 12) & 0xfffff) << 12;
 }
 
@@ -207,37 +243,37 @@ void RV32ISim::branchCase(const Instr& i) {
     }
     switch (i.funct3) {
         case 0x0:
-            std::cout << "beq x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
+            std::cout << "beq   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
             if (regs[i.rs1] == regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x1:
-            std::cout << "bne x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
+            std::cout << "bne   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
             if (regs[i.rs1] != regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x4:
-            std::cout << "blt x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
+            std::cout << "blt   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
             if (regs[i.rs1] < regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x5:
-            std::cout << "bge x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
+            std::cout << "bge   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
             if (regs[i.rs1] >= regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset >> 2) - 1;
             }
             break;
         case 0x6:
-            std::cout << "bltu x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
+            std::cout << "bltu  " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
             if (regs[i.rs1] < (unsigned)regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x7:
-            std::cout << "bgeu x" << i.rs1 << " x" << i.rs2 << " " << offset << '\n';
+            std::cout << "bgeu  " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
             if (regs[i.rs1] >= (unsigned)regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset >> 2) - 1;
             }
@@ -247,7 +283,7 @@ void RV32ISim::branchCase(const Instr& i) {
 
 void RV32ISim::jalr(const Instr& i) {
 
-    std::cout << "jalr x" << i.rd << " x" << i.rs1 << " " << i.imm << std::endl;
+    std::cout << "jalr  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << std::endl;
 
     regs[i.rd] = (cpu_pc + 1) << 2;
     cpu_pc = (regs[i.rs1] + i.imm) >> 2;
@@ -261,7 +297,7 @@ void RV32ISim::jal(const Instr& i) {
     imm = imm | (((i.instr >> 20) & 0x1) << 11);  // Get instr[11]
     imm = imm | (((i.instr >> 21) & 0x3ff) << 1); // Get instr[10:1]
 
-    std::cout << "jal x" << i.rd << " " << imm << std::endl;
+    std::cout << "jal " << regAlias[i.rd] << " " << imm << std::endl;
 
     regs[i.rd] = (cpu_pc + 1) << 2;
     cpu_pc = cpu_pc + (imm >> 2) - 1; // Because of inc after switch

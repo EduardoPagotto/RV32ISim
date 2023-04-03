@@ -8,7 +8,7 @@ x1    |ra      |return address
 x2    |sp      |stack pointer
 x3    |gp      |global pointer
 x4    |tp      |thread pointer
-x5    |t0      |temporary (alternative return address)
+x5    |t0      |temporary (alternative link register)
 x6-7  |t1-2    |temporary register
 x8    |s0/fp   |saved register / frame pointer
 x9    |s1      |saved register

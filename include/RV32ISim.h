@@ -81,4 +81,6 @@ class RV32ISim {
     void branchCase(const Instr& i);
     void jalr(const Instr& i);
     void jal(const Instr& i);
+
+    std::vector<std::string> regAlias;
 };

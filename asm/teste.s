@@ -1,5 +1,3 @@
-.align 4 // 2 ??
-.equ valt, 0xff
 //.equ stack_top, 0x7ff
 
 .section .text # ro code area
