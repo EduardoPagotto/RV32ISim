@@ -80,132 +80,149 @@ bool RV32ISim::writeToFile(const char* filepath) {
 void RV32ISim::loadRegister(const Instr& i) {
     switch (i.funct3) {
         case 0x0: // lb
-            std::cout << "lb    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "lb    " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1);
             break;
         case 0x1: // lH
-            std::cout << "lh    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "lh    " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2);
             break;
         case 0x2: // lW
-            std::cout << "lw    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "lw    " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 4);
             break;
         case 0x4: // lbu
-            std::cout << "lbu   " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "lbu   " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1, true);
             break;
         case 0x5: // lhu
-            std::cout << "lhu   " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "lhu   " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2, true);
             break;
     }
+
+    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << " <- MEM[ " << int_to_hex(regs[i.rs1] + i.imm)
+              << " ]\n";
 }
 
 void RV32ISim::ulai(const Instr& i) {
 
     uint32_t val_rs = regs[i.rs1];
     switch (i.funct3) {
-        case 0x0:
+        case 0x0: // ADDI
             regs[i.rd] = regs[i.rs1] + i.imm;
-
-            std::cout << "addi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " # ";
-            std::cout << regAlias[i.rd] << "= 0x" << int_to_hex(regs[i.rd]) << ", " << static_cast<int32_t>(regs[i.rd])
-                      << " ; ";
-            std::cout << regAlias[i.rs1] << "= 0x" << int_to_hex(val_rs) << ", " << static_cast<int32_t>(val_rs)
-                      << '\n';
-
+            std::cout << "addi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
             break;
-        case 0x1: //
-            std::cout << "slli  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
+        case 0x1: // SLLI
             regs[i.rd] = regs[i.rs1] << i.imm;
+            std::cout << "slli  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
             break;
-        case 0x2:
-            std::cout << "slti  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
-            if (regs[i.rs1] < i.imm) {
+        case 0x2: // SLTI
+
+            if (regs[i.rs1] < i.imm) { // TODO: Trocar por ternario
                 regs[i.rd] = 1;
             } else {
                 regs[i.rd] = 0;
             }
+
+            std::cout << "slti  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
+
             break;
-        case 0x3:
-            std::cout << "sltiu " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (unsigned int)(i.imm & 0xfff)
-                      << '\n';
+        case 0x3: // SLTIU
+
             if (regs[i.rs1] < ((unsigned int)(i.imm & 0xfff))) {
                 regs[i.rd] = 1;
             } else {
                 regs[i.rd] = 0;
             }
+
+            std::cout << "sltiu " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (unsigned int)(i.imm & 0xfff)
+                      << " \t\t# ";
+
             break;
-        case 0x4:
-            std::cout << "xori  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
+        case 0x4: // XORI
+
             regs[i.rd] = regs[i.rs1] ^ i.imm;
+
+            std::cout << "xori  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
+
             break;
-        case 0x5:
-            if ((i.imm & 0xf00) == 0) { // TODO: check!
-                std::cout << "slri  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
+        case 0x5: // SLRI / SRAI  TODO: check!
+            if ((i.imm & 0xf00) == 0) {
                 regs[i.rd] = regs[i.rs1] >> i.imm;
+                std::cout << "slri  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
             } else {
-                std::cout << "srai  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (i.imm & 0x1f) << '\n';
                 regs[i.rd] = regs[i.rs1] >> (i.imm & 0x1f);
+                std::cout << "srai  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (i.imm & 0x1f) << " \t\t# ";
             }
             break;
-        case 0x6:
-            std::cout << "ori   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
+        case 0x6: // ORI
             regs[i.rd] = regs[i.rs1] | i.imm;
+            std::cout << "ori   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
+
             break;
-        case 0x7:
-            std::cout << "andi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
+        case 0x7: // ANDI
             regs[i.rd] = regs[i.rs1] & i.imm;
+            std::cout << "andi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
+
             break;
     }
+
+    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << ", " << static_cast<int32_t>(regs[i.rd]) << " ; ";
+    std::cout << regAlias[i.rs1] << "= " << int_to_hex(val_rs) << ", " << static_cast<int32_t>(val_rs) << '\n';
 }
 
 void RV32ISim::auipc(const Instr& i) {
     int32_t imm = (i.instr >> 12) << 12;
-    std::cout << "auipc " << regAlias[i.rd] << " " << imm << '\n';
     regs[i.rd] = cpu_pc * 4 + imm;
+    std::cout << "auipc " << regAlias[i.rd] << " " << imm << " \t\t# ";
+    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << '\n';
 }
 
 void RV32ISim::saveRegister(const Instr& i) {
     int32_t imm = (i.imm >> 5) << 5 | i.rd; // Get immediate field
     switch (i.funct3) {
         case 0x0:
-            std::cout << "sb    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "sb    " << regAlias[i.rs2] << " " << imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 1);
             break;
         case 0x1:
-            std::cout << "sh    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "sh    " << regAlias[i.rs2] << " " << imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 2);
             break;
         case 0x2:
-            std::cout << "sw    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ")" << '\n';
+            std::cout << "sw    " << regAlias[i.rs2] << " " << imm << "( " << regAlias[i.rs1] << ") \t\t# ";
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 4);
-            // std::cout << "Memory saved " << (unsigned int)
-            // mem[regs[rs1]+imm] << " at address: " << regs[rs1]+imm
-            // << '\n'; //REMOVE
             break;
     }
+
+    std::cout << regAlias[i.rs2] << "= " << int_to_hex(regs[i.rs2]) << " -> MEM[ " << int_to_hex(regs[i.rs1] + imm)
+              << " ]\n";
 }
 
 void RV32ISim::ula(const Instr& i) {
 
+    uint32_t val_rs1 = regs[i.rs1];
+    uint32_t val_rs2 = regs[i.rs2];
     switch (i.funct3) {
         case 0x0:
             if ((i.instr >> 25) == 0) {
-                std::cout << "add   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
+                std::cout << "add   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2]
+                          << " \t\t# ";
                 regs[i.rd] = regs[i.rs1] + regs[i.rs2];
             } else {
-                std::cout << "sub   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
+                std::cout << "sub   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2]
+                          << " \t\t# ";
                 regs[i.rd] = regs[i.rs1] - regs[i.rs2];
             }
             break;
         case 0x1:
-            std::cout << "sll   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2 & 0x1f] << '\n';
+            std::cout << "sll   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2 & 0x1f]
+                      << " \t\t# ";
             regs[i.rd] = regs[i.rs1] << (regs[i.rs2] & 0x1f);
             break;
         case 0x2:
-            std::cout << "slt   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
+            std::cout << "slt   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " \t\t# ";
             if (regs[i.rs1] < regs[i.rs2]) {
                 regs[i.rd] = 1;
             } else {
@@ -213,7 +230,7 @@ void RV32ISim::ula(const Instr& i) {
             }
             break;
         case 0x3:
-            std::cout << "sltu  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
+            std::cout << "sltu  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " \t\t# ";
             if (regs[i.rs1] < (unsigned int)regs[i.rs2]) {
                 regs[i.rd] = 1;
             } else {
@@ -221,79 +238,92 @@ void RV32ISim::ula(const Instr& i) {
             }
             break;
         case 0x4:
-            std::cout << "xor   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regs[i.rs2] << '\n';
+            std::cout << "xor   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regs[i.rs2] << " \t\t# ";
             regs[i.rd] = regs[i.rs1] ^ regs[i.rs2];
             break;
         case 0x5:
             if ((i.instr >> 25) == 0) {
                 std::cout << "srl   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (regAlias[i.rs2 & 0x1f])
-                          << '\n';
+                          << " \t\t# ";
                 regs[i.rd] = ((unsigned int)regs[i.rs1]) >> (regs[i.rs2] & 0x1f);
             } else {
                 std::cout << "sra   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << (regAlias[i.rs2 & 0x1f])
-                          << '\n';
+                          << " \t\t# ";
                 regs[i.rd] = regs[i.rs1] >> (regs[i.rs2] & 0x1f);
             }
             break;
         case 0x6:
-            std::cout << "OR    " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
+            std::cout << "OR    " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " \t\t# ";
             regs[i.rd] = regs[i.rs1] | regs[i.rs2];
             break;
         case 0x7:
-            std::cout << "and   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << '\n';
+            std::cout << "and   " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " \t\t# ";
             regs[i.rd] = regs[i.rs1] & regs[i.rs2];
             break;
     }
+
+    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << ", " << static_cast<int32_t>(regs[i.rd]) << " ; ";
+    std::cout << regAlias[i.rs1] << "= " << int_to_hex(val_rs1) << ", " << static_cast<int32_t>(val_rs1) << " ; ";
+    std::cout << regAlias[i.rs2] << "= " << int_to_hex(val_rs2) << ", " << static_cast<int32_t>(val_rs2) << '\n';
 }
 
 void RV32ISim::lui(const Instr& i) {
-    std::cout << "lui   " << regAlias[i.rd] << " " << ((i.instr >> 12) & 0xfffff) << '\n';
     regs[i.rd] = ((i.instr >> 12) & 0xfffff) << 12;
+    std::cout << "lui   " << regAlias[i.rd] << " " << ((i.instr >> 12) & 0xfffff) << " \t\t# ";
+    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << '\n';
 }
 
 void RV32ISim::branchCase(const Instr& i) {
+
+    uint32_t val_rs1 = regs[i.rs1];
+    uint32_t val_rs2 = regs[i.rs2];
+
     int32_t offset = ((i.instr >> 25) << 5) + ((i.instr >> 7) & 0x1f) - 1;
     if (offset > 0) {
         offset++;
     }
     switch (i.funct3) {
         case 0x0:
-            std::cout << "beq   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
+            std::cout << "beq   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << " \t\t# ";
             if (regs[i.rs1] == regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x1:
-            std::cout << "bne   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
+            std::cout << "bne   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << " \t\t# ";
             if (regs[i.rs1] != regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x4:
-            std::cout << "blt   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
+            std::cout << "blt   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << " \t\t# ";
             if (regs[i.rs1] < regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x5:
-            std::cout << "bge   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
+            std::cout << "bge   " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << " \t\t# ";
             if (regs[i.rs1] >= regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset >> 2) - 1;
             }
             break;
         case 0x6:
-            std::cout << "bltu  " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
+            std::cout << "bltu  " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << " \t\t# ";
             if (regs[i.rs1] < (unsigned)regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset / 4) - 1;
             }
             break;
         case 0x7:
-            std::cout << "bgeu  " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << '\n';
+            std::cout << "bgeu  " << regAlias[i.rs1] << " " << regAlias[i.rs2] << " " << offset << " \t\t# ";
             if (regs[i.rs1] >= (unsigned)regs[i.rs2]) {
                 cpu_pc = cpu_pc + (offset >> 2) - 1;
             }
             break;
     }
+
+    std::cout << regAlias[i.rs1] << "= " << static_cast<int32_t>(val_rs1) << " ; ";
+    std::cout << regAlias[i.rs2] << "= " << static_cast<int32_t>(val_rs2) << " ; ";
+    std::cout << " PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
 void RV32ISim::jalr(const Instr& i) {
