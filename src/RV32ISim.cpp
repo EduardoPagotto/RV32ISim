@@ -11,7 +11,15 @@
 
 #include "include/RV32ISim.h"
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+
+template <typename T>
+inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(width) << std::hex << (val | 0);
+    return ss.str();
+}
 
 RV32ISim::RV32ISim(Bus* bus) {
     cpu_pc = 0;
@@ -96,10 +104,17 @@ void RV32ISim::loadRegister(const Instr& i) {
 
 void RV32ISim::ulai(const Instr& i) {
 
+    uint32_t val_rs = regs[i.rs1];
     switch (i.funct3) {
         case 0x0:
-            std::cout << "addi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
             regs[i.rd] = regs[i.rs1] + i.imm;
+
+            std::cout << "addi  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " # ";
+            std::cout << regAlias[i.rd] << "= 0x" << int_to_hex(regs[i.rd]) << ", " << static_cast<int32_t>(regs[i.rd])
+                      << " ; ";
+            std::cout << regAlias[i.rs1] << "= 0x" << int_to_hex(val_rs) << ", " << static_cast<int32_t>(val_rs)
+                      << '\n';
+
             break;
         case 0x1: //
             std::cout << "slli  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << '\n';
@@ -375,7 +390,9 @@ void RV32ISim::printProgram() {
 
 void RV32ISim::printAsHex(unsigned int instr) {
     int res = 0;
-    std::cout << "0x";
+
+    std::cout << int_to_hex(cpu_pc * 4) << " ";
+
     for (int i = 0; i < 8; i++) {
         res = (instr >> (4 * (7 - i))) & 0xf;
         switch (res) {
