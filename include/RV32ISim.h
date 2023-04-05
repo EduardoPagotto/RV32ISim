@@ -83,4 +83,6 @@ class RV32ISim {
     void jal(const Instr& i);
 
     std::vector<std::string> regAlias;
+    std::string regisIndexVal(const uint32_t& indice);
+    std::string regisVal(const uint32_t& indice, const uint32_t value);
 };

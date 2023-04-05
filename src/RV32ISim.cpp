@@ -31,41 +31,41 @@ RV32ISim::RV32ISim(Bus* bus) {
         regs[i] = 0;
     }
 
-    regAlias.push_back("r0 "); // 0  -> zero
-    regAlias.push_back("ra "); // 1  -> return address
-    regAlias.push_back("sp "); // 2  -> stackp pointer
-    regAlias.push_back("gp "); // 3  -> global pointer
-    regAlias.push_back("tp "); // 4  -> thread pointer
-    regAlias.push_back("t0 "); // 5  -> temporary / alternative link
-    regAlias.push_back("t1 "); // 6  -> temporary
-    regAlias.push_back("t2 "); // 7  -> temporary
+    regAlias.push_back("r0"); // 0  -> zero
+    regAlias.push_back("ra"); // 1  -> return address
+    regAlias.push_back("sp"); // 2  -> stackp pointer
+    regAlias.push_back("gp"); // 3  -> global pointer
+    regAlias.push_back("tp"); // 4  -> thread pointer
+    regAlias.push_back("t0"); // 5  -> temporary / alternative link
+    regAlias.push_back("t1"); // 6  -> temporary
+    regAlias.push_back("t2"); // 7  -> temporary
 
-    regAlias.push_back("s0 "); // 8  -> saved / frame pointer
-    regAlias.push_back("s1 "); // 9  -> saved
-    regAlias.push_back("a0 "); // 10 -> func arg / return value
-    regAlias.push_back("a1 "); // 11 -> func arg / return value
-    regAlias.push_back("a2 "); // 12 -> func arg
-    regAlias.push_back("a3 "); // 13 -> func arg
-    regAlias.push_back("a4 "); // 14 -> func arg
-    regAlias.push_back("a5 "); // 15 -> func arg
+    regAlias.push_back("s0"); // 8  -> saved / frame pointer
+    regAlias.push_back("s1"); // 9  -> saved
+    regAlias.push_back("a0"); // 10 -> func arg / return value
+    regAlias.push_back("a1"); // 11 -> func arg / return value
+    regAlias.push_back("a2"); // 12 -> func arg
+    regAlias.push_back("a3"); // 13 -> func arg
+    regAlias.push_back("a4"); // 14 -> func arg
+    regAlias.push_back("a5"); // 15 -> func arg
 
-    regAlias.push_back("a6 "); // 16 -> func arg
-    regAlias.push_back("a7 "); // 17 -> func arg
-    regAlias.push_back("s2 "); // 18 -> saved
-    regAlias.push_back("s3 "); // 19 -> saved
-    regAlias.push_back("s4 "); // 20 -> saved
-    regAlias.push_back("s5 "); // 21 -> saved
-    regAlias.push_back("s6 "); // 22 -> saved
-    regAlias.push_back("s7 "); // 23 -> saved
+    regAlias.push_back("a6"); // 16 -> func arg
+    regAlias.push_back("a7"); // 17 -> func arg
+    regAlias.push_back("s2"); // 18 -> saved
+    regAlias.push_back("s3"); // 19 -> saved
+    regAlias.push_back("s4"); // 20 -> saved
+    regAlias.push_back("s5"); // 21 -> saved
+    regAlias.push_back("s6"); // 22 -> saved
+    regAlias.push_back("s7"); // 23 -> saved
 
-    regAlias.push_back("s8 "); // 24 -> saved
-    regAlias.push_back("s9 "); // 25 -> saved
+    regAlias.push_back("s8");  // 24 -> saved
+    regAlias.push_back("s9");  // 25 -> saved
     regAlias.push_back("s10"); // 26 -> saved
     regAlias.push_back("s11"); // 27 -> saved
-    regAlias.push_back("t3 "); // 28 -> temporary
-    regAlias.push_back("t4 "); // 29 -> temporary
-    regAlias.push_back("t5 "); // 30 -> temporary
-    regAlias.push_back("t6 "); // 31 -> temporary
+    regAlias.push_back("t3");  // 28 -> temporary
+    regAlias.push_back("t4");  // 29 -> temporary
+    regAlias.push_back("t5");  // 30 -> temporary
+    regAlias.push_back("t6");  // 31 -> temporary
 }
 
 RV32ISim::~RV32ISim() {}
@@ -77,32 +77,55 @@ bool RV32ISim::writeToFile(const char* filepath) {
     return true;
 }
 
+std::string RV32ISim::regisIndexVal(const uint32_t& indice) {
+
+    std::stringstream ss;
+
+    if (indice == 2)
+        ss << regAlias[indice] << " = " << int_to_hex(regs[indice]);
+    else
+        ss << regAlias[indice] << " = " << static_cast<int32_t>(regs[indice]);
+
+    return ss.str();
+}
+
+std::string RV32ISim::regisVal(const uint32_t& indice, const uint32_t value) {
+
+    std::stringstream ss;
+
+    if (indice == 2)
+        ss << regAlias[indice] << " = " << int_to_hex(value);
+    else
+        ss << regAlias[indice] << " = " << static_cast<int32_t>(value);
+
+    return ss.str();
+}
+
 void RV32ISim::loadRegister(const Instr& i) {
     switch (i.funct3) {
         case 0x0: // lb
-            std::cout << "lb    " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "lb    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1);
             break;
         case 0x1: // lH
-            std::cout << "lh    " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "lh    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2);
             break;
         case 0x2: // lW
-            std::cout << "lw    " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "lw    " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 4);
             break;
         case 0x4: // lbu
-            std::cout << "lbu   " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "lbu   " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1, true);
             break;
         case 0x5: // lhu
-            std::cout << "lhu   " << regAlias[i.rd] << " " << i.imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "lhu   " << regAlias[i.rd] << " " << i.imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2, true);
             break;
     }
 
-    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << " <- MEM[ " << int_to_hex(regs[i.rs1] + i.imm)
-              << " ]\n";
+    std::cout << regisIndexVal(i.rd) << " <- MEM[ " << int_to_hex(regs[i.rs1] + i.imm) << " ]\n";
 }
 
 void RV32ISim::ulai(const Instr& i) {
@@ -168,36 +191,34 @@ void RV32ISim::ulai(const Instr& i) {
             break;
     }
 
-    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << ", " << static_cast<int32_t>(regs[i.rd]) << " ; ";
-    std::cout << regAlias[i.rs1] << "= " << int_to_hex(val_rs) << ", " << static_cast<int32_t>(val_rs) << '\n';
+    std::cout << regisIndexVal(i.rd) << "; " << regisVal(i.rs1, val_rs) << '\n';
 }
 
 void RV32ISim::auipc(const Instr& i) {
     int32_t imm = (i.instr >> 12) << 12;
     regs[i.rd] = cpu_pc * 4 + imm;
     std::cout << "auipc " << regAlias[i.rd] << " " << imm << " \t\t# ";
-    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << '\n';
+    std::cout << regisIndexVal(i.rd) << '\n';
 }
 
 void RV32ISim::saveRegister(const Instr& i) {
     int32_t imm = (i.imm >> 5) << 5 | i.rd; // Get immediate field
     switch (i.funct3) {
         case 0x0:
-            std::cout << "sb    " << regAlias[i.rs2] << " " << imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "sb    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 1);
             break;
         case 0x1:
-            std::cout << "sh    " << regAlias[i.rs2] << " " << imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "sh    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 2);
             break;
         case 0x2:
-            std::cout << "sw    " << regAlias[i.rs2] << " " << imm << "( " << regAlias[i.rs1] << ") \t\t# ";
+            std::cout << "sw    " << regAlias[i.rs2] << " " << imm << "(" << regAlias[i.rs1] << ") \t\t# ";
             bus->store(regs[i.rs2], regs[i.rs1] + imm, 4);
             break;
     }
 
-    std::cout << regAlias[i.rs2] << "= " << int_to_hex(regs[i.rs2]) << " -> MEM[ " << int_to_hex(regs[i.rs1] + imm)
-              << " ]\n";
+    std::cout << regisIndexVal(i.rs2) << " -> MEM[ " << int_to_hex(regs[i.rs1] + imm) << " ]\n";
 }
 
 void RV32ISim::ula(const Instr& i) {
@@ -262,15 +283,15 @@ void RV32ISim::ula(const Instr& i) {
             break;
     }
 
-    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << ", " << static_cast<int32_t>(regs[i.rd]) << " ; ";
-    std::cout << regAlias[i.rs1] << "= " << int_to_hex(val_rs1) << ", " << static_cast<int32_t>(val_rs1) << " ; ";
-    std::cout << regAlias[i.rs2] << "= " << int_to_hex(val_rs2) << ", " << static_cast<int32_t>(val_rs2) << '\n';
+    std::cout << regisIndexVal(i.rd) << "; ";
+    std::cout << regisVal(i.rs1, val_rs1) << "; ";
+    std::cout << regisVal(i.rs2, val_rs2) << '\n';
 }
 
 void RV32ISim::lui(const Instr& i) {
     regs[i.rd] = ((i.instr >> 12) & 0xfffff) << 12;
     std::cout << "lui   " << regAlias[i.rd] << " " << ((i.instr >> 12) & 0xfffff) << " \t\t# ";
-    std::cout << regAlias[i.rd] << "= " << int_to_hex(regs[i.rd]) << '\n';
+    std::cout << regisIndexVal(i.rd) << '\n';
 }
 
 void RV32ISim::branchCase(const Instr& i) {
@@ -321,18 +342,20 @@ void RV32ISim::branchCase(const Instr& i) {
             break;
     }
 
-    std::cout << regAlias[i.rs1] << "= " << static_cast<int32_t>(val_rs1) << " ; ";
-    std::cout << regAlias[i.rs2] << "= " << static_cast<int32_t>(val_rs2) << " ; ";
+    std::cout << regisVal(i.rs1, val_rs1) << "; ";
+    std::cout << regisVal(i.rs2, val_rs2) << "; ";
     std::cout << " PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
 void RV32ISim::jalr(const Instr& i) {
 
-    std::cout << "jalr  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << std::endl;
+    std::cout << "jalr  " << regAlias[i.rd] << " " << regAlias[i.rs1] << " " << i.imm << " \t\t# ";
 
     regs[i.rd] = (cpu_pc + 1) << 2;
     cpu_pc = (regs[i.rs1] + i.imm) >> 2;
     cpu_pc = cpu_pc - 1;
+
+    std::cout << regisIndexVal(i.rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
 void RV32ISim::jal(const Instr& i) {
@@ -342,10 +365,12 @@ void RV32ISim::jal(const Instr& i) {
     imm = imm | (((i.instr >> 20) & 0x1) << 11);  // Get instr[11]
     imm = imm | (((i.instr >> 21) & 0x3ff) << 1); // Get instr[10:1]
 
-    std::cout << "jal " << regAlias[i.rd] << " " << imm << std::endl;
+    std::cout << "jal " << regAlias[i.rd] << " " << imm << " \t\t# ";
 
     regs[i.rd] = (cpu_pc + 1) << 2;
     cpu_pc = cpu_pc + (imm >> 2) - 1; // Because of inc after switch
+
+    std::cout << regisIndexVal(i.rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
 void RV32ISim::step() {
