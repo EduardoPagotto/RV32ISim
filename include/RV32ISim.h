@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include "include/Bus.hpp"
+#include "Bus.hpp"
 
 struct Instr {
     uint32_t funct3;
@@ -29,7 +29,7 @@ struct Instr {
 class RV32ISim {
   public:
     RV32ISim(Bus* bus);
-    ~RV32ISim();
+    virtual ~RV32ISim();
 
     /**
      * @brief Dumps the registry content at current state to file
