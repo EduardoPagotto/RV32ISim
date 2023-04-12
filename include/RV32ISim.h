@@ -18,12 +18,27 @@ struct Instr {
     uint32_t rs1;
     uint32_t rs2;
     int32_t opcode;
+
     int32_t imm;
+    int32_t sImm;
+    int32_t uImm;
+
     int32_t instr;
 
-    Instr(const int32_t& instr)
-        : instr(instr), opcode(instr & 0x7f), funct3((instr >> 12) & 0x7), imm(instr >> 20), rd((instr >> 7) & 0x1f),
-          rs1((instr >> 15) & 0x1f), rs2((instr >> 20) & 0x1f) {}
+    Instr(const int32_t& instr) {
+
+        this->instr = instr;
+        this->opcode = instr & 0x7f;
+        this->rs1 = (instr >> 15) & 0x1f;
+        this->rs2 = (instr >> 20) & 0x1f;
+        this->rd = ((instr >> 7) & 0x1f);
+
+        this->funct3 = (instr >> 12) & 0x7;
+        this->imm = (instr >> 20);
+        this->sImm = (this->imm >> 5) << 5 | this->rd;
+
+        this->uImm = ((this->instr >> 12) & 0xfffff) << 12;
+    }
 };
 
 class RV32ISim {
@@ -82,7 +97,9 @@ class RV32ISim {
     void jalr(const Instr& i);
     void jal(const Instr& i);
 
-    std::vector<std::string> regAlias;
-    std::string regisIndexVal(const uint32_t& indice);
-    std::string regisVal(const uint32_t& indice, const uint32_t value);
+    std::string printCommandRegs(const std::string& com, const Instr& i);
+
+    std::vector<std::string> alias;
+    std::string printIndexValue(const uint32_t& indice);
+    std::string printValue(const uint32_t& indice, const uint32_t value);
 };
