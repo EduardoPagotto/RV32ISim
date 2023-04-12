@@ -105,27 +105,27 @@ void RV32ISim::loadRegister(const Instr& i) {
     switch (i.funct3) {
         case 0x0: // lb
             std::cout << printCommandRegs("lb    ", i);
-            bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1);
+            bus->load(regs[i.rd], regs[i.rs1] + i.iImm, 1);
             break;
         case 0x1: // lH
             std::cout << printCommandRegs("lh    ", i);
-            bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2);
+            bus->load(regs[i.rd], regs[i.rs1] + i.iImm, 2);
             break;
         case 0x2: // lW
             std::cout << printCommandRegs("lw    ", i);
-            bus->load(regs[i.rd], regs[i.rs1] + i.imm, 4);
+            bus->load(regs[i.rd], regs[i.rs1] + i.iImm, 4);
             break;
         case 0x4: // lbu
             std::cout << printCommandRegs("lbu   ", i);
-            bus->load(regs[i.rd], regs[i.rs1] + i.imm, 1, true);
+            bus->load(regs[i.rd], regs[i.rs1] + i.iImm, 1, true);
             break;
         case 0x5: // lhu
             std::cout << printCommandRegs("lhu   ", i);
-            bus->load(regs[i.rd], regs[i.rs1] + i.imm, 2, true);
+            bus->load(regs[i.rd], regs[i.rs1] + i.iImm, 2, true);
             break;
     }
 
-    std::cout << printIndexValue(i.rd) << " <- MEM[ " << int_to_hex(regs[i.rs1] + i.imm) << " ]\n";
+    std::cout << printIndexValue(i.rd) << " <- MEM[ " << int_to_hex(regs[i.rs1] + i.iImm) << " ]\n";
 }
 
 void RV32ISim::ulai(const Instr& i) {
@@ -133,16 +133,16 @@ void RV32ISim::ulai(const Instr& i) {
     uint32_t val_rs = regs[i.rs1];
     switch (i.funct3) {
         case 0x0: // ADDI
-            regs[i.rd] = regs[i.rs1] + i.imm;
+            regs[i.rd] = regs[i.rs1] + i.iImm;
             std::cout << printCommandRegs("addi  ", i);
             break;
         case 0x1: // SLLI
-            regs[i.rd] = regs[i.rs1] << i.imm;
+            regs[i.rd] = regs[i.rs1] << i.iImm;
             std::cout << printCommandRegs("slli  ", i);
             break;
         case 0x2: // SLTI
 
-            if (regs[i.rs1] < i.imm) { // TODO: Trocar por ternario
+            if (regs[i.rs1] < i.iImm) { // TODO: Trocar por ternario
                 regs[i.rd] = 1;
             } else {
                 regs[i.rd] = 0;
@@ -153,7 +153,7 @@ void RV32ISim::ulai(const Instr& i) {
             break;
         case 0x3: // SLTIU
 
-            if (regs[i.rs1] < ((unsigned int)(i.imm & 0xfff))) {
+            if (regs[i.rs1] < ((unsigned int)(i.iImm & 0xfff))) {
                 regs[i.rd] = 1;
             } else {
                 regs[i.rd] = 0;
@@ -164,27 +164,27 @@ void RV32ISim::ulai(const Instr& i) {
             break;
         case 0x4: // XORI
 
-            regs[i.rd] = regs[i.rs1] ^ i.imm;
+            regs[i.rd] = regs[i.rs1] ^ i.iImm;
 
             std::cout << printCommandRegs("xori  ", i);
 
             break;
         case 0x5: // SLRI / SRAI  TODO: check!
-            if ((i.imm & 0xf00) == 0) {
-                regs[i.rd] = regs[i.rs1] >> i.imm;
+            if ((i.iImm & 0xf00) == 0) {
+                regs[i.rd] = regs[i.rs1] >> i.iImm;
                 std::cout << printCommandRegs("slri  ", i);
             } else {
-                regs[i.rd] = regs[i.rs1] >> (i.imm & 0x1f);
+                regs[i.rd] = regs[i.rs1] >> (i.iImm & 0x1f);
                 std::cout << printCommandRegs("srai  ", i);
             }
             break;
         case 0x6: // ORI
-            regs[i.rd] = regs[i.rs1] | i.imm;
+            regs[i.rd] = regs[i.rs1] | i.iImm;
             std::cout << printCommandRegs("ori   ", i);
 
             break;
         case 0x7: // ANDI
-            regs[i.rd] = regs[i.rs1] & i.imm;
+            regs[i.rd] = regs[i.rs1] & i.iImm;
             std::cout << printCommandRegs("andi  ", i);
 
             break;
@@ -204,12 +204,12 @@ std::string RV32ISim::printCommandRegs(const std::string& com, const Instr& i) {
 
     switch (i.opcode) {
         case 0x03:
-            ss << com << alias[i.rd] << " " << i.imm << "(" << alias[i.rs1] << ") \t\t# ";
+            ss << com << alias[i.rd] << " " << i.iImm << "(" << alias[i.rs1] << ") \t\t# ";
             break;
 
         case 0x13:
         case 0x67:
-            ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << i.imm << " \t\t# ";
+            ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << i.iImm << " \t\t# ";
             break;
 
         case 0x17:
@@ -223,6 +223,10 @@ std::string RV32ISim::printCommandRegs(const std::string& com, const Instr& i) {
 
         case 0x33:
             ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << alias[i.rs2 & 0x1f] << " \t\t# ";
+            break;
+
+        case 0x6f:
+            ss << com << alias[i.rd] << " " << i.jImm << " \t\t# ";
             break;
 
         default:
@@ -377,23 +381,18 @@ void RV32ISim::jalr(const Instr& i) {
     std::cout << printCommandRegs("jalr  ", i);
 
     regs[i.rd] = (cpu_pc + 1) << 2;
-    cpu_pc = (regs[i.rs1] + i.imm) >> 2;
+    cpu_pc = (regs[i.rs1] + i.iImm) >> 2;
     cpu_pc = cpu_pc - 1;
 
     std::cout << printIndexValue(i.rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
 void RV32ISim::jal(const Instr& i) {
-    // Get imm
-    int32_t imm = (i.instr >> 30) << 20;          // Get instr[20]
-    imm = imm | (((i.instr >> 12) & 0xff) << 12); // Get instr[19:12]
-    imm = imm | (((i.instr >> 20) & 0x1) << 11);  // Get instr[11]
-    imm = imm | (((i.instr >> 21) & 0x3ff) << 1); // Get instr[10:1]
 
-    std::cout << "jal " << alias[i.rd] << " " << imm << " \t\t# ";
+    std::cout << printCommandRegs("jal ", i);
 
     regs[i.rd] = (cpu_pc + 1) << 2;
-    cpu_pc = cpu_pc + (imm >> 2) - 1; // Because of inc after switch
+    cpu_pc = cpu_pc + (i.jImm >> 2) - 1; // Because of inc after switch
 
     std::cout << printIndexValue(i.rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }

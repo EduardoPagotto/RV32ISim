@@ -19,9 +19,11 @@ struct Instr {
     uint32_t rs2;
     int32_t opcode;
 
-    int32_t imm;
+    int32_t iImm;
     int32_t sImm;
     int32_t uImm;
+    int32_t jImm;
+    int32_t bImm;
 
     int32_t instr;
 
@@ -34,10 +36,29 @@ struct Instr {
         this->rd = ((instr >> 7) & 0x1f);
 
         this->funct3 = (instr >> 12) & 0x7;
-        this->imm = (instr >> 20);
-        this->sImm = (this->imm >> 5) << 5 | this->rd;
 
+        this->iImm = instr >> 20;
+        this->sImm = ((instr >> 25) << 5) | this->rd;
         this->uImm = ((this->instr >> 12) & 0xfffff) << 12;
+
+        this->jImm = ((this->instr >> 30) << 20) |          //  instr[20]
+                     (((this->instr >> 12) & 0xff) << 12) | //  instr[19:12]
+                     (((this->instr >> 20) & 0x1) << 11) |  //  instr[11]
+                     (((this->instr >> 21) & 0x3ff) << 1);  //  instr[10:1]
+
+        bImm = ((this->instr >> 11) & 0x800) | //  instr[12]
+               ((this->instr << 4) & 0x600) |  //  instr[11]
+               ((this->instr >> 25) << 5) |    //  instr[10:5]
+               ((this->instr >> 7) & 0x1e);    //  instr[4:1] // TODO: Testar
+
+        // if (bImm > 0) {
+        //     bImm++;
+        // }
+
+        // bImm = ((this->instr >> 25) << 5) + ((this->instr >> 7) & 0x1f) - 1;
+        // if (bImm > 0) {
+        //     bImm++;
+        // }
     }
 };
 
