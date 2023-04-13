@@ -12,8 +12,16 @@ class Controller {
     Controller() = default;
     virtual ~Controller() = default;
     const bool resetSignal() const { return false; }
-    const bool getBranchAddressValid() const { return false; }
-    const uint32_t getBranchAddress() const { return 0; }
+    const bool getBranchAddressValid() {
+        branchAddressValid = false;
+        return branchAddressValid;
+    }
+    const uint32_t getBranchAddress() const { return branchAddress; }
+
+    void setBranchAddress(const uint32_t& addr) {
+        branchAddress = addr;
+        branchAddressValid = true;
+    }
 
     // bool shoulStall(PipelineState state) { return !(state == this->state); } // FIXME: no pipeline
     bool shoulStall(PipelineState state) { return false; }
@@ -33,7 +41,12 @@ class Controller {
         return ss.str();
     }
 
+    bool ecall = false; // For program termination
+
   private:
+    bool branchAddressValid = false;
+    uint32_t branchAddress = 0;
+
     bool __beginTrap = false;
     bool __beginTrapReturn = false;
     uint32_t val = 10;

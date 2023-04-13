@@ -32,7 +32,7 @@ RV32ISim::~RV32ISim() {}
 
 void RV32ISim::play() {
 
-    while (execute->hasNext()) {
+    while (fetch->hasNext()) {
 
         fetch->step();
         decode->step();

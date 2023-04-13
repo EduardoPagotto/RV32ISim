@@ -7,14 +7,19 @@ class Fetch {
     Fetch(Controller* c, Bus* b, const uint32_t& startAddr) {
         this->crt = c;
         this->bus = b;
-        this->pcPlus4 = startAddr;
         this->startAddr = startAddr;
         this->state = PipelineState::Fetch;
+        this->reset();
     }
 
     virtual ~Fetch() = default;
 
-    void reset() { this->pcPlus4 = startAddr; }
+    void reset() {
+        this->pc = startAddr;
+        this->pcPlus4 = startAddr;
+    }
+
+    inline bool hasNext() const { return ((bus->hasData(pc)) & !this->crt->ecall); }
 
     void step() {
 
@@ -28,7 +33,7 @@ class Fetch {
 
             bus->load(instruction, pc, 4);
 
-            // crt->printAsHex(pc, instruction);
+            crt->printAsHex(pc, instruction);
         }
     }
 

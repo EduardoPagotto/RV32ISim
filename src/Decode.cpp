@@ -16,6 +16,8 @@ void Decode::step() {
 
     } else if (!crt->shoulStall(state)) {
 
+        this->pc = fetch->getPc();
+
         this->instr = fetch->getInstruction();
         this->opcode = instr & 0x7f;
         this->rs1 = (instr >> 15) & 0x1f;
@@ -78,6 +80,8 @@ void Decode::step() {
                 returnFromTrap = imm32 == 0x302;
                 if ((this->instr >> 7) == 0) {
                     // ECALL
+                    crt->ecall = true;
+
                     mepc = fetch->getPcPlus4();
                     mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
                     mtval = 0;

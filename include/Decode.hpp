@@ -21,6 +21,8 @@ class Decode {
     inline const int32_t& getInstruction() const { return this->instr; }
     inline const int32_t& getImm32() const { return this->imm32; }
 
+    inline const uint32_t getPc() const { return this->pc; }
+
     std::string printValue(const uint32_t& indice, const uint32_t value);
 
   private:
@@ -37,6 +39,8 @@ class Decode {
 
     Controller* crt;
     Fetch* fetch;
+
+    uint32_t pc;
 
     bool returnFromTrap = false;
     bool csrShouldRead, csrShouldWrite;

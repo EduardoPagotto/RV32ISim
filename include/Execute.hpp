@@ -18,31 +18,15 @@ class Execute {
      */
     bool writeToFile(const char* filepath);
 
-    /**
-     * @brief Step through the program by decoding and executing next instruction pointed
-     * to by cpu_pc. This function contain the implementation of the RISC-V 32RVI
-     * instruction subset For different subset/functionality this function must be
-     * overwritten.
-     */
     void step();
-
     void reset();
 
-    /**
-     * @brief indication if program is ended
-     *
-     * @return true \
-     * @return false
-     */
-    inline bool hasNext() const { return ((bus->hasData(cpu_pc)) & !ecall); } // TODO: AQI!!!! ver esta variaveisZZ
-
     void printRegisters();
-    void printProgram();
+    // void printProgram();
 
   private:
-    uint32_t cpu_pc; // Program counter
-    uint32_t* regs;  //
-    bool ecall;      // For program termination
+    // uint32_t cpu_pc; // Program counter
+    uint32_t* regs; //
     Bus* bus = nullptr;
     Controller* crt;
     Decode* decode;
@@ -56,11 +40,13 @@ class Execute {
     int32_t instr;
     int32_t imm32;
 
+    uint32_t pc;
+
     std::vector<std::string> alias;
 
     PipelineState state;
 
-    void printAsHex(unsigned int instr);
+    // void printAsHex(unsigned int instr);
 
     void loadRegister();
     void ulai();

@@ -11,8 +11,7 @@ inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
 }
 
 Execute::Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[]) {
-    cpu_pc = 0;
-    ecall = false;
+
     this->crt = c;
     this->bus = bus;
     this->decode = d;
@@ -183,7 +182,7 @@ void Execute::ulai() {
 }
 
 void Execute::auipc() {
-    regs[rd] = cpu_pc * 4 + static_cast<uint32_t>(imm32);
+    regs[rd] = static_cast<uint32_t>(imm32);
     std::cout << printCommandRegs("auipc ");
     std::cout << printIndexValue(rd) << '\n';
 }
@@ -285,65 +284,74 @@ void Execute::branchCase() {
         case 0x0:
             std::cout << "beq   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
             if (valRs1 == valRs2) {
-                cpu_pc = cpu_pc + (imm32 / 4) - 1;
+                crt->setBranchAddress(imm32 - 1);
+                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
             }
             break;
         case 0x1:
             std::cout << "bne   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
             if (valRs1 != valRs2) {
-                cpu_pc = cpu_pc + (imm32 / 4) - 1;
+                crt->setBranchAddress(imm32 - 1);
+                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
             }
             break;
         case 0x4:
             std::cout << "blt   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
             if (valRs1 < valRs2) {
-                cpu_pc = cpu_pc + (imm32 / 4) - 1;
+                crt->setBranchAddress(imm32 - 1);
+                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
             }
             break;
         case 0x5:
             std::cout << "bge   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
             if (valRs1 >= valRs2) {
-                cpu_pc = cpu_pc + (imm32 / 4) - 1;
+                crt->setBranchAddress(imm32 - 1);
+                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
             }
             break;
         case 0x6:
             std::cout << "bltu  " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
             if (valRs1 < (unsigned)valRs2) {
-                cpu_pc = cpu_pc + (imm32 / 4) - 1;
+                crt->setBranchAddress(imm32 - 1);
+                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
             }
             break;
         case 0x7:
             std::cout << "bgeu  " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
             if (valRs1 >= (unsigned)valRs2) {
-                cpu_pc = cpu_pc + (imm32 / 4) - 1;
+                crt->setBranchAddress(imm32 - 1);
+                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
             }
             break;
     }
 
     std::cout << printValue(rs1, valRs1) << "; ";
     std::cout << printValue(rs2, valRs2) << "; ";
-    std::cout << " PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
+    std::cout << " PC -> " << int_to_hex((imm32 - 1) + 4) << '\n';
 }
 
 void Execute::jalr() {
 
     std::cout << printCommandRegs("jalr  ");
 
-    regs[rd] = (cpu_pc + 1) << 2;
-    cpu_pc = (regs[rs1] + imm32) >> 2;
-    cpu_pc = cpu_pc - 1;
+    regs[rd] = pc; //(cpu_pc + 1) << 2; // FIXME: tem merda aqui!!!!
 
-    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
+    crt->setBranchAddress(regs[rs1] + imm32);
+
+    // cpu_pc = (regs[rs1] + imm32) >> 2;
+    // cpu_pc = cpu_pc - 1;
+
+    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex((regs[rs1] + imm32) + 4) << '\n';
 }
 
 void Execute::jal() {
 
     std::cout << printCommandRegs("jal ");
 
-    regs[rd] = (cpu_pc + 1) << 2;
-    cpu_pc = cpu_pc + (imm32 >> 2) - 1; // Because of inc after switch
+    regs[rd] = pc;                     //(cpu_pc + 1) << 2;
+    crt->setBranchAddress(pc + imm32); // cpu_pc = cpu_pc + (imm32 >> 2) - 1; // Because of inc after switch
 
-    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
+    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex((pc + imm32) + 4) << '\n';
 }
 
 void Execute::reset() {}
@@ -355,6 +363,7 @@ void Execute::step() {
 
     } else if (!crt->shoulStall(state)) {
 
+        pc = decode->getPc();
         funct3 = decode->getFunct3();
         funct7 = decode->getFunct7();
         rd = decode->getRD();
@@ -394,12 +403,11 @@ void Execute::step() {
                 break;
             case 0x73:
                 std::cout << "Ecall - Exiting program" << '\n';
-                ecall = true;
+                // ecall = true;
                 break;
         }
         regs[0] = 0; // jalr x0 xX is not supposed to cast exception, so this is
                      // the easier way
-        cpu_pc++;    // Increment program counter
     }
 }
 
@@ -446,52 +454,52 @@ void Execute::printRegisters() {
     }
 }
 
-void Execute::printProgram() {
-    std::cout << "Program" << '\n' << std::endl;
+// void Execute::printProgram() {
+//     std::cout << "Program" << '\n' << std::endl;
 
-    uint32_t addr = 0;
-    do {
+//     uint32_t addr = 0;
+//     do {
 
-        uint32_t instr;
-        bus->load(instr, 4 * addr, 4);
-        printAsHex(instr);
-        std::cout << "" << '\n';
+//         uint32_t instr;
+//         bus->load(instr, 4 * addr, 4);
+//         printAsHex(instr);
+//         std::cout << "" << '\n';
 
-        addr++;
+//         addr++;
 
-    } while (bus->hasData(addr));
-}
+//     } while (bus->hasData(addr));
+// }
 
-void Execute::printAsHex(unsigned int instr) {
-    int res = 0;
+// void Execute::printAsHex(unsigned int instr) {
+//     int res = 0;
 
-    std::cout << int_to_hex(cpu_pc * 4) << " ";
+//     std::cout << int_to_hex(cpu_pc * 4) << " ";
 
-    for (int i = 0; i < 8; i++) {
-        res = (instr >> (4 * (7 - i))) & 0xf;
-        switch (res) {
-            case 10:
-                std::cout << "a";
-                break;
-            case 11:
-                std::cout << "b";
-                break;
-            case 12:
-                std::cout << "c";
-                break;
-            case 13:
-                std::cout << "d";
-                break;
-            case 14:
-                std::cout << "e";
-                break;
-            case 15:
-                std::cout << "f";
-                break;
-            default:
-                std::cout << res;
-                break;
-        }
-    }
-    std::cout << "    ";
-}
+//     for (int i = 0; i < 8; i++) {
+//         res = (instr >> (4 * (7 - i))) & 0xf;
+//         switch (res) {
+//             case 10:
+//                 std::cout << "a";
+//                 break;
+//             case 11:
+//                 std::cout << "b";
+//                 break;
+//             case 12:
+//                 std::cout << "c";
+//                 break;
+//             case 13:
+//                 std::cout << "d";
+//                 break;
+//             case 14:
+//                 std::cout << "e";
+//                 break;
+//             case 15:
+//                 std::cout << "f";
+//                 break;
+//             default:
+//                 std::cout << res;
+//                 break;
+//         }
+//     }
+//     std::cout << "    ";
+// }
