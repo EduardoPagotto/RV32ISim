@@ -101,7 +101,7 @@ std::string RV32ISim::printValue(const uint32_t& indice, const uint32_t value) {
     return ss.str();
 }
 
-void RV32ISim::loadRegister(const Instr& i) {
+void RV32ISim::loadRegister(const Decode& i) {
     switch (i.funct3) {
         case 0x0: // lb
             std::cout << printCommandRegs("lb    ", i);
@@ -128,7 +128,7 @@ void RV32ISim::loadRegister(const Instr& i) {
     std::cout << printIndexValue(i.rd) << " <- MEM[ " << int_to_hex(regs[i.rs1] + i.iImm) << " ]\n";
 }
 
-void RV32ISim::ulai(const Instr& i) {
+void RV32ISim::ulai(const Decode& i) {
 
     uint32_t val_rs = regs[i.rs1];
     switch (i.funct3) {
@@ -193,13 +193,13 @@ void RV32ISim::ulai(const Instr& i) {
     std::cout << printIndexValue(i.rd) << "; " << printValue(i.rs1, val_rs) << '\n';
 }
 
-void RV32ISim::auipc(const Instr& i) {
+void RV32ISim::auipc(const Decode& i) {
     regs[i.rd] = cpu_pc * 4 + static_cast<uint32_t>(i.uImm);
     std::cout << printCommandRegs("auipc ", i);
     std::cout << printIndexValue(i.rd) << '\n';
 }
 
-void RV32ISim::saveRegister(const Instr& i) {
+void RV32ISim::saveRegister(const Decode& i) {
     switch (i.funct3) {
         case 0x0:
             std::cout << printCommandRegs("sb    ", i);
@@ -218,7 +218,7 @@ void RV32ISim::saveRegister(const Instr& i) {
     std::cout << printIndexValue(i.rs2) << " -> MEM[ " << int_to_hex(regs[i.rs1] + i.sImm) << " ]\n";
 }
 
-void RV32ISim::ula(const Instr& i) {
+void RV32ISim::ula(const Decode& i) {
 
     uint32_t val_rs1 = regs[i.rs1];
     uint32_t val_rs2 = regs[i.rs2];
@@ -281,13 +281,13 @@ void RV32ISim::ula(const Instr& i) {
     std::cout << printValue(i.rs2, val_rs2) << '\n';
 }
 
-void RV32ISim::lui(const Instr& i) {
+void RV32ISim::lui(const Decode& i) {
     regs[i.rd] = i.uImm;
     std::cout << printCommandRegs("lui   ", i);
     std::cout << printIndexValue(i.rd) << '\n';
 }
 
-void RV32ISim::branchCase(const Instr& i) {
+void RV32ISim::branchCase(const Decode& i) {
 
     uint32_t valRs1 = regs[i.rs1];
     uint32_t valRs2 = regs[i.rs2];
@@ -314,7 +314,7 @@ void RV32ISim::branchCase(const Instr& i) {
         case 0x5:
             std::cout << "bge   " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 >= valRs2) {
-                cpu_pc = cpu_pc + (i.bImm >> 2) - 1;
+                cpu_pc = cpu_pc + (i.bImm / 4) - 1;
             }
             break;
         case 0x6:
@@ -326,7 +326,7 @@ void RV32ISim::branchCase(const Instr& i) {
         case 0x7:
             std::cout << "bgeu  " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 >= (unsigned)valRs2) {
-                cpu_pc = cpu_pc + (i.bImm >> 2) - 1;
+                cpu_pc = cpu_pc + (i.bImm / 4) - 1;
             }
             break;
     }
@@ -336,7 +336,7 @@ void RV32ISim::branchCase(const Instr& i) {
     std::cout << " PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
-void RV32ISim::jalr(const Instr& i) {
+void RV32ISim::jalr(const Decode& i) {
 
     std::cout << printCommandRegs("jalr  ", i);
 
@@ -347,7 +347,7 @@ void RV32ISim::jalr(const Instr& i) {
     std::cout << printIndexValue(i.rd) << " ; PC -> " << int_to_hex((cpu_pc * 4) + 4) << '\n';
 }
 
-void RV32ISim::jal(const Instr& i) {
+void RV32ISim::jal(const Decode& i) {
 
     std::cout << printCommandRegs("jal ", i);
 
@@ -364,7 +364,7 @@ void RV32ISim::step() {
     bus->load(instr, 4 * cpu_pc, 4);
     printAsHex(instr); // REMOVE
 
-    Instr i(static_cast<int32_t>(instr));
+    Decode i(static_cast<int32_t>(instr));
 
     switch (i.opcode) {
         case 0x03:
@@ -404,7 +404,7 @@ void RV32ISim::step() {
     cpu_pc++;    // Increment program counter
 }
 
-std::string RV32ISim::printCommandRegs(const std::string& com, const Instr& i) {
+std::string RV32ISim::printCommandRegs(const std::string& com, const Decode& i) {
     std::stringstream ss;
 
     switch (i.opcode) {
