@@ -118,67 +118,57 @@ void Execute::loadRegister() {
 
 void Execute::ulai() {
 
-    uint32_t val_rs = regs[rs1];
+    uint32_t vRS1 = regs[rs1];
+    uint32_t vRD = 0;
     switch (funct3) {
         case 0x0: // ADDI
-            regs[rd] = regs[rs1] + imm32;
+            vRD = vRS1 + imm32;
             std::cout << printCommandRegs("addi  ");
             break;
+
         case 0x1: // SLLI
-            regs[rd] = regs[rs1] << imm32;
+            vRD = vRS1 << imm32;
             std::cout << printCommandRegs("slli  ");
             break;
+
         case 0x2: // SLTI
-
-            if (regs[rs1] < imm32) { // TODO: Trocar por ternario
-                regs[rd] = 1;
-            } else {
-                regs[rd] = 0;
-            }
-
+            vRD = (vRS1 < imm32) ? 1 : 0;
             std::cout << printCommandRegs("slti  ");
-
             break;
+
         case 0x3: // SLTIU
-
-            if (regs[rs1] < ((unsigned int)(imm32 & 0xfff))) {
-                regs[rd] = 1;
-            } else {
-                regs[rd] = 0;
-            }
-
+            vRD = (vRS1 < ((unsigned int)(imm32 & 0xfff))) ? 1 : 0;
             std::cout << printCommandRegs("sltiu ");
-
             break;
+
         case 0x4: // XORI
-
-            regs[rd] = regs[rs1] ^ imm32;
-
+            vRD = vRS1 ^ imm32;
             std::cout << printCommandRegs("xori  ");
-
             break;
+
         case 0x5: // SLRI / SRAI  TODO: check!
             if ((imm32 & 0xf00) == 0) {
-                regs[rd] = regs[rs1] >> imm32;
+                vRD = vRS1 >> imm32;
                 std::cout << printCommandRegs("slri  ");
             } else {
-                regs[rd] = regs[rs1] >> (imm32 & 0x1f);
+                vRD = vRS1 >> (imm32 & 0x1f);
                 std::cout << printCommandRegs("srai  ");
             }
             break;
         case 0x6: // ORI
-            regs[rd] = regs[rs1] | imm32;
+            vRD = vRS1 | imm32;
             std::cout << printCommandRegs("ori   ");
 
             break;
         case 0x7: // ANDI
-            regs[rd] = regs[rs1] & imm32;
+            vRD = vRS1 & imm32;
             std::cout << printCommandRegs("andi  ");
 
             break;
     }
 
-    std::cout << printIndexValue(rd) << "; " << printValue(rs1, val_rs) << '\n';
+    regs[rd] = vRD;
+    std::cout << printIndexValue(rd) << "; " << printValue(rs1, vRS1) << '\n';
 }
 
 void Execute::auipc() {
@@ -331,7 +321,7 @@ void Execute::branchCase() {
         crt->setBranchAddress(final);
         std::cout << " PC -> " << int_to_hex(final) << '\n';
     } else {
-        std::cout << '\n';
+        std::cout << " PC -> " << int_to_hex(pcPlus4) << '\n';
     }
 }
 
