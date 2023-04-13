@@ -41,6 +41,22 @@ class Fetch {
     const uint32_t getPcPlus4() const { return pcPlus4; }
     const uint32_t getInstruction() const { return instruction; }
 
+    void printProgram() {
+        std::cout << "Program" << '\n' << std::endl;
+
+        uint32_t addr = 0;
+        do {
+
+            uint32_t instr;
+            bus->load(instr, 4 * addr, 4);
+            crt->printAsHex(4 * addr, instr);
+            std::cout << "" << '\n';
+
+            addr++;
+
+        } while (bus->hasData(addr));
+    }
+
   private:
     PipelineState state;
     Bus* bus = nullptr;

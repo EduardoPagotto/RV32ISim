@@ -3,6 +3,20 @@
 #include "Fetch.hpp"
 #include <cstdint>
 
+enum class OpCodeSet : __uint8_t {
+    LOAD = 0x03,
+    ULAI = 0x13,
+    AUIPC = 0x17,
+    SAVE = 0x23,
+    ULA = 0x33,
+    LUI = 0x37,
+    BRANCH = 0x63,
+    JALR = 0x67,
+    JAL = 0x6f,
+    FENCE = 0x0f,
+    SYSTEM = 0x73
+};
+
 class Decode {
   public:
     Decode(Controller* c, Fetch* f);

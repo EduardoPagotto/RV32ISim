@@ -11,6 +11,7 @@ class RV32ISim {
     RV32ISim(Bus* bus);
     virtual ~RV32ISim();
     void play();
+    void printRegisters();
 
   private:
     uint32_t regs[32];

@@ -39,3 +39,10 @@ void RV32ISim::play() {
         execute->step();
     }
 }
+
+void RV32ISim::printRegisters() {
+    std::cout << "Value of registers: \n" << std::endl;
+    for (int i = 0; i < 32; i++) {
+        std::cout << "x" << i << " " << regs[i] << std::endl;
+    }
+}

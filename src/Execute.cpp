@@ -208,65 +208,67 @@ void Execute::saveRegister() {
 
 void Execute::ula() {
 
-    uint32_t val_rs1 = regs[rs1];
-    uint32_t val_rs2 = regs[rs2];
+    uint32_t vRS1 = regs[rs1];
+    uint32_t vRS2 = regs[rs2];
+    uint32_t vRD = 0;
     switch (funct3) {
         case 0x0:
             if ((instr >> 25) == 0) {
                 std::cout << printCommandRegs("add   ");
-                regs[rd] = regs[rs1] + regs[rs2];
+                vRD = vRS1 + vRS2;
             } else {
                 std::cout << printCommandRegs("sub   ");
-                regs[rd] = regs[rs1] - regs[rs2];
+                vRD = vRS1 - vRS2;
             }
             break;
         case 0x1:
             std::cout << printCommandRegs("sll   ");
-            regs[rd] = regs[rs1] << (regs[rs2] & 0x1f);
+            vRD = vRS1 << (vRS2 & 0x1f);
             break;
         case 0x2:
             std::cout << printCommandRegs("slt   ");
-            if (regs[rs1] < regs[rs2]) {
-                regs[rd] = 1;
+            if (vRS1 < vRS2) {
+                vRD = 1;
             } else {
-                regs[rd] = 0;
+                vRD = 0;
             }
             break;
         case 0x3:
             std::cout << printCommandRegs("sltu  ");
-            if (regs[rs1] < (unsigned int)regs[rs2]) {
-                regs[rd] = 1;
+            if (vRS1 < (unsigned int)vRS2) {
+                vRD = 1;
             } else {
-                regs[rd] = 0;
+                vRD = 0;
             }
             break;
         case 0x4:
             std::cout << printCommandRegs("xor   ");
-            regs[rd] = regs[rs1] ^ regs[rs2];
+            vRD = vRS1 ^ vRS2;
             break;
         case 0x5:
             if ((instr >> 25) == 0) {
                 std::cout << printCommandRegs("srl   ");
-                regs[rd] = ((unsigned int)regs[rs1]) >> (regs[rs2] & 0x1f);
+                vRD = ((unsigned int)vRS1) >> (vRS2 & 0x1f);
 
             } else {
                 std::cout << printCommandRegs("sra   ");
-                regs[rd] = regs[rs1] >> (regs[rs2] & 0x1f);
+                vRD = vRS1 >> (vRS2 & 0x1f);
             }
             break;
         case 0x6:
             std::cout << printCommandRegs("OR    ");
-            regs[rd] = regs[rs1] | regs[rs2];
+            vRD = vRS1 | vRS2;
             break;
         case 0x7:
             std::cout << printCommandRegs("and   ");
-            regs[rd] = regs[rs1] & regs[rs2];
+            vRD = vRS1 & vRS2;
             break;
     }
 
+    regs[rd] = vRD;
     std::cout << printIndexValue(rd) << "; ";
-    std::cout << printValue(rs1, val_rs1) << "; ";
-    std::cout << printValue(rs2, val_rs2) << '\n';
+    std::cout << printValue(rs1, vRS1) << "; ";
+    std::cout << printValue(rs2, vRS2) << '\n';
 }
 
 void Execute::lui() {
@@ -279,51 +281,50 @@ void Execute::branchCase() {
 
     uint32_t valRs1 = regs[rs1];
     uint32_t valRs2 = regs[rs2];
+    std::string opp;
+    bool doBranch = false;
 
     switch (funct3) {
         case 0x0:
-            std::cout << "beq   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
-            if (valRs1 == valRs2) {
-                crt->setBranchAddress(imm32 - 1);
-                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
-            }
+            opp = "beq   ";
+            if (valRs1 == valRs2)
+                doBranch = true;
             break;
+
         case 0x1:
-            std::cout << "bne   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
-            if (valRs1 != valRs2) {
-                crt->setBranchAddress(imm32 - 1);
-                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
-            }
+            opp = "bne   ";
+            if (valRs1 != valRs2)
+                doBranch = true;
             break;
+
         case 0x4:
-            std::cout << "blt   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
-            if (valRs1 < valRs2) {
-                crt->setBranchAddress(imm32 - 1);
-                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
-            }
+            opp = "blt   ";
+            if (valRs1 < valRs2)
+                doBranch = true;
             break;
+
         case 0x5:
-            std::cout << "bge   " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
-            if (valRs1 >= valRs2) {
-                crt->setBranchAddress(imm32 - 1);
-                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
-            }
+            opp = "bge   ";
+            if (valRs1 >= valRs2)
+                doBranch = true;
             break;
+
         case 0x6:
-            std::cout << "bltu  " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
-            if (valRs1 < (unsigned)valRs2) {
-                crt->setBranchAddress(imm32 - 1);
-                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
-            }
+            opp = "bltu  ";
+            if (valRs1 < (unsigned)valRs2)
+                doBranch = true;
             break;
+
         case 0x7:
-            std::cout << "bgeu  " << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
-            if (valRs1 >= (unsigned)valRs2) {
-                crt->setBranchAddress(imm32 - 1);
-                // cpu_pc = cpu_pc + (imm32 / 4) - 1;
-            }
+            opp = "bgeu  ";
+            if (valRs1 >= (unsigned)valRs2)
+                doBranch = true;
             break;
     }
+
+    std::cout << printCommandRegs(opp);
+    if (doBranch)
+        crt->setBranchAddress(imm32 - 1);
 
     std::cout << printValue(rs1, valRs1) << "; ";
     std::cout << printValue(rs2, valRs2) << "; ";
@@ -373,35 +374,38 @@ void Execute::step() {
         instr = decode->getInstruction();
         imm32 = decode->getImm32();
 
-        switch (opcode) {
-            case 0x03:
-                loadRegister(); // load Instructions
+        switch (static_cast<OpCodeSet>(opcode)) {
+            case OpCodeSet::LOAD:
+                loadRegister();
                 break;
-            case 0x13:
-                ulai(); // ULAi
+            case OpCodeSet::ULAI:
+                ulai();
                 break;
-            case 0x17:
-                auipc(); // auipc
+            case OpCodeSet::AUIPC:
+                auipc();
                 break;
-            case 0x23:
-                saveRegister(); // Save Instructions
+            case OpCodeSet::SAVE:
+                saveRegister();
                 break;
-            case 0x33:
-                ula(); // ULA
+            case OpCodeSet::ULA:
+                ula();
                 break;
-            case 0x37:
-                lui(); // LUI
+            case OpCodeSet::LUI:
+                lui();
                 break;
-            case 0x63:
-                branchCase(); // Branch case
+            case OpCodeSet::BRANCH:
+                branchCase();
                 break;
-            case 0x67:
-                jalr(); // jalr
+            case OpCodeSet::JALR:
+                jalr();
                 break;
-            case 0x6f:
-                jal(); // jal
+            case OpCodeSet::JAL:
+                jal();
                 break;
-            case 0x73:
+            case OpCodeSet::FENCE:
+                // TODO: implementar
+                break;
+            case OpCodeSet::SYSTEM:
                 std::cout << "Ecall - Exiting program" << '\n';
                 // ecall = true;
                 break;
@@ -414,30 +418,34 @@ void Execute::step() {
 std::string Execute::printCommandRegs(const std::string& com) {
     std::stringstream ss;
 
-    switch (opcode) {
-        case 0x03:
+    switch (static_cast<OpCodeSet>(opcode)) {
+        case OpCodeSet::LOAD:
             ss << com << alias[rd] << " " << imm32 << "(" << alias[rs1] << ") \t\t# ";
             break;
 
-        case 0x13:
-        case 0x67:
+        case OpCodeSet::ULAI:
+        case OpCodeSet::JALR:
             ss << com << alias[rd] << " " << alias[rs1] << " " << imm32 << " \t\t# ";
             break;
 
-        case 0x17:
-        case 0x37:
+        case OpCodeSet::AUIPC:
+        case OpCodeSet::LUI:
             ss << com << alias[rd] << " " << static_cast<uint32_t>(imm32) << " \t\t# ";
             break;
 
-        case 0x23:
+        case OpCodeSet::SAVE:
             ss << com << alias[rs2] << " " << imm32 << "(" << alias[rs1] << ") \t\t# ";
             break;
 
-        case 0x33:
+        case OpCodeSet::ULA:
             ss << com << alias[rd] << " " << alias[rs1] << " " << alias[rs2 & 0x1f] << " \t\t# ";
             break;
 
-        case 0x6f:
+        case OpCodeSet::BRANCH:
+            ss << com << alias[rs1] << " " << alias[rs2] << " " << imm32 << " \t\t# ";
+            break;
+
+        case OpCodeSet::JAL:
             ss << com << alias[rd] << " " << imm32 << " \t\t# ";
             break;
 
@@ -446,60 +454,3 @@ std::string Execute::printCommandRegs(const std::string& com) {
     }
     return ss.str();
 }
-
-void Execute::printRegisters() {
-    std::cout << "Value of registers: \n" << std::endl;
-    for (int i = 0; i < 32; i++) {
-        std::cout << "x" << i << " " << regs[i] << std::endl;
-    }
-}
-
-// void Execute::printProgram() {
-//     std::cout << "Program" << '\n' << std::endl;
-
-//     uint32_t addr = 0;
-//     do {
-
-//         uint32_t instr;
-//         bus->load(instr, 4 * addr, 4);
-//         printAsHex(instr);
-//         std::cout << "" << '\n';
-
-//         addr++;
-
-//     } while (bus->hasData(addr));
-// }
-
-// void Execute::printAsHex(unsigned int instr) {
-//     int res = 0;
-
-//     std::cout << int_to_hex(cpu_pc * 4) << " ";
-
-//     for (int i = 0; i < 8; i++) {
-//         res = (instr >> (4 * (7 - i))) & 0xf;
-//         switch (res) {
-//             case 10:
-//                 std::cout << "a";
-//                 break;
-//             case 11:
-//                 std::cout << "b";
-//                 break;
-//             case 12:
-//                 std::cout << "c";
-//                 break;
-//             case 13:
-//                 std::cout << "d";
-//                 break;
-//             case 14:
-//                 std::cout << "e";
-//                 break;
-//             case 15:
-//                 std::cout << "f";
-//                 break;
-//             default:
-//                 std::cout << res;
-//                 break;
-//         }
-//     }
-//     std::cout << "    ";
-// }
