@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Bus.hpp"
+#include "Controller.hpp"
 #include "Decode.hpp"
 
 class Execute {
   public:
-    Execute(Bus* bus, uint32_t regs[]);
+    Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[]);
     virtual ~Execute();
 
     /**
@@ -41,12 +42,9 @@ class Execute {
     uint32_t* regs;  //
     bool ecall;      // For program termination
     Bus* bus = nullptr;
+    Controller* crt;
+    Decode* decode;
 
-    /**
-     * @brief Test function used to print content of memory
-     *
-     * @param instr instruction
-     */
     void printAsHex(unsigned int instr);
 
     void loadRegister(const Decode& i);

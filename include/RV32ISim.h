@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Bus.hpp"
+#include "Controller.hpp"
+#include "Decode.hpp"
 #include "Execute.hpp"
-// #include "Decode.hpp"
+#include "Fetch.hpp"
 
 class RV32ISim {
   public:
@@ -12,7 +14,10 @@ class RV32ISim {
 
   private:
     uint32_t regs[32];
-    Bus* bus = nullptr;
+    Controller crt;
 
-    Execute* execute;
+    Bus* bus = nullptr;
+    Fetch* fetch = nullptr;
+    Decode* decode = nullptr;
+    Execute* execute = nullptr;
 };

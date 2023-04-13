@@ -10,10 +10,12 @@ inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
     return ss.str();
 }
 
-Execute::Execute(Bus* bus, uint32_t regs[]) {
+Execute::Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[]) {
     cpu_pc = 0;
     ecall = false;
+    this->crt = c;
     this->bus = bus;
+    this->decode = d;
     this->regs = regs;
 
     // Init registers
@@ -354,7 +356,7 @@ void Execute::step() {
     bus->load(instr, 4 * cpu_pc, 4);
     printAsHex(instr); // REMOVE
 
-    Decode i(static_cast<int32_t>(instr));
+    // Decode i(static_cast<int32_t>(0x0));
 
     switch (i.opcode) {
         case 0x03:

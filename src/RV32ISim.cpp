@@ -23,7 +23,9 @@ RV32ISim::RV32ISim(Bus* bus) {
         regs[i] = 0;
     }
 
-    execute = new Execute(this->bus, regs);
+    fetch = new Fetch(&crt, bus, 0x0);
+    decode = new Decode(&crt, fetch);
+    execute = new Execute(&crt, bus, decode, regs);
 }
 
 RV32ISim::~RV32ISim() {}
@@ -31,6 +33,9 @@ RV32ISim::~RV32ISim() {}
 void RV32ISim::play() {
 
     while (execute->hasNext()) {
+
+        fetch->step();
+        decode->step();
         execute->step();
     }
 }
