@@ -12,11 +12,11 @@ class Controller {
     Controller() = default;
     virtual ~Controller() = default;
     const bool resetSignal() const { return false; }
-    const bool getBranchAddressValid() {
+    const bool getBranchAddressValid() { return branchAddressValid; }
+    const uint32_t getBranchAddress() {
         branchAddressValid = false;
-        return branchAddressValid;
+        return branchAddress;
     }
-    const uint32_t getBranchAddress() const { return branchAddress; }
 
     void setBranchAddress(const uint32_t& addr) {
         branchAddress = addr;

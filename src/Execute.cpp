@@ -323,12 +323,16 @@ void Execute::branchCase() {
     }
 
     std::cout << printCommandRegs(opp);
-    if (doBranch)
-        crt->setBranchAddress(imm32 - 1);
-
     std::cout << printValue(rs1, valRs1) << "; ";
     std::cout << printValue(rs2, valRs2) << "; ";
-    std::cout << " PC -> " << int_to_hex((imm32 - 1) + 4) << '\n';
+
+    const uint32_t final = pc + imm32;
+    if (doBranch) {
+        crt->setBranchAddress(final);
+        std::cout << " PC -> " << int_to_hex(final) << '\n';
+    } else {
+        std::cout << '\n';
+    }
 }
 
 void Execute::jalr() {

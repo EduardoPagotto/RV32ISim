@@ -39,10 +39,10 @@ void Decode::step() {
                        (((this->instr >> 20) & 0x1) << 11) |  //  instr[11]
                        (((this->instr >> 21) & 0x3ff) << 1);  //  instr[10:1]
 
-        //  int32_t  bImm = ((this->instr & 0x800) >> 11) | //  instr[12] // [0x1FFF => 8191 => -4096:4095]
-        //              ((this->instr & 0x80) << 4) |   //  instr[11]
-        //              ((this->instr >> 25) << 5) |    //  instr[10:5]
-        //              ((this->instr >> 7) & 0x1e);    //  instr[4:1]
+        // int32_t bImm = ((this->instr & 0x800) >> 11) | //  instr[12] // [0x1FFF => 8191 => -4096:4095]
+        //                ((this->instr & 0x80) << 4) |   //  instr[11]
+        //                ((this->instr >> 25) << 5) |    //  instr[10:5]
+        //                ((this->instr >> 7) & 0x1e);    //  instr[4:1]
 
         int32_t bImm = ((this->instr >> 25) << 5) + ((this->instr >> 7) & 0x1f) - 1;
         if (bImm > 0) {
