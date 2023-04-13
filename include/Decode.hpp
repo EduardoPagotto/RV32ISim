@@ -21,6 +21,8 @@ class Decode {
     inline const int32_t& getInstruction() const { return this->instr; }
     inline const int32_t& getImm32() const { return this->imm32; }
 
+    std::string printValue(const uint32_t& indice, const uint32_t value);
+
   private:
     uint8_t funct3;
     uint8_t funct7;
@@ -28,24 +30,16 @@ class Decode {
     uint8_t rs1;
     uint8_t rs2;
     uint8_t opcode;
-
     int32_t instr;
-
-    // int32_t iImm;
-    // int32_t sImm;
-    // int32_t uImm;
-    // int32_t jImm;
-    // int32_t bImm;
+    int32_t imm32;
 
     PipelineState state;
-
-    int32_t imm32;
 
     Controller* crt;
     Fetch* fetch;
 
     bool returnFromTrap = false;
+    bool csrShouldRead, csrShouldWrite;
     int32_t mepc, trap, mtval, mcause;
     uint32_t csrSource, csrAddress;
-    bool csrShouldRead, csrShouldWrite;
 };

@@ -26,6 +26,8 @@ class Execute {
      */
     void step();
 
+    void reset();
+
     /**
      * @brief indication if program is ended
      *
@@ -45,21 +47,33 @@ class Execute {
     Controller* crt;
     Decode* decode;
 
-    void printAsHex(unsigned int instr);
-
-    void loadRegister(const Decode& i);
-    void ulai(const Decode& i);
-    void auipc(const Decode& i);
-    void saveRegister(const Decode& i);
-    void ula(const Decode& i);
-    void lui(const Decode& i);
-    void branchCase(const Decode& i);
-    void jalr(const Decode& i);
-    void jal(const Decode& i);
-
-    std::string printCommandRegs(const std::string& com, const Decode& i);
+    uint8_t funct3;
+    uint8_t funct7;
+    uint8_t rd;
+    uint8_t rs1;
+    uint8_t rs2;
+    uint8_t opcode;
+    int32_t instr;
+    int32_t imm32;
 
     std::vector<std::string> alias;
+
+    PipelineState state;
+
+    void printAsHex(unsigned int instr);
+
+    void loadRegister();
+    void ulai();
+    void auipc();
+    void saveRegister();
+    void ula();
+    void lui();
+    void branchCase();
+    void jalr();
+    void jal();
+
+    std::string printCommandRegs(const std::string& com);
+
     std::string printIndexValue(const uint32_t& indice);
     std::string printValue(const uint32_t& indice, const uint32_t value);
 };

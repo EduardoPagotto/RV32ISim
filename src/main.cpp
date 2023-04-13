@@ -33,9 +33,6 @@ int main(int argc, char** argv) {
 
     // Run the program
     simulate.play();
-    // while (simulate.hasNext()) {
-    //     simulate.step();
-    // }
 
     // Perhaps get name of output file
     const char* outFile;

@@ -15,7 +15,8 @@ class Controller {
     const bool getBranchAddressValid() const { return false; }
     const uint32_t getBranchAddress() const { return 0; }
 
-    bool shoulStall(PipelineState state) { return !(state == this->state); }
+    // bool shoulStall(PipelineState state) { return !(state == this->state); } // FIXME: no pipeline
+    bool shoulStall(PipelineState state) { return false; }
 
     PipelineState state = PipelineState::Fetch;
 
