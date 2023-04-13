@@ -13,19 +13,20 @@
 #include "Bus.hpp"
 
 struct Instr {
-    uint32_t funct3;
-    uint32_t rd;
-    uint32_t rs1;
-    uint32_t rs2;
-    int32_t opcode;
+    uint8_t funct3;
+    uint8_t funct7;
+    uint8_t rd;
+    uint8_t rs1;
+    uint8_t rs2;
+    uint8_t opcode;
+
+    int32_t instr;
 
     int32_t iImm;
     int32_t sImm;
     int32_t uImm;
     int32_t jImm;
     int32_t bImm;
-
-    int32_t instr;
 
     Instr(const int32_t& instr) {
 
@@ -36,29 +37,29 @@ struct Instr {
         this->rd = ((instr >> 7) & 0x1f);
 
         this->funct3 = (instr >> 12) & 0x7;
+        this->funct7 = ((instr >> 25) & 0x7f);
 
-        this->iImm = instr >> 20;
-        this->sImm = ((instr >> 25) << 5) | this->rd;
-        this->uImm = ((this->instr >> 12) & 0xfffff) << 12;
+        this->iImm = instr >> 20; // instr[11:0] [ 0xFFF => 2048 => -1024:1023 ]
 
-        this->jImm = ((this->instr >> 30) << 20) |          //  instr[20]
+        this->sImm = ((instr >> 25) << 5) // instr[11:5]  [ 0xFFF => 2048 => -1024:1023 ]
+                     | this->rd;          // instr[4:0]
+
+        this->uImm = ((this->instr >> 12) & 0xfffff) << 12; // instr[31:12] [ 0xFFFFFFFF => 4.294.967.295 ]
+
+        this->jImm = ((this->instr >> 30) << 20) |          //  instr[20] [ 0xFFFFF => 1.048.575 =>  524.288:524.287 ]
                      (((this->instr >> 12) & 0xff) << 12) | //  instr[19:12]
                      (((this->instr >> 20) & 0x1) << 11) |  //  instr[11]
                      (((this->instr >> 21) & 0x3ff) << 1);  //  instr[10:1]
 
-        bImm = ((this->instr >> 11) & 0x800) | //  instr[12]
-               ((this->instr << 4) & 0x600) |  //  instr[11]
-               ((this->instr >> 25) << 5) |    //  instr[10:5]
-               ((this->instr >> 7) & 0x1e);    //  instr[4:1] // TODO: Testar
+        // this->bImm = ((this->instr & 0x800) >> 11) | //  instr[12] // [0x1FFF => 8191 => -4096:4095]
+        //              ((this->instr & 0x80) << 4) |   //  instr[11]
+        //              ((this->instr >> 25) << 5) |    //  instr[10:5]
+        //              ((this->instr >> 7) & 0x1e);    //  instr[4:1]
 
-        // if (bImm > 0) {
-        //     bImm++;
-        // }
-
-        // bImm = ((this->instr >> 25) << 5) + ((this->instr >> 7) & 0x1f) - 1;
-        // if (bImm > 0) {
-        //     bImm++;
-        // }
+        this->bImm = ((this->instr >> 25) << 5) + ((this->instr >> 7) & 0x1f) - 1;
+        if (this->bImm > 0) {
+            this->bImm++;
+        }
     }
 };
 

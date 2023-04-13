@@ -199,42 +199,6 @@ void RV32ISim::auipc(const Instr& i) {
     std::cout << printIndexValue(i.rd) << '\n';
 }
 
-std::string RV32ISim::printCommandRegs(const std::string& com, const Instr& i) {
-    std::stringstream ss;
-
-    switch (i.opcode) {
-        case 0x03:
-            ss << com << alias[i.rd] << " " << i.iImm << "(" << alias[i.rs1] << ") \t\t# ";
-            break;
-
-        case 0x13:
-        case 0x67:
-            ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << i.iImm << " \t\t# ";
-            break;
-
-        case 0x17:
-        case 0x37:
-            ss << com << alias[i.rd] << " " << static_cast<uint32_t>(i.uImm) << " \t\t# ";
-            break;
-
-        case 0x23:
-            ss << com << alias[i.rs2] << " " << i.sImm << "(" << alias[i.rs1] << ") \t\t# ";
-            break;
-
-        case 0x33:
-            ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << alias[i.rs2 & 0x1f] << " \t\t# ";
-            break;
-
-        case 0x6f:
-            ss << com << alias[i.rd] << " " << i.jImm << " \t\t# ";
-            break;
-
-        default:
-            break;
-    }
-    return ss.str();
-}
-
 void RV32ISim::saveRegister(const Instr& i) {
     switch (i.funct3) {
         case 0x0:
@@ -328,45 +292,41 @@ void RV32ISim::branchCase(const Instr& i) {
     uint32_t valRs1 = regs[i.rs1];
     uint32_t valRs2 = regs[i.rs2];
 
-    int32_t offset = ((i.instr >> 25) << 5) + ((i.instr >> 7) & 0x1f) - 1;
-    if (offset > 0) {
-        offset++;
-    }
     switch (i.funct3) {
         case 0x0:
-            std::cout << "beq   " << alias[i.rs1] << " " << alias[i.rs2] << " " << offset << " \t\t# ";
+            std::cout << "beq   " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 == valRs2) {
-                cpu_pc = cpu_pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (i.bImm / 4) - 1;
             }
             break;
         case 0x1:
-            std::cout << "bne   " << alias[i.rs1] << " " << alias[i.rs2] << " " << offset << " \t\t# ";
+            std::cout << "bne   " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 != valRs2) {
-                cpu_pc = cpu_pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (i.bImm / 4) - 1;
             }
             break;
         case 0x4:
-            std::cout << "blt   " << alias[i.rs1] << " " << alias[i.rs2] << " " << offset << " \t\t# ";
+            std::cout << "blt   " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 < valRs2) {
-                cpu_pc = cpu_pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (i.bImm / 4) - 1;
             }
             break;
         case 0x5:
-            std::cout << "bge   " << alias[i.rs1] << " " << alias[i.rs2] << " " << offset << " \t\t# ";
+            std::cout << "bge   " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 >= valRs2) {
-                cpu_pc = cpu_pc + (offset >> 2) - 1;
+                cpu_pc = cpu_pc + (i.bImm >> 2) - 1;
             }
             break;
         case 0x6:
-            std::cout << "bltu  " << alias[i.rs1] << " " << alias[i.rs2] << " " << offset << " \t\t# ";
+            std::cout << "bltu  " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 < (unsigned)valRs2) {
-                cpu_pc = cpu_pc + (offset / 4) - 1;
+                cpu_pc = cpu_pc + (i.bImm / 4) - 1;
             }
             break;
         case 0x7:
-            std::cout << "bgeu  " << alias[i.rs1] << " " << alias[i.rs2] << " " << offset << " \t\t# ";
+            std::cout << "bgeu  " << alias[i.rs1] << " " << alias[i.rs2] << " " << i.bImm << " \t\t# ";
             if (valRs1 >= (unsigned)valRs2) {
-                cpu_pc = cpu_pc + (offset >> 2) - 1;
+                cpu_pc = cpu_pc + (i.bImm >> 2) - 1;
             }
             break;
     }
@@ -442,6 +402,42 @@ void RV32ISim::step() {
     regs[0] = 0; // jalr x0 xX is not supposed to cast exception, so this is
                  // the easier way
     cpu_pc++;    // Increment program counter
+}
+
+std::string RV32ISim::printCommandRegs(const std::string& com, const Instr& i) {
+    std::stringstream ss;
+
+    switch (i.opcode) {
+        case 0x03:
+            ss << com << alias[i.rd] << " " << i.iImm << "(" << alias[i.rs1] << ") \t\t# ";
+            break;
+
+        case 0x13:
+        case 0x67:
+            ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << i.iImm << " \t\t# ";
+            break;
+
+        case 0x17:
+        case 0x37:
+            ss << com << alias[i.rd] << " " << static_cast<uint32_t>(i.uImm) << " \t\t# ";
+            break;
+
+        case 0x23:
+            ss << com << alias[i.rs2] << " " << i.sImm << "(" << alias[i.rs1] << ") \t\t# ";
+            break;
+
+        case 0x33:
+            ss << com << alias[i.rd] << " " << alias[i.rs1] << " " << alias[i.rs2 & 0x1f] << " \t\t# ";
+            break;
+
+        case 0x6f:
+            ss << com << alias[i.rd] << " " << i.jImm << " \t\t# ";
+            break;
+
+        default:
+            break;
+    }
+    return ss.str();
 }
 
 void RV32ISim::printRegisters() {
