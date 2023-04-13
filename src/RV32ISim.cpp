@@ -37,6 +37,7 @@ void RV32ISim::play() {
         fetch->step();
         decode->step();
         execute->step();
+        csr.step();
     }
 }
 

@@ -37,31 +37,23 @@ class CSR {
     CSR() = default;
     virtual ~CSR() = default;
 
-    void compute() {
-        cycles.set(cycles.get() + 1);
-        // cycles.getNextValueHigh();
-    }
-
-    void commit() {
-        cycles.commit();
-        instret.commit();
-    }
+    void step() { cycles++; }
 
     uint32_t read(uint32_t address) {
         switch (address) {
             // User Level
             case 0xc00:
-                return cycles.getLow();
+                return (cycles & 0xffffffff);
             case 0xc01:
-                return cycles.getLow();
+                return (cycles & 0xffffffff);
             case 0xc02:
-                return instret.getLow();
+                return (instret & 0xffffffff);
             case 0xc80:
-                return cycles.getHigh();
+                return (cycles >> 32);
             case 0xc81:
-                return cycles.getHigh();
+                return (cycles >> 32);
             case 0xc82:
-                return instret.getHigh();
+                return (instret >> 32);
 
             // Machine Mode
             case 0x301:
@@ -138,8 +130,7 @@ class CSR {
     }
 
   public: // FIXME em Trap
-    RLatch<uint64_t> cycles, instret, mtimecmp;
-
+    uint64_t cycles, instret, mtimecmp;
     uint64_t misa = 0x40000100; // Encodes CPU capabilities, top 2 bits encode width (XLEN), bottom 26 encode extensions
     uint64_t mvendorid = 0;     // JEDEC manufacturer ID
     uint64_t marchid = 0;       // Microarchitecture ID

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bus.hpp"
+#include "CSR.hpp"
 #include "Controller.hpp"
 #include "Decode.hpp"
 #include "Execute.hpp"
@@ -16,6 +17,7 @@ class RV32ISim {
   private:
     uint32_t regs[32];
     Controller crt;
+    CSR csr;
 
     Bus* bus = nullptr;
     Fetch* fetch = nullptr;
