@@ -41,6 +41,7 @@ class Execute {
     int32_t imm32;
 
     uint32_t pc;
+    uint32_t pcPlus4;
 
     std::vector<std::string> alias;
 

@@ -339,24 +339,25 @@ void Execute::jalr() {
 
     std::cout << printCommandRegs("jalr  ");
 
-    regs[rd] = pc; //(cpu_pc + 1) << 2; // FIXME: tem merda aqui!!!!
+    regs[rd] = pcPlus4;
+    const uint32_t vFinal = regs[rs1] + imm32;
+    crt->setBranchAddress(vFinal);
 
-    crt->setBranchAddress(regs[rs1] + imm32);
-
-    // cpu_pc = (regs[rs1] + imm32) >> 2;
-    // cpu_pc = cpu_pc - 1;
-
-    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex((regs[rs1] + imm32) + 4) << '\n';
+    if (rd != 0)
+        std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex(vFinal) << '\n';
+    else
+        std::cout << printIndexValue(rs1) << " ; PC -> " << int_to_hex(vFinal) << '\n';
 }
 
 void Execute::jal() {
 
     std::cout << printCommandRegs("jal ");
 
-    regs[rd] = pc;                     //(cpu_pc + 1) << 2;
-    crt->setBranchAddress(pc + imm32); // cpu_pc = cpu_pc + (imm32 >> 2) - 1; // Because of inc after switch
+    regs[rd] = pcPlus4;
+    const uint32_t vFinal = pc + imm32;
+    crt->setBranchAddress(vFinal); // cpu_pc = cpu_pc + (imm32 >> 2) - 1; // Because of inc after switch
 
-    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex((pc + imm32) + 4) << '\n';
+    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex(vFinal) << '\n';
 }
 
 void Execute::reset() {}
@@ -369,6 +370,8 @@ void Execute::step() {
     } else if (!crt->shoulStall(state)) {
 
         pc = decode->getPc();
+        pcPlus4 = decode->getPcPlus4();
+
         funct3 = decode->getFunct3();
         funct7 = decode->getFunct7();
         rd = decode->getRD();

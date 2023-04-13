@@ -36,6 +36,7 @@ class Decode {
     inline const int32_t& getImm32() const { return this->imm32; }
 
     inline const uint32_t getPc() const { return this->pc; }
+    inline const uint32_t getPcPlus4() const { return this->pcPlus4; }
 
     std::string printValue(const uint32_t& indice, const uint32_t value);
 
@@ -55,6 +56,7 @@ class Decode {
     Fetch* fetch;
 
     uint32_t pc;
+    uint32_t pcPlus4;
 
     bool returnFromTrap = false;
     bool csrShouldRead, csrShouldWrite;

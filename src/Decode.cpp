@@ -17,6 +17,7 @@ void Decode::step() {
     } else if (!crt->shoulStall(state)) {
 
         this->pc = fetch->getPc();
+        this->pcPlus4 = fetch->getPcPlus4();
 
         this->instr = fetch->getInstruction();
         this->opcode = instr & 0x7f;
