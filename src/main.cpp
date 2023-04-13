@@ -32,9 +32,10 @@ int main(int argc, char** argv) {
     RV32ISim simulate(&bus);
 
     // Run the program
-    while (simulate.hasNext()) {
-        simulate.step();
-    }
+    simulate.play();
+    // while (simulate.hasNext()) {
+    //     simulate.step();
+    // }
 
     // Perhaps get name of output file
     const char* outFile;
@@ -45,9 +46,9 @@ int main(int argc, char** argv) {
     }
 
     // Dump the register content to file
-    simulate.writeToFile(outFile);
+    // simulate.writeToFile(outFile);
 
-    std::cout << '\n' << "Register content dumped in file: " << outFile << '\n';
+    // std::cout << '\n' << "Register content dumped in file: " << outFile << '\n';
 
     return 0;
 }

@@ -10,6 +10,7 @@ set (IncludesSim ${CMAKE_SOURCE_DIR})
 
 add_executable (sim RV32ISim.cpp
                     Decode.cpp
+                    Execute.cpp
                     Bus.cpp
                     Device.cpp
                     main.cpp)
