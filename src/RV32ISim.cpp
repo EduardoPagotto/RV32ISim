@@ -35,7 +35,11 @@ void RV32ISim::play() {
     while (fetch->hasNext()) {
 
         fetch->step();
+        fetch->commit();
+
         decode->step();
+        decode->commit();
+
         execute->step();
         csr.step();
     }

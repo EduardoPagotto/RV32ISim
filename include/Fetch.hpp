@@ -2,6 +2,15 @@
 #include "Bus.hpp"
 #include "Controller.hpp"
 
+struct FetchData {
+    FetchData() = default;
+    FetchData(const FetchData& o) = default;
+    ~FetchData() = default;
+    uint32_t pc = 0;
+    uint32_t pcPlus4 = 0;
+    uint32_t instruction = 0;
+};
+
 class Fetch {
   public:
     Fetch(Controller* c, Bus* b, const uint32_t& startAddr) {
@@ -15,11 +24,13 @@ class Fetch {
     virtual ~Fetch() = default;
 
     void reset() {
-        this->pc = startAddr;
-        this->pcPlus4 = startAddr;
+        data.pc = startAddr;
+        data.pcPlus4 = startAddr;
     }
 
-    inline bool hasNext() const { return ((bus->hasData(pc)) & !this->crt->ecall); }
+    inline void commit() { this->done = this->data; }
+    inline const FetchData& get() const { return done; }
+    inline bool hasNext() const { return ((bus->hasData(data.pc)) & !this->crt->ecall); }
 
     void step() {
 
@@ -28,18 +39,14 @@ class Fetch {
 
         } else if (!crt->shoulStall(state)) {
 
-            pc = crt->getBranchAddressValid() ? crt->getBranchAddress() : pcPlus4;
-            pcPlus4 = pc + 4;
+            data.pc = crt->getBranchAddressValid() ? crt->getBranchAddress() : data.pcPlus4;
+            data.pcPlus4 = data.pc + 4;
 
-            bus->load(instruction, pc, 4);
+            bus->load(data.instruction, data.pc, 4);
 
-            crt->printAsHex(pc, instruction);
+            crt->printAsHex(data.pc, data.instruction);
         }
     }
-
-    const uint32_t getPc() const { return pc; }
-    const uint32_t getPcPlus4() const { return pcPlus4; }
-    const uint32_t getInstruction() const { return instruction; }
 
     void printProgram() {
         std::cout << "Program" << '\n' << std::endl;
@@ -61,5 +68,7 @@ class Fetch {
     PipelineState state;
     Bus* bus = nullptr;
     Controller* crt;
-    uint32_t pc, pcPlus4, instruction, startAddr;
+    uint32_t startAddr;
+    FetchData data;
+    FetchData done;
 };

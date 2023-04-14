@@ -7,6 +7,33 @@
 
 enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
 
+enum class OpCodeSet : __uint8_t {
+    LOAD = 0x03,
+    ULAI = 0x13,
+    AUIPC = 0x17,
+    SAVE = 0x23,
+    ULA = 0x33,
+    LUI = 0x37,
+    BRANCH = 0x63,
+    JALR = 0x67,
+    JAL = 0x6f,
+    FENCE = 0x0f,
+    SYSTEM = 0x73,
+    INVALID = 0xFF
+};
+
+enum class OpCodeSetSystem : __uint8_t {
+    ECALL = 0b0000,
+    EBREAK = 0b1000,
+    CSRRW = 0b0001,
+    CSRRS = 0b0010,
+    CSRRC = 0b0011,
+    CSRRWI = 0b0101,
+    CSRRSI = 0b0110,
+    CSRRCI = 0b0111,
+    INVALID = 0b1111
+};
+
 class Controller {
   public:
     Controller() = default;

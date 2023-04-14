@@ -352,6 +352,41 @@ void Execute::jal() {
 
 void Execute::reset() {}
 
+void Execute::setSystem() {
+
+    // returnFromTrap = imm32 == 0x302;
+    switch (opcodeSys) {
+        case OpCodeSetSystem::EBREAK:
+            // FIXME: mover para execute ???
+            // mepc = fetch->getPcPlus4();
+            // mcause = static_cast<uint32_t>(MCause::Breakpoint);
+            // mtval = 0;
+            // trap = 1;
+            break;
+        case OpCodeSetSystem::ECALL:
+            std::cout << "Ecall - Exiting program" << '\n';
+            crt->ecall = true;
+            // mepc = fetch->getPcPlus4();
+            // mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
+            // mtval = 0;
+            // trap = 1;
+            break;
+        default:
+
+            // // CSR fields
+            // csrAddress = this->instr >> 20;
+            // const uint32_t zImm = rs1;
+            // const bool isIntegerCsr = (funct3 & 0b100) == 0b100;
+            // const bool isCsrrw = (funct3 & 0b11) == 0b01;
+
+            // csrSource = isIntegerCsr ? zImm : rs1;
+            // csrShouldWrite = isCsrrw || (!isCsrrw && rs1 != 0);
+            // csrShouldRead = !isCsrrw || (isCsrrw && rd != 0);
+
+            break;
+    }
+}
+
 void Execute::step() {
 
     if (crt->resetSignal()) {
@@ -359,19 +394,22 @@ void Execute::step() {
 
     } else if (!crt->shoulStall(state)) {
 
-        pc = decode->getPc();
-        pcPlus4 = decode->getPcPlus4();
+        const DecodeData& d = decode->getData();
 
-        funct3 = decode->getFunct3();
-        funct7 = decode->getFunct7();
-        rd = decode->getRD();
-        rs1 = decode->getRS1();
-        rs2 = decode->getRS2();
-        opcode = decode->getOpCode();
-        instr = decode->getInstruction();
-        imm32 = decode->getImm32();
+        pc = d.pc;
+        pcPlus4 = d.pcPlus4;
 
-        switch (static_cast<OpCodeSet>(opcode)) {
+        funct3 = d.funct3;
+        funct7 = d.funct7;
+        rd = d.rd;
+        rs1 = d.rs1;
+        rs2 = d.rs2;
+        opcode = d.opcode;
+        opcodeSys = d.opcodeSys;
+        instr = d.instr;
+        imm32 = d.imm32;
+
+        switch (opcode) {
             case OpCodeSet::LOAD:
                 loadRegister();
                 break;
@@ -403,19 +441,23 @@ void Execute::step() {
                 // TODO: implementar
                 break;
             case OpCodeSet::SYSTEM:
-                std::cout << "Ecall - Exiting program" << '\n';
-                // ecall = true;
+                setSystem();
+                break;
+            default:
+                throw std::string("Opcode desconhecido");
                 break;
         }
         regs[0] = 0; // jalr x0 xX is not supposed to cast exception, so this is
                      // the easier way
+
+        // returnFromTrap = false; // FIXME:
     }
 }
 
 std::string Execute::printCommandRegs(const std::string& com) {
     std::stringstream ss;
 
-    switch (static_cast<OpCodeSet>(opcode)) {
+    switch (opcode) {
         case OpCodeSet::LOAD:
             ss << com << alias[rd] << " " << imm32 << "(" << alias[rs1] << ") \t\t# ";
             break;

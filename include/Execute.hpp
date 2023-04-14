@@ -36,7 +36,8 @@ class Execute {
     uint8_t rd;
     uint8_t rs1;
     uint8_t rs2;
-    uint8_t opcode;
+    OpCodeSet opcode;
+    OpCodeSetSystem opcodeSys;
     int32_t instr;
     int32_t imm32;
 
@@ -59,8 +60,15 @@ class Execute {
     void jalr();
     void jal();
 
+    void setSystem();
+
     std::string printCommandRegs(const std::string& com);
 
     std::string printIndexValue(const uint32_t& indice);
     std::string printValue(const uint32_t& indice, const uint32_t value);
+
+    // bool returnFromTrap = false;
+    // bool csrShouldRead, csrShouldWrite;
+    // int32_t mepc, trap, mtval, mcause;
+    // uint32_t csrSource, csrAddress;
 };
