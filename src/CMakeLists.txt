@@ -12,6 +12,7 @@ add_executable (sim RV32ISim.cpp
                     Controller.cpp
                     Decode.cpp
                     Execute.cpp
+                    MemoryAccess.cpp
                     Bus.cpp
                     Device.cpp
                     main.cpp)

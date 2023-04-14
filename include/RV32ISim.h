@@ -6,6 +6,7 @@
 #include "Decode.hpp"
 #include "Execute.hpp"
 #include "Fetch.hpp"
+#include "MemoryAccess.hpp"
 
 class RV32ISim {
   public:
@@ -23,4 +24,5 @@ class RV32ISim {
     Fetch* fetch = nullptr;
     Decode* decode = nullptr;
     Execute* execute = nullptr;
+    MemoryAccess* memory = nullptr;
 };

@@ -26,6 +26,7 @@ RV32ISim::RV32ISim(Bus* bus) {
     fetch = new Fetch(&crt, bus, 0x0);
     decode = new Decode(&crt, fetch);
     execute = new Execute(&crt, bus, decode, regs);
+    memory = new MemoryAccess(&crt, bus, execute, &csr);
 }
 
 RV32ISim::~RV32ISim() {}
@@ -41,6 +42,11 @@ void RV32ISim::play() {
         decode->commit();
 
         execute->step();
+        execute->commit();
+
+        memory->step();
+        memory->commit();
+
         csr.step();
     }
 }

@@ -10,14 +10,8 @@ inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
     return ss.str();
 }
 
-Execute::Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[]) {
-
-    this->crt = c;
-    this->bus = bus;
-    this->decode = d;
-    this->regs = regs;
-
-    state = PipelineState::Execute;
+Execute::Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[])
+    : crt(c), bus(bus), decode(d), regs(regs), state(PipelineState::Execute) {
 
     alias.push_back("r0"); // 0  -> zero
     alias.push_back("ra"); // 1  -> return address

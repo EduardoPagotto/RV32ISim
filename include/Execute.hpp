@@ -18,6 +18,8 @@ class Execute {
      */
     bool writeToFile(const char* filepath);
 
+    void commit() {}
+
     void step();
     void reset();
 

@@ -13,11 +13,8 @@ struct FetchData {
 
 class Fetch {
   public:
-    Fetch(Controller* c, Bus* b, const uint32_t& startAddr) {
-        this->crt = c;
-        this->bus = b;
-        this->startAddr = startAddr;
-        this->state = PipelineState::Fetch;
+    Fetch(Controller* c, Bus* b, const uint32_t& startAddr)
+        : crt(c), bus(b), startAddr(startAddr), state(PipelineState::Fetch) {
         this->reset();
     }
 
