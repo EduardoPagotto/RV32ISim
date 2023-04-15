@@ -83,27 +83,46 @@ std::string Execute::printValue(const uint32_t& indice, const uint32_t value) {
     return ss.str();
 }
 
-void Execute::loadRegister() {
+void Execute::loadRegister() { //
+
+    data.address = regs[rs1] + imm32;
+    data.indexRD = rd;
+
     switch (funct3) {
         case 0x0: // lb
             std::cout << printCommandRegs("lb    ");
-            bus->load(regs[rd], regs[rs1] + imm32, 1);
+            data.memSize = 1;       // 1; 2; 4
+            data.valSigned = false; // true so no lbu, lhu
+            // bus->load(regs[rd], regs[rs1] + imm32, 1);
+
             break;
         case 0x1: // lH
             std::cout << printCommandRegs("lh    ");
-            bus->load(regs[rd], regs[rs1] + imm32, 2);
+            data.memSize = 2;       // 1; 2; 4
+            data.valSigned = false; // true so no lbu, lhu
+            // bus->load(regs[rd], regs[rs1] + imm32, 2);
+
             break;
         case 0x2: // lW
             std::cout << printCommandRegs("lw    ");
-            bus->load(regs[rd], regs[rs1] + imm32, 4);
+            data.memSize = 4;       // 1; 2; 4
+            data.valSigned = false; // true so no lbu, lhu
+            // bus->load(regs[rd], regs[rs1] + imm32, 4);
+
             break;
         case 0x4: // lbu
             std::cout << printCommandRegs("lbu   ");
-            bus->load(regs[rd], regs[rs1] + imm32, 1, true);
+            data.memSize = 1;      // 1; 2; 4
+            data.valSigned = true; // true so no lbu, lhu
+            // bus->load(regs[rd], regs[rs1] + imm32, 1, true);
+
             break;
         case 0x5: // lhu
             std::cout << printCommandRegs("lhu   ");
-            bus->load(regs[rd], regs[rs1] + imm32, 2, true);
+            data.memSize = 2;      // 1; 2; 4
+            data.valSigned = true; // true so no lbu, lhu
+            // bus->load(regs[rd], regs[rs1] + imm32, 2, true);
+
             break;
     }
 
@@ -161,29 +180,43 @@ void Execute::ulai() {
             break;
     }
 
-    regs[rd] = vRD;
+    data.indexRD = rd;
+    data.address = vRD;
+
+    // regs[rd] = vRD;
     std::cout << printIndexValue(rd) << "; " << printValue(rs1, vRS1) << '\n';
 }
 
 void Execute::auipc() {
-    regs[rd] = static_cast<uint32_t>(imm32);
+
+    data.address = static_cast<uint32_t>(imm32);
+    data.indexRD = rd;
+
+    // regs[rd] = static_cast<uint32_t>(imm32);
     std::cout << printCommandRegs("auipc ");
     std::cout << printIndexValue(rd) << '\n';
 }
 
 void Execute::saveRegister() {
+
+    data.address = regs[rs1] + imm32;
+    data.valueRS2 = regs[rs2];
+
     switch (funct3) {
         case 0x0:
             std::cout << printCommandRegs("sb    ");
-            bus->store(regs[rs2], regs[rs1] + imm32, 1);
+            data.memSize = 1;
+            // bus->store(regs[rs2], regs[rs1] + imm32, 1);
             break;
         case 0x1:
             std::cout << printCommandRegs("sh    ");
-            bus->store(regs[rs2], regs[rs1] + imm32, 2);
+            data.memSize = 2;
+            // bus->store(regs[rs2], regs[rs1] + imm32, 2);
             break;
         case 0x2:
             std::cout << printCommandRegs("sw    ");
-            bus->store(regs[rs2], regs[rs1] + imm32, 4);
+            data.memSize = 4;
+            // bus->store(regs[rs2], regs[rs1] + imm32, 4);
             break;
     }
 
@@ -249,14 +282,21 @@ void Execute::ula() {
             break;
     }
 
-    regs[rd] = vRD;
+    // regs[rd] = vRD;
+
+    data.indexRD = rd;
+    data.address = vRD;
+
     std::cout << printIndexValue(rd) << "; ";
     std::cout << printValue(rs1, vRS1) << "; ";
     std::cout << printValue(rs2, vRS2) << '\n';
 }
 
 void Execute::lui() {
-    regs[rd] = imm32;
+    // regs[rd] = imm32;
+    data.indexRD = rd;
+    data.address = imm32;
+
     std::cout << printCommandRegs("lui   ");
     std::cout << printIndexValue(rd) << '\n';
 }
@@ -323,7 +363,10 @@ void Execute::jalr() {
 
     std::cout << printCommandRegs("jalr  ");
 
-    regs[rd] = pcPlus4;
+    // regs[rd] = pcPlus4;
+    data.indexRD = rd;
+    data.address = pcPlus4;
+
     const uint32_t vFinal = regs[rs1] + imm32;
     crt->setBranchAddress(vFinal);
 
@@ -337,7 +380,10 @@ void Execute::jal() {
 
     std::cout << printCommandRegs("jal ");
 
-    regs[rd] = pcPlus4;
+    // regs[rd] = pcPlus4;
+    data.indexRD = rd;
+    data.address = pcPlus4;
+
     const uint32_t vFinal = pc + imm32;
     crt->setBranchAddress(vFinal); // cpu_pc = cpu_pc + (imm32 >> 2) - 1; // Because of inc after switch
 
@@ -402,6 +448,10 @@ void Execute::step() {
         opcodeSys = d.opcodeSys;
         instr = d.instr;
         imm32 = d.imm32;
+
+        data.opcode = opcode;
+        data.opcodeSys = d.opcodeSys;
+        data.funct3 = funct3;
 
         switch (opcode) {
             case OpCodeSet::LOAD:

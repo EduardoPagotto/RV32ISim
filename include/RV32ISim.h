@@ -7,6 +7,7 @@
 #include "Execute.hpp"
 #include "Fetch.hpp"
 #include "MemoryAccess.hpp"
+#include "WriteBack.hpp"
 
 class RV32ISim {
   public:
@@ -25,4 +26,5 @@ class RV32ISim {
     Decode* decode = nullptr;
     Execute* execute = nullptr;
     MemoryAccess* memory = nullptr;
+    WriteBack* writeBack = nullptr;
 };

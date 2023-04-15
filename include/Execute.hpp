@@ -4,6 +4,22 @@
 #include "Controller.hpp"
 #include "Decode.hpp"
 
+struct ExecuteData {
+    ExecuteData() = default;
+    ExecuteData(const ExecuteData& o) = default;
+    ~ExecuteData() = default;
+
+    uint32_t address;
+    uint32_t indexRD;
+    uint8_t memSize;
+    bool valSigned;
+    uint32_t valueRS2;
+
+    OpCodeSet opcode;
+    OpCodeSetSystem opcodeSys;
+    uint8_t funct3;
+};
+
 class Execute {
   public:
     Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[]);
@@ -18,13 +34,15 @@ class Execute {
      */
     bool writeToFile(const char* filepath);
 
-    void commit() {}
+    void commit() { this->done = this->data; }
 
     void step();
     void reset();
 
     void printRegisters();
     // void printProgram();
+
+    inline const ExecuteData& get() const { return data; }
 
   private:
     // uint32_t cpu_pc; // Program counter
@@ -73,4 +91,7 @@ class Execute {
     // bool csrShouldRead, csrShouldWrite;
     // int32_t mepc, trap, mtval, mcause;
     // uint32_t csrSource, csrAddress;
+
+    ExecuteData data;
+    ExecuteData done;
 };
