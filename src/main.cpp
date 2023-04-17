@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     Bus bus;
     // uint32_t idRom = bus.add(new Device(0x0000, 0x1000, DEV_OPENED));          // ROM
     // uint32_t idRam = bus.add(new Device(0x1000, 0x1000, DEV_OPENED | DEV_RW)); // RAM
-    uint32_t idMem = bus.add(new Device(0x0, 0x100000, DEV_OPENED | DEV_RW)); // RAM
+    uint32_t idMem = bus.add(new Device(0x0, 0x1000000, DEV_OPENED | DEV_RW)); // RAM
 
     bus.loadFile(filepath, idMem);
 

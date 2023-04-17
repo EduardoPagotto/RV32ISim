@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <vector>
 
 enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
 
@@ -34,9 +35,63 @@ enum class OpCodeSetSystem : __uint8_t {
     INVALID = 0b1111
 };
 
+struct FetchData {
+    FetchData() = default;
+    FetchData(const FetchData& o) = default;
+    ~FetchData() = default;
+    uint32_t pc = 0;
+    uint32_t pcPlus4 = 0;
+    uint32_t instruction = 0;
+};
+
+struct DecodeData {
+    DecodeData() = default;
+    ~DecodeData() = default;
+    DecodeData(const DecodeData& o) = default;
+
+    uint8_t funct3 = 0;
+    uint8_t funct7 = 0;
+    uint8_t rd = 0;
+    uint8_t rs1 = 0;
+    uint8_t rs2 = 0;
+    OpCodeSet opcode = OpCodeSet::INVALID;
+    OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
+
+    int32_t instr = 0;
+    int32_t imm32 = 0;
+    uint32_t pc = 0;
+    uint32_t pcPlus4 = 0;
+};
+
+struct ExecuteData {
+    ExecuteData() = default;
+    ExecuteData(const ExecuteData& o) = default;
+    ~ExecuteData() = default;
+
+    uint32_t address;
+    uint32_t indexRD;
+    uint8_t memSize;
+    bool valSigned;
+    uint32_t valueRS2;
+
+    OpCodeSet opcode;
+    OpCodeSetSystem opcodeSys;
+    uint8_t funct3;
+};
+
+struct MemoryAccessData {
+    MemoryAccessData() = default;
+    ~MemoryAccessData() = default;
+    MemoryAccessData(const MemoryAccessData& o) = default;
+
+    uint32_t value;
+    uint32_t rd;
+    bool isValid;
+};
+
 class Controller {
   public:
-    Controller() = default;
+    Controller();
     virtual ~Controller() = default;
     const bool resetSignal() const { return false; }
     const bool getBranchAddressValid() { return branchAddressValid; }
@@ -60,15 +115,12 @@ class Controller {
 
     void printAsHex(const uint32_t& addr, const uint32_t& instr);
 
-    template <typename T>
-    inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
-        using namespace std;
-        std::stringstream ss;
-        ss << std::setfill('0') << std::setw(width) << std::hex << (val | 0);
-        return ss.str();
-    }
-
     bool ecall = false; // For program termination
+
+    std::vector<std::string> alias;
+    std::string printValue(const uint32_t& indice, const uint32_t value);
+
+    std::string debugCommandRegs(const DecodeData& d);
 
   private:
     bool branchAddressValid = false;

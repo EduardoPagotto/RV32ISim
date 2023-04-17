@@ -3,25 +3,6 @@
 #include "Fetch.hpp"
 #include <cstdint>
 
-struct DecodeData {
-    DecodeData() = default;
-    ~DecodeData() = default;
-    DecodeData(const DecodeData& o) = default;
-
-    uint8_t funct3 = 0;
-    uint8_t funct7 = 0;
-    uint8_t rd = 0;
-    uint8_t rs1 = 0;
-    uint8_t rs2 = 0;
-    OpCodeSet opcode = OpCodeSet::INVALID;
-    OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
-
-    int32_t instr = 0;
-    int32_t imm32 = 0;
-    uint32_t pc = 0;
-    uint32_t pcPlus4 = 0;
-};
-
 class Decode {
   public:
     Decode(Controller* c, Fetch* f);

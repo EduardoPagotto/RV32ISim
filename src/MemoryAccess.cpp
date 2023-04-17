@@ -1,5 +1,12 @@
 #include "../include/MemoryAccess.hpp"
 
+template <typename T>
+inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(width) << std::hex << (val | 0);
+    return ss.str();
+}
+
 MemoryAccess::MemoryAccess(Controller* c, Bus* b, Execute* e, CSR* csr)
     : crt(c), bus(b), execute(e), csr(csr), state(PipelineState::MemoryAccess) {}
 
@@ -19,6 +26,8 @@ void MemoryAccess::step() {
                 data.isValid = true;
                 data.rd = d.indexRD;
                 bus->load(data.value, d.address, d.memSize, d.valSigned);
+
+                // std::cout << crt->printValue(data.rd, data.value) << " <- MEM[ " << int_to_hex(d.address) << " ]\n";
                 break;
 
             case OpCodeSet::SAVE:

@@ -2,15 +2,6 @@
 #include "Bus.hpp"
 #include "Controller.hpp"
 
-struct FetchData {
-    FetchData() = default;
-    FetchData(const FetchData& o) = default;
-    ~FetchData() = default;
-    uint32_t pc = 0;
-    uint32_t pcPlus4 = 0;
-    uint32_t instruction = 0;
-};
-
 class Fetch {
   public:
     Fetch(Controller* c, Bus* b, const uint32_t& startAddr)
