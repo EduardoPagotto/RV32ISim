@@ -184,7 +184,7 @@ void Execute::ulai() {
     data.address = vRD;
 
     // regs[rd] = vRD;
-    std::cout << printIndexValue(rd) << "; " << printValue(rs1, vRS1) << '\n';
+    std::cout << printValue(rd, vRD) << "; " << printValue(rs1, vRS1) << '\n';
 }
 
 void Execute::auipc() {
@@ -194,7 +194,7 @@ void Execute::auipc() {
 
     // regs[rd] = static_cast<uint32_t>(imm32);
     std::cout << printCommandRegs("auipc ");
-    std::cout << printIndexValue(rd) << '\n';
+    std::cout << printValue(data.indexRD, data.address) << '\n';
 }
 
 void Execute::saveRegister() {
@@ -220,7 +220,7 @@ void Execute::saveRegister() {
             break;
     }
 
-    std::cout << printIndexValue(rs2) << " -> MEM[ " << int_to_hex(regs[rs1] + imm32) << " ]\n";
+    std::cout << printValue(rs2, data.valueRS2) << " -> MEM[ " << int_to_hex(data.address) << " ]\n";
 }
 
 void Execute::ula() {
@@ -298,7 +298,7 @@ void Execute::lui() {
     data.address = imm32;
 
     std::cout << printCommandRegs("lui   ");
-    std::cout << printIndexValue(rd) << '\n';
+    std::cout << printValue(rd, data.address) << '\n';
 }
 
 void Execute::branchCase() {
@@ -371,7 +371,7 @@ void Execute::jalr() {
     crt->setBranchAddress(vFinal);
 
     if (rd != 0)
-        std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex(vFinal) << '\n';
+        std::cout << printValue(data.indexRD, data.address) << " ; PC -> " << int_to_hex(vFinal) << '\n';
     else
         std::cout << printIndexValue(rs1) << " ; PC -> " << int_to_hex(vFinal) << '\n';
 }
@@ -387,7 +387,7 @@ void Execute::jal() {
     const uint32_t vFinal = pc + imm32;
     crt->setBranchAddress(vFinal); // cpu_pc = cpu_pc + (imm32 >> 2) - 1; // Because of inc after switch
 
-    std::cout << printIndexValue(rd) << " ; PC -> " << int_to_hex(vFinal) << '\n';
+    std::cout << printValue(data.indexRD, data.address) << " ; PC -> " << int_to_hex(vFinal) << '\n';
 }
 
 void Execute::reset() {}
