@@ -19,7 +19,7 @@ void WriteBack::step() {
 
         const MemoryAccessData& m = memory->get();
         if (m.isValid) {
-            regs[m.rd] = m.value;
+            regs[m.rd] = (m.rd != 0) ? m.value : 0;
             std::cout << crt->alias[m.rd] << " = " << int_to_hex(m.value) << '\n';
         } else {
             std::cout << '\n';

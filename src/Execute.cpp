@@ -25,7 +25,7 @@ bool Execute::writeToFile(const char* filepath) {
 void Execute::loadRegister() {
 
     data.address = regs[rs1] + imm32;
-    data.indexRD = rd;
+    data.index = rd;
 
     switch (funct3) {
         case 0x0: // lb
@@ -89,19 +89,20 @@ void Execute::ulai() {
             break;
     }
 
-    data.indexRD = rd;
+    data.index = rd;
     data.address = vRD;
 }
 
 void Execute::auipc() {
     data.address = static_cast<uint32_t>(imm32);
-    data.indexRD = rd;
+    data.index = rd;
 }
 
 void Execute::saveRegister() {
 
     data.address = regs[rs1] + imm32;
     data.valueRS2 = regs[rs2];
+    data.index = rs2;
 
     switch (funct3) {
         case 0x0:
@@ -155,19 +156,19 @@ void Execute::ula() {
             break;
     }
 
-    data.indexRD = rd;
+    data.index = rd;
     data.address = vRD;
 }
 
 void Execute::lui() {
-    data.indexRD = rd;
+    data.index = rd;
     data.address = imm32;
 }
 
 void Execute::branchCase() {
 
-    uint32_t valRs1 = regs[rs1];
-    uint32_t valRs2 = regs[rs2];
+    uint32_t const valRs1 = regs[rs1];
+    uint32_t const valRs2 = regs[rs2];
     bool doBranch = false;
 
     switch (funct3) {
@@ -208,13 +209,13 @@ void Execute::branchCase() {
 }
 
 void Execute::jalr() {
-    data.indexRD = rd;
+    data.index = rd;
     data.address = pcPlus4;
     crt->setBranchAddress(regs[rs1] + imm32);
 }
 
 void Execute::jal() {
-    data.indexRD = rd;
+    data.index = rd;
     data.address = pcPlus4;
     crt->setBranchAddress(pc + imm32);
 }
@@ -328,46 +329,3 @@ void Execute::step() {
         // returnFromTrap = false; // FIXME:
     }
 }
-
-// std::string Execute::printCommandRegs(const std::string& com, const int32_t& imm) {
-//     std::stringstream ss;
-
-//     switch (opcode) {
-//         case OpCodeSet::LOAD:
-//             ss << com << crt->alias[rd] << " " << imm << "(" << crt->alias[rs1] << ")";
-//             break;
-
-//         case OpCodeSet::ULAI:
-//         case OpCodeSet::JALR:
-//             ss << com << crt->alias[rd] << " " << crt->alias[rs1] << " " << imm;
-//             break;
-
-//         case OpCodeSet::AUIPC:
-//         case OpCodeSet::LUI:
-//             ss << com << crt->alias[rd] << " " << int_to_hex(imm);
-//             break;
-
-//         case OpCodeSet::SAVE:
-//             ss << com << crt->alias[rs2] << " " << imm << "(" << crt->alias[rs1] << ")";
-//             break;
-
-//         case OpCodeSet::ULA:
-//             ss << com << crt->alias[rd] << " " << crt->alias[rs1] << " " << crt->alias[rs2 & 0x1f];
-//             break;
-
-//         case OpCodeSet::BRANCH:
-//             ss << com << crt->alias[rs1] << " " << crt->alias[rs2] << " " << imm;
-//             break;
-
-//         case OpCodeSet::JAL:
-//             ss << com << crt->alias[rd] << " " << imm;
-//             break;
-
-//         default:
-//             break;
-//     }
-
-//     ss << " \t\t# ";
-
-//     return ss.str();
-// }

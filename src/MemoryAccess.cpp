@@ -24,14 +24,19 @@ void MemoryAccess::step() {
         switch (d.opcode) {
             case OpCodeSet::LOAD:
                 data.isValid = true;
-                data.rd = d.indexRD;
+                data.rd = d.index;
                 bus->load(data.value, d.address, d.memSize, d.valSigned);
 
-                // std::cout << crt->printValue(data.rd, data.value) << " <- MEM[ " << int_to_hex(d.address) << " ]\n";
+                std::cout << "(0x" << int_to_hex(d.address) << ") -> ";
+
                 break;
 
             case OpCodeSet::SAVE:
                 bus->store(d.valueRS2, d.address, d.memSize);
+
+                std::cout << crt->alias[d.index] << " = " << int_to_hex(d.valueRS2) << " -> (0x"
+                          << int_to_hex(d.address) << ")";
+
                 break;
 
             case OpCodeSet::BRANCH:
@@ -45,7 +50,7 @@ void MemoryAccess::step() {
             case OpCodeSet::JALR:
             case OpCodeSet::JAL:
                 data.isValid = true;
-                data.rd = d.indexRD;
+                data.rd = d.index;
                 data.value = d.address;
                 break;
 

@@ -160,11 +160,11 @@ std::string Controller::debugCommandRegs(const DecodeData& d) {
             break;
 
         case OpCodeSet::AUIPC:
-            ss << "auipc" << this->alias[d.rd] << " " << int_to_hex(d.imm32);
+            ss << "auipc " << this->alias[d.rd] << " " << int_to_hex(d.imm32);
             break;
 
         case OpCodeSet::LUI:
-            ss << "lui" << this->alias[d.rd] << " " << int_to_hex(d.imm32);
+            ss << "lui   " << this->alias[d.rd] << " " << int_to_hex(d.imm32);
             break;
 
         case OpCodeSet::SAVE:
