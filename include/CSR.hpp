@@ -130,7 +130,9 @@ class CSR {
     }
 
   public: // FIXME em Trap
-    uint64_t cycles, instret, mtimecmp;
+    uint64_t cycles = 0;
+    uint64_t instret = 0;
+    uint64_t mtimecmp = 0;
     uint64_t misa = 0x40000100; // Encodes CPU capabilities, top 2 bits encode width (XLEN), bottom 26 encode extensions
     uint64_t mvendorid = 0;     // JEDEC manufacturer ID
     uint64_t marchid = 0;       // Microarchitecture ID

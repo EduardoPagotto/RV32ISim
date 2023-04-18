@@ -72,7 +72,8 @@ struct ExecuteData {
     uint32_t index;
     uint8_t memSize;
     bool valSigned;
-    uint32_t valueRS2;
+    uint32_t valueRS;
+    uint32_t valueRD;
 
     OpCodeSet opcode;
     OpCodeSetSystem opcodeSys;

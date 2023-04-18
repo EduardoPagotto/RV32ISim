@@ -20,6 +20,7 @@ void MemoryAccess::step() {
         const ExecuteData& d = execute->get();
 
         data.isValid = false;
+        data.value = 0;
 
         switch (d.opcode) {
             case OpCodeSet::LOAD:
@@ -32,10 +33,10 @@ void MemoryAccess::step() {
                 break;
 
             case OpCodeSet::SAVE:
-                bus->store(d.valueRS2, d.address, d.memSize);
+                bus->store(d.valueRS, d.address, d.memSize);
 
-                std::cout << crt->alias[d.index] << " = " << int_to_hex(d.valueRS2) << " -> (0x"
-                          << int_to_hex(d.address) << ")";
+                std::cout << crt->alias[d.index] << " = " << int_to_hex(d.valueRS) << " -> (0x" << int_to_hex(d.address)
+                          << ")";
 
                 break;
 
@@ -59,7 +60,76 @@ void MemoryAccess::step() {
                 break;
 
             case OpCodeSet::SYSTEM:
-                // setSystem();
+                data.isValid = true;
+                switch (d.opcodeSys) {
+                    case OpCodeSetSystem::EBREAK:
+                        // FIXME: mover para execute ???
+                        // mepc = fetch->getPcPlus4();
+                        // mcause = static_cast<uint32_t>(MCause::Breakpoint);
+                        // mtval = 0;
+                        // trap = 1;
+                        break;
+                    case OpCodeSetSystem::ECALL:
+                        std::cout << "Ecall - Exiting program" << '\n';
+                        crt->ecall = true;
+                        // mepc = fetch->getPcPlus4();
+                        // mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
+                        // mtval = 0;
+                        // trap = 1;
+                        break;
+
+                    case OpCodeSetSystem::INVALID:
+                        break;
+
+                    case OpCodeSetSystem::CSRRC:
+                        data.value = this->csr->read(d.address);
+                        if (d.index != 0)
+                            this->csr->write(d.address, (data.value & ~d.valueRS));
+                        break;
+
+                    case OpCodeSetSystem::CSRRCI:
+                        data.value = this->csr->read(d.address);
+                        if (d.index != 0)
+                            this->csr->write(d.address, (data.value >> ~d.index));
+                        break;
+
+                    case OpCodeSetSystem::CSRRS:
+                        data.value = this->csr->read(d.address);
+                        if (d.index != 0)
+                            this->csr->write(d.address, data.value | d.valueRS);
+                        break;
+
+                    case OpCodeSetSystem::CSRRSI:
+                        data.value = this->csr->read(d.address);
+                        if (d.index != 0)
+                            this->csr->write(d.address, data.value | d.index);
+                        break;
+
+                    case OpCodeSetSystem::CSRRW:
+                        data.value = (d.valueRD != 0) ? this->csr->read(d.address) : 0;
+                        this->csr->write(d.address, d.valueRS);
+                        break;
+
+                    case OpCodeSetSystem::CSRRWI:
+                        data.value = (d.valueRD != 0) ? this->csr->read(d.address) : 0;
+                        this->csr->write(d.address, d.index);
+                        break;
+
+                        // default:
+
+                        //     // // CSR fields
+                        //     uint32_t csrAddress = imm32; //
+                        //     // const int32_t zImm = rs1;
+                        //     const bool isIntegerCsr = (funct3 & 0b100) == 0b100;
+                        //     const bool isCsrrw = (funct3 & 0b11) == 0b01;
+
+                        //     int32_t csrSource = isIntegerCsr ? rs1 : regs[rs1];          //
+                        //     bool csrShouldWrite = isCsrrw || (!isCsrrw && rs1 != 0);     //
+                        //     bool csrShouldRead = !isCsrrw || (isCsrrw && regs[rd] != 0); //
+
+                        //     break;
+                }
+
                 break;
 
             default:

@@ -101,7 +101,7 @@ void Execute::auipc() {
 void Execute::saveRegister() {
 
     data.address = regs[rs1] + imm32;
-    data.valueRS2 = regs[rs2];
+    data.valueRS = regs[rs2];
     data.index = rs2;
 
     switch (funct3) {
@@ -237,6 +237,7 @@ void Execute::setSystem() {
             // mtval = 0;
             // trap = 1;
             break;
+
         case OpCodeSetSystem::ECALL:
             std::cout << "Ecall - Exiting program" << '\n';
             crt->ecall = true;
@@ -245,18 +246,20 @@ void Execute::setSystem() {
             // mtval = 0;
             // trap = 1;
             break;
-        default:
 
-            // // CSR fields
-            // csrAddress = this->instr >> 20;
-            // const uint32_t zImm = rs1;
-            // const bool isIntegerCsr = (funct3 & 0b100) == 0b100;
-            // const bool isCsrrw = (funct3 & 0b11) == 0b01;
+        case OpCodeSetSystem::CSRRC:
+        case OpCodeSetSystem::CSRRCI:
+        case OpCodeSetSystem::CSRRS:
+        case OpCodeSetSystem::CSRRSI:
+        case OpCodeSetSystem::CSRRW:
+        case OpCodeSetSystem::CSRRWI:
+            data.address = imm32;
+            data.index = rs1;
+            data.valueRS = regs[rs1];
+            data.valueRD = regs[rd];
+            break;
 
-            // csrSource = isIntegerCsr ? zImm : rs1;
-            // csrShouldWrite = isCsrrw || (!isCsrrw && rs1 != 0);
-            // csrShouldRead = !isCsrrw || (isCsrrw && rd != 0);
-
+        case OpCodeSetSystem::INVALID:
             break;
     }
 }
