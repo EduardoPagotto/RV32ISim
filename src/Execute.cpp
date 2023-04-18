@@ -204,19 +204,23 @@ void Execute::branchCase() {
     }
 
     const uint32_t final = pc + imm32;
-    if (doBranch)
+    if (doBranch) {
+        std::cout << "pc = " << int_to_hex(final) << " ";
         crt->setBranchAddress(final);
+    }
 }
 
 void Execute::jalr() {
     data.index = rd;
     data.address = pcPlus4;
+    std::cout << "pc = " << int_to_hex(regs[rs1] + imm32) << " ";
     crt->setBranchAddress(regs[rs1] + imm32);
 }
 
 void Execute::jal() {
     data.index = rd;
     data.address = pcPlus4;
+    std::cout << "pc = " << int_to_hex(pc + imm32) << " ";
     crt->setBranchAddress(pc + imm32);
 }
 
