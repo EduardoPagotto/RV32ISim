@@ -84,13 +84,13 @@ void MemoryAccess::step() {
                     case OpCodeSetSystem::CSRRC:
                         data.value = this->csr->read(d.address);
                         if (d.index != 0)
-                            this->csr->write(d.address, (data.value & ~d.valueRS));
+                            this->csr->write(d.address, (data.value & (~d.valueRS)));
                         break;
 
                     case OpCodeSetSystem::CSRRCI:
                         data.value = this->csr->read(d.address);
                         if (d.index != 0)
-                            this->csr->write(d.address, (data.value >> ~d.index));
+                            this->csr->write(d.address, (data.value >> (~d.index)));
                         break;
 
                     case OpCodeSetSystem::CSRRS:

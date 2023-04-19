@@ -154,6 +154,60 @@ int abs(int v) {
 ```
 
 
+csr
+
+MRO -> machine read only
+
+
+# CSRRW: CSR read write
+escrita                                        leitura 
+rs1 ------------------->  CSR ---------------> rd (retorno valor)
+rs1 ------------------->  CSR ---------x-----> rd(0) (Sem leitura ,retorna 0)
+rs1(0)--(escreve 0)---->  CSR ---------------> rd                                              
+
+# CSRRWI: immediate (5 bit only, extended 0 -> 000 00000000 00011111)
+escrita                                        leitura 
+imm ------------------->  CSR ---------------> rd (retorno valor)
+imm ------------------->  CSR ---------x-----> rd(0) (Sem leitura ,retorna 0)
+
+# CSRRS: Read and set bits                                         
+escrita                                        leitura 
+rs1 ------------------->  CSR ---------------> rd (retorno sempre valor)
+rs1(0) ---------------->  CSR ---------------> rd (retorno sempre valor) sem alteracao no CSR
+rs1 contem a mascara de bits: bits 1 seta os bits do CSR, os bit 0 deixam o csr inalterado!
+
+# CSRRSI: Read and set bits immediate (lower 5 bit como mascara)
+imm ------------------->  CSR ---------------> rd (retorno valor)
+imm(0) ---------------->  CSR ---------------> rd (retorno sempre valor) sem alteracao no CSR
+imm contem a mascara de bits: bits 1 seta os bits do CSR, os bit 0 deixam o csr inalterado!
+
+# CSRRC: Read and clear bits
+escrita                                        leitura 
+rs1 ------------------->  CSR ---------------> rd (retorno sempre valor)
+rs1(0) ---------------->  CSR ---------------> rd (retorno sempre valor) sem alteracao no CSR
+rs1 contem a mascara de bits: bits 1 limpa os bits do CSR, os bit 0 deixam o csr inalterado!
+
+
+# CSRRCI: Read and clear bits immediate (lower 5 bit como mascara)
+escrita                                        leitura 
+imm ------------------->  CSR ---------------> rd (retorno valor)
+imm(0) ---------------->  CSR ---------------> rd (retorno sempre valor) sem alteracao no CSR
+imm contem a mascara de bits: bits 1 limpa os bits do CSR, os bit 0 deixam o csr inalterado!
+
+# pseudo
+CSRR (CSRRS x0, x1)
+CSRW (CSRRW x1, x0)
+CSRI (CSRRW imm, x0)
+
+
+# interrupt
+MEPC: Quando um exception ou uma interrupcao acontece contem o PC da instrução interrompida, quando terminar usar este valor +4 para a proxima instrucao!!
+MCAUSE: lista de valores com o motivo do TRAP (interrupcao/excessao)
+MTVEC: tabela de vetores apontam para tipos diferentes de interrupcoes baseados na tabela de interrupcoes
+MSTATUS: permite habilitar e desabilitar interrupts
+MTVAL: detalhe do tipo de tra que ocorreu, como o address de uma leitura mal alinhada
+
+
 
 
 refs:
