@@ -63,6 +63,34 @@ struct DecodeData {
     uint32_t pcPlus4 = 0;
 };
 
+enum class TypeField : __uint8_t { CSR = 0, Memory = 1 };
+
+// TODO: implementar
+struct CSRFields {
+    TypeField type;
+    uint8_t rs1Index;
+    uint8_t rdIndex;
+    int32_t address;
+    uint32_t rs1Value;
+    uint32_t rdValue;
+};
+
+// TODO: implementar
+struct MemoryFields {
+    TypeField type;
+    uint32_t value;
+    uint32_t address;
+    uint8_t memSize;
+    bool isSigned;
+};
+
+// TODO: implementar
+union Fields {
+    TypeField type;
+    CSRFields csr;
+    MemoryFields mem;
+};
+
 struct ExecuteData {
     ExecuteData() = default;
     ExecuteData(const ExecuteData& o) = default;

@@ -90,7 +90,7 @@ void MemoryAccess::step() {
                     case OpCodeSetSystem::CSRRCI:
                         data.value = this->csr->read(d.address);
                         if (d.index != 0)
-                            this->csr->write(d.address, (data.value >> (~d.index)));
+                            this->csr->write(d.address, (data.value & (~d.index)));
                         break;
 
                     case OpCodeSetSystem::CSRRS:
@@ -114,20 +114,6 @@ void MemoryAccess::step() {
                         data.value = (d.valueRD != 0) ? this->csr->read(d.address) : 0;
                         this->csr->write(d.address, d.index);
                         break;
-
-                        // default:
-
-                        //     // // CSR fields
-                        //     uint32_t csrAddress = imm32; //
-                        //     // const int32_t zImm = rs1;
-                        //     const bool isIntegerCsr = (funct3 & 0b100) == 0b100;
-                        //     const bool isCsrrw = (funct3 & 0b11) == 0b01;
-
-                        //     int32_t csrSource = isIntegerCsr ? rs1 : regs[rs1];          //
-                        //     bool csrShouldWrite = isCsrrw || (!isCsrrw && rs1 != 0);     //
-                        //     bool csrShouldRead = !isCsrrw || (isCsrrw && regs[rd] != 0); //
-
-                        //     break;
                 }
 
                 break;

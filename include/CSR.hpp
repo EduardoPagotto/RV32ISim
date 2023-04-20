@@ -85,6 +85,7 @@ class CSR {
         }
 
         // FIXME:
+        return 0;
         //  throw new Error(`Unknown CSR : 0x $ { toHexString(address, 3) }`);
     }
 
@@ -126,6 +127,9 @@ class CSR {
                 mtval = value;
                 return;
             }
+            default:
+                // TODO: implementar
+                return;
         }
     }
 

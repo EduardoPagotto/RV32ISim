@@ -51,44 +51,44 @@ class Trap {
 
         this->csr = csr;
         this->crt = crt;
-        state.set(static_cast<uint32_t>(TrapState::Idle));
+        this->state = static_cast<uint32_t>(TrapState::Idle);
     }
 
     virtual ~Trap() = default;
 
     void trapException(uint32_t mepc, uint32_t mcause, uint32_t mtval) {
-        this->mepc.set(mepc);
-        this->mcause.set(mcause);
-        this->mtval.set(mtval);
-        this->state.set(static_cast<uint32_t>(TrapState::SetCSRJump));
+        this->mepc = mepc;
+        this->mcause = mcause;
+        this->mtval = mtval;
+        this->state = static_cast<uint32_t>(TrapState::SetCSRJump);
     }
 
-    void trapReturn() { state.set(static_cast<uint32_t>(TrapState::ReturnFromTrap)); }
+    void trapReturn() { this->state = static_cast<uint32_t>(TrapState::ReturnFromTrap); }
 
     void compute() {
         if (this->crt->beginTrap()) { // FIXME funcao aqui mover para o controller!!!!
 
-            state.set(static_cast<uint32_t>(TrapState::SetCSRJump));
-            flush.set(1);
+            this->state = static_cast<uint32_t>(TrapState::SetCSRJump);
+            this->flush = 1;
 
         } else if (this->crt->beginTrapReturn()) { // FIXME funcao aqui mover para o controller !!!!
 
-            state.set(static_cast<uint32_t>(TrapState::ReturnFromTrap));
-            flush.set(1);
+            this->state = static_cast<uint32_t>(TrapState::ReturnFromTrap);
+            this->flush = 1;
 
         } else {
-            switch (static_cast<TrapState>(state.get())) {
+            switch (static_cast<TrapState>(state)) {
                 case TrapState::Idle: {
-                    returnToPipelineMode.set(0);
-                    setPc.set(0);
-                    flush.set(0);
+                    this->returnToPipelineMode = 0;
+                    this->setPc = 0;
+                    this->flush = 0;
                     return;
                 }
 
                 case TrapState::SetCSRJump: {
-                    csr->mepc = mepc.get();
-                    csr->mcause = mcause.get();
-                    csr->mtval = mtval.get();
+                    csr->mepc = mepc;
+                    csr->mcause = mcause;
+                    csr->mtval = mtval;
 
                     const uint32_t mie = (csr->mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
                     // Unset MPIE bit
@@ -98,33 +98,33 @@ class Trap {
                     // Unset mie
                     csr->mstatus = (csr->mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
 
-                    const uint32_t index = mcause.get() & 0x7fffffff;
-                    const uint32_t isInterrupt = mcause.get() & 0x80000000;
+                    const uint32_t index = mcause & 0x7fffffff;
+                    const uint32_t isInterrupt = mcause & 0x80000000;
                     const uint32_t offset = isInterrupt ? 0 : 48;
 
-                    pcToSet.set((csr->mtvec & 0xfffffffc) + offset + (index << 2));
+                    this->pcToSet = (csr->mtvec & 0xfffffffc) + offset + (index << 2);
 
-                    setPc.set(1);
-                    returnToPipelineMode.set(1);
-                    flush.set(0);
+                    this->setPc = 1;
+                    this->returnToPipelineMode = 1;
+                    this->flush = 0;
 
-                    state.set(static_cast<uint32_t>(TrapState::Idle));
+                    this->state = static_cast<uint32_t>(TrapState::Idle);
 
                     return;
                 }
 
                 case TrapState::SetPc: {
-                    setPc.set(1);
-                    returnToPipelineMode.set(1);
-                    state.set(static_cast<uint32_t>(TrapState::Idle));
-                    flush.set(0);
+                    this->setPc = 1;
+                    this->returnToPipelineMode = 1;
+                    this->state = static_cast<uint32_t>(TrapState::Idle);
+                    this->flush = 0;
                     return;
                 }
 
                 case TrapState::ReturnFromTrap: {
-                    pcToSet.set(csr->mepc);
-                    state.set(static_cast<uint32_t>(TrapState::SetPc));
-                    flush.set(0);
+                    this->pcToSet = csr->mepc;
+                    this->state = static_cast<uint32_t>(TrapState::SetPc);
+                    this->flush = 0;
 
                     const uint32_t mpie = (csr->mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
                     // Unset MIE bit
@@ -141,28 +141,28 @@ class Trap {
     }
 
     void commit() {
-        state.commit();
-        mepc.commit();
-        mcause.commit();
-        mtval.commit();
-        returnToPipelineMode.commit();
-        flush.commit();
-        setPc.commit();
-        pcToSet.commit();
+        // state.commit();
+        // mepc.commit();
+        // mcause.commit();
+        // mtval.commit();
+        // returnToPipelineMode.commit();
+        // flush.commit();
+        // setPc.commit();
+        // pcToSet.commit();
     }
     void reset() {
-        state.reset();
-        mepc.reset();
-        mcause.reset();
-        mtval.reset();
-        returnToPipelineMode.reset();
-        flush.reset();
-        setPc.reset();
-        pcToSet.reset();
+        // state.reset();
+        // mepc.reset();
+        // mcause.reset();
+        // mtval.reset();
+        // returnToPipelineMode.reset();
+        // flush.reset();
+        // setPc.reset();
+        // pcToSet.reset();
     }
 
   private:
     CSR* csr;
     Controller* crt;
-    RLatch<uint32_t> state, mepc, mcause, mtval, returnToPipelineMode, flush, setPc, pcToSet;
+    uint32_t state, mepc, mcause, mtval, returnToPipelineMode, flush, setPc, pcToSet;
 };
