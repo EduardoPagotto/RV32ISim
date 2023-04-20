@@ -7,6 +7,7 @@
 #include "Execute.hpp"
 #include "Fetch.hpp"
 #include "MemoryAccess.hpp"
+#include "Trap.hpp"
 #include "WriteBack.hpp"
 
 class RV32ISim {
@@ -27,4 +28,5 @@ class RV32ISim {
     Execute* execute = nullptr;
     MemoryAccess* memory = nullptr;
     WriteBack* writeBack = nullptr;
+    Trap* trap = nullptr;
 };

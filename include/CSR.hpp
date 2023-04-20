@@ -39,6 +39,8 @@ class CSR {
 
     void step() { cycles++; }
 
+    void commit() {}
+
     uint32_t read(uint32_t address) {
         switch (address) {
             // User Level
