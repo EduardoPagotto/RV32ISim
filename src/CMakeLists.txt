@@ -8,7 +8,12 @@ set (LibsSim -lpthread)
 #define os includes
 set (IncludesSim ${CMAKE_SOURCE_DIR})
 
-add_executable (sim RV32ISim.cpp 
+add_executable (sim RV32ISim.cpp
+                    Controller.cpp
+                    Decode.cpp
+                    Execute.cpp
+                    MemoryAccess.cpp
+                    WriteBack.cpp
                     Bus.cpp
                     Device.cpp
                     main.cpp)
