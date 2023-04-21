@@ -77,9 +77,31 @@ void Decode::step() {
                 break;
             case OpCodeSet::SYSTEM:
                 data.imm32 = iImm;
-                data.opcodeSys = (data.funct3 == 0)
-                                     ? ((data.imm32 == 1) ? OpCodeSetSystem::EBREAK : OpCodeSetSystem::ECALL)
-                                     : static_cast<OpCodeSetSystem>(data.funct3);
+
+                if (data.funct3 == 0) {
+                    switch (data.imm32) {
+                        case 0x0:
+                            data.opcodeSys = OpCodeSetSystem::ECALL;
+                            break;
+                        case 0x1:
+                            data.opcodeSys = OpCodeSetSystem::EBREAK;
+                            break;
+                        case 0x102:
+                            data.opcodeSys = OpCodeSetSystem::SRET;
+                            break;
+                        case 0x302:
+                            data.opcodeSys = OpCodeSetSystem::MRET;
+                            break;
+                        case 0x105:
+                            data.opcodeSys = OpCodeSetSystem::WFI;
+                            break;
+                        default:
+                            throw std::string("Opcode desconhecido");
+                            break;
+                    }
+                } else {
+                    data.opcodeSys = static_cast<OpCodeSetSystem>(data.funct3); // CSR's
+                }
                 break;
             default:
                 throw std::string("Opcode desconhecido");
