@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-class Controller {
+class Controller { // TODO: mover para o CSR
   public:
     Controller() = default;
     virtual ~Controller() = default;
-    const bool resetSignal() const { return false; }
 
+    const bool resetSignal() const { return false; }
     const bool getBranchAddressValid() { return branchAddressValid; }
     const uint32_t getBranchAddress() {
         branchAddressValid = false;
