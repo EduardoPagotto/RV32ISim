@@ -1,24 +1,19 @@
 #pragma once
-#include "Controller.hpp"
 #include "Fetch.hpp"
-#include <cstdint>
 
-class Decode {
+class Decode : public PipelineStage {
   public:
-    Decode(Controller* c, Fetch* f);
+    Decode(CSR* c, Fetch* f) : PipelineStage(PipelineState::Decode, c), fetch(f) {}
     virtual ~Decode() = default;
 
-    void step();
-    void reset();
+    virtual void step() override;
+    virtual void reset() override{};
+    virtual void commit() override { this->done = this->data; }
 
-    inline void commit() { this->done = this->data; }
     inline const DecodeData& getData() const { return done; }
-    std::string printValue(const uint32_t& indice, const uint32_t value);
 
   private:
     DecodeData data;
     DecodeData done;
-    PipelineState state;
-    Controller* crt;
     Fetch* fetch;
 };

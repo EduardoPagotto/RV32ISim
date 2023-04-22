@@ -23,12 +23,12 @@ RV32ISim::RV32ISim(Bus* bus) {
         regs[i] = 0;
     }
 
-    fetch = new Fetch(&crt, bus, 0x0);
-    decode = new Decode(&crt, fetch);
-    execute = new Execute(&crt, bus, decode, regs);
-    memory = new MemoryAccess(&crt, bus, execute, &csr);
-    writeBack = new WriteBack(&crt, bus, memory, regs);
-    trap = new Trap(&crt, &csr);
+    fetch = new Fetch(&csr, bus, 0x0);
+    decode = new Decode(&csr, fetch);
+    execute = new Execute(&csr, bus, decode, regs);
+    memory = new MemoryAccess(&csr, bus, execute);
+    writeBack = new WriteBack(&csr, bus, memory, regs);
+    trap = new Trap(&csr);
 }
 
 RV32ISim::~RV32ISim() {}
@@ -57,12 +57,5 @@ void RV32ISim::play() {
 
         trap->step();
         trap->commit();
-    }
-}
-
-void RV32ISim::printRegisters() {
-    std::cout << "Value of registers: \n" << std::endl;
-    for (int i = 0; i < 32; i++) {
-        std::cout << "x" << i << " " << regs[i] << std::endl;
     }
 }

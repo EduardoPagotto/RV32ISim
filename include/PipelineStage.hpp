@@ -1,16 +1,15 @@
 #pragma once
-#include "Controller.hpp"
+#include "CSR.hpp"
 
 class PipelineStage {
   public:
-    PipelineStage(PipelineState s, Controller* c) : state(s), crt(c) {}
-    virtual ~PipelineStage() {}
-
+    PipelineStage(PipelineState s, CSR* c) : state(s), csr(c) {}
+    virtual ~PipelineStage() = default;
     virtual void step() = 0;
     virtual void commit() = 0;
     virtual void reset() = 0;
 
   protected:
-    Controller* crt;
+    CSR* csr;
     PipelineState state;
 };

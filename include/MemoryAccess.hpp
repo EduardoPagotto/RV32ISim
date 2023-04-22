@@ -1,28 +1,21 @@
 #pragma once
 #include "Bus.hpp"
-#include "CSR.hpp"
-#include "Controller.hpp"
 #include "Execute.hpp"
 
-class MemoryAccess {
+class MemoryAccess : public PipelineStage {
   public:
-    MemoryAccess(Controller* c, Bus* b, Execute* e, CSR* csr);
+    MemoryAccess(CSR* c, Bus* b, Execute* e) : PipelineStage(PipelineState::MemoryAccess, c), bus(b), execute(e) {}
     virtual ~MemoryAccess() = default;
 
-    void reset() {}
-    void step();
-
-    inline void commit() { this->done = this->data; }
+    virtual void reset() override {}
+    virtual void step() override;
+    virtual void commit() override { this->done = this->data; }
 
     inline const MemoryAccessData& get() const { return done; }
 
   private:
-    PipelineState state;
-    Controller* crt;
     Bus* bus;
     Execute* execute;
-    CSR* csr;
-
     MemoryAccessData data;
     MemoryAccessData done;
 };

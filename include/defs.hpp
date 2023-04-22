@@ -196,7 +196,7 @@ struct ExecuteData {
     ~ExecuteData() = default;
 
     uint32_t address;
-    uint32_t index;
+    uint8_t index;
     uint8_t memSize;
     bool valSigned;
     uint32_t valueRS;

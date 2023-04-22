@@ -1,20 +1,19 @@
 #pragma once
 #include "Bus.hpp"
-#include "Controller.hpp"
 #include "MemoryAccess.hpp"
 
-class WriteBack {
+class WriteBack : public PipelineStage {
   public:
-    WriteBack(Controller* c, Bus* b, MemoryAccess* m, uint32_t regs[]);
+    WriteBack(CSR* c, Bus* b, MemoryAccess* m, uint32_t regs[])
+        : PipelineStage(PipelineState::WriteBack, c), bus(b), memory(m), regs(regs) {}
+
     virtual ~WriteBack() = default;
 
-    void reset() {}
-    void commit() {}
-    void step();
+    virtual void reset() override {}
+    virtual void commit() override {}
+    virtual void step() override;
 
   private:
-    PipelineState state;
-    Controller* crt;
     Bus* bus;
     MemoryAccess* memory;
     uint32_t* regs;

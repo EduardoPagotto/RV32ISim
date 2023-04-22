@@ -1,38 +1,40 @@
 #pragma once
 #include "Bus.hpp"
-#include "Controller.hpp"
+#include "PipelineStage.hpp"
+#include <iostream>
 
-class Fetch {
+class Fetch : public PipelineStage {
   public:
-    Fetch(Controller* c, Bus* b, const uint32_t& startAddr)
-        : crt(c), bus(b), startAddr(startAddr), state(PipelineState::Fetch) {
+    Fetch(CSR* c, Bus* b, const uint32_t& startAddr)
+        : PipelineStage(PipelineState::Fetch, c), bus(b), startAddr(startAddr) {
         this->reset();
     }
 
     virtual ~Fetch() = default;
 
-    void reset() {
+    virtual void reset() override {
         data.pc = startAddr;
         data.pcPlus4 = startAddr;
     }
 
-    inline void commit() { this->done = this->data; }
+    virtual void commit() override { this->done = this->data; }
+
     inline const FetchData& get() const { return done; }
-    inline bool hasNext() const { return ((bus->hasData(data.pc)) & !this->crt->ecall); }
+    inline bool hasNext() const { return ((bus->hasData(data.pc)) & !this->csr->ecall); }
 
-    void step() {
+    virtual void step() override {
 
-        if (crt->resetSignal()) {
+        if (csr->resetSignal()) {
             this->reset();
 
-        } else if (!crt->shoulStall(state)) {
+        } else if (!csr->shoulStall(state)) {
 
-            data.pc = crt->getBranchAddressValid() ? crt->getBranchAddress() : data.pcPlus4;
+            data.pc = csr->getBranchAddressValid() ? csr->getBranchAddress() : data.pcPlus4;
             data.pcPlus4 = data.pc + 4;
 
             bus->load(data.instruction, data.pc, 4);
 
-            // crt->printAsHex(data.pc, data.instruction);
+            csr->prt.printAsHex(data.pc, data.instruction);
         }
     }
 
@@ -44,7 +46,7 @@ class Fetch {
 
             uint32_t instr;
             bus->load(instr, 4 * addr, 4);
-            // crt->printAsHex(4 * addr, instr);
+            csr->prt.printAsHex(4 * addr, instr);
             std::cout << "" << '\n';
 
             addr++;
@@ -53,9 +55,7 @@ class Fetch {
     }
 
   private:
-    PipelineState state;
     Bus* bus = nullptr;
-    Controller* crt;
     uint32_t startAddr;
     FetchData data;
     FetchData done;

@@ -1,7 +1,5 @@
 #pragma once
 #include "CSR.hpp"
-#include "Controller.hpp"
-#include <stdint.h>
 
 enum class MCause : uint64_t {
     // Interrupts
@@ -47,10 +45,8 @@ enum class TrapState { Idle, SetCSRJump, ReturnFromTrap, SetPc };
 class Trap {
 
   public:
-    Trap(Controller* crt, CSR* csr) {
-
+    Trap(CSR* csr) {
         this->csr = csr;
-        this->crt = crt;
         this->state = TrapState::Idle;
     }
 
@@ -67,12 +63,12 @@ class Trap {
 
     void step() {
 
-        if (this->crt->beginTrap()) { // FIXME funcao aqui mover para o controller!!!!
+        if (this->csr->beginTrap()) { // FIXME funcao aqui mover para o controller!!!!
 
             this->state = TrapState::SetCSRJump;
             this->flush = true;
 
-        } else if (this->crt->beginTrapReturn()) { // FIXME funcao aqui mover para o controller !!!!
+        } else if (this->csr->beginTrapReturn()) { // FIXME funcao aqui mover para o controller !!!!
 
             this->state = TrapState::ReturnFromTrap;
             this->flush = true;
@@ -147,8 +143,6 @@ class Trap {
 
   private:
     CSR* csr;
-    Controller* crt;
-
     TrapState state;
     uint32_t mepc, mcause, mtval, pcToSet;
     bool returnToPipelineMode, setPc, flush;

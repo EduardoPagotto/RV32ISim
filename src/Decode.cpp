@@ -1,16 +1,12 @@
 #include "../include/Decode.hpp"
 #include "../include/Trap.hpp"
 
-Decode::Decode(Controller* c, Fetch* f) : crt(c), fetch(f), state(PipelineState::Decode) {}
-
-void Decode::reset() {}
-
 void Decode::step() {
 
-    if (crt->resetSignal()) {
+    if (csr->resetSignal()) {
         this->reset();
 
-    } else if (!crt->shoulStall(state)) {
+    } else if (!csr->shoulStall(state)) {
 
         const FetchData& f = fetch->get();
         data.pc = f.pc;

@@ -1,27 +1,17 @@
 #pragma once
-
 #include "Bus.hpp"
-#include "Controller.hpp"
 #include "Decode.hpp"
 
-class Execute {
+class Execute : public PipelineStage {
   public:
-    Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[]);
-    virtual ~Execute();
+    Execute(CSR* c, Bus* bus, Decode* d, uint32_t regs[])
+        : PipelineStage(PipelineState::Execute, c), bus(bus), decode(d), regs(regs) {}
 
-    /**
-     * @brief Dumps the registry content at current state to file
-     *
-     * @param filepath where to place file
-     * @return true indication if write was successful \
-     * @return false indication fail to write
-     */
-    bool writeToFile(const char* filepath);
+    virtual ~Execute() = default;
 
-    void commit() { this->done = this->data; }
-
-    void step();
-    void reset();
+    virtual void commit() override { this->done = this->data; }
+    virtual void step() override;
+    virtual void reset() override;
 
     void printRegisters();
     // void printProgram();
@@ -32,7 +22,6 @@ class Execute {
     // uint32_t cpu_pc; // Program counter
     uint32_t* regs; //
     Bus* bus = nullptr;
-    Controller* crt;
     Decode* decode;
 
     uint8_t funct3;
@@ -47,10 +36,6 @@ class Execute {
 
     uint32_t pc;
     uint32_t pcPlus4;
-
-    PipelineState state;
-
-    // void printAsHex(unsigned int instr);
 
     void loadRegister();
     void ulai();

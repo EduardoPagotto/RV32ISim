@@ -1,21 +1,11 @@
 #include "../include/MemoryAccess.hpp"
 
-template <typename T>
-inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(width) << std::hex << (val | 0);
-    return ss.str();
-}
-
-MemoryAccess::MemoryAccess(Controller* c, Bus* b, Execute* e, CSR* csr)
-    : crt(c), bus(b), execute(e), csr(csr), state(PipelineState::MemoryAccess) {}
-
 void MemoryAccess::step() {
 
-    if (crt->resetSignal()) {
+    if (csr->resetSignal()) {
         this->reset();
 
-    } else if (!crt->shoulStall(state)) {
+    } else if (!csr->shoulStall(state)) {
 
         const ExecuteData& d = execute->get();
 
@@ -28,16 +18,14 @@ void MemoryAccess::step() {
                 data.rd = d.index;
                 bus->load(data.value, d.address, d.memSize, d.valSigned);
 
-                std::cout << "(0x" << int_to_hex(d.address) << ") -> ";
+                csr->prt.printAddress(d.address); // TODO: Melhorar o print
 
                 break;
 
             case OpCodeSet::SAVE:
                 bus->store(d.valueRS, d.address, d.memSize);
 
-                // std::cout << crt->alias[d.index] << " = " << int_to_hex(d.valueRS) << " -> (0x" <<
-                // int_to_hex(d.address)
-                //           << ")";
+                csr->prt.printRegtoMemory(d.index, d.valueRS, d.address); // TODO: Melhorar o print
 
                 break;
 
@@ -72,7 +60,7 @@ void MemoryAccess::step() {
                         break;
                     case OpCodeSetSystem::ECALL:
                         std::cout << "Ecall - Exiting program" << '\n';
-                        crt->ecall = true;
+                        csr->ecall = true;
                         // mepc = fetch->getPcPlus4();
                         // mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
                         // mtval = 0;

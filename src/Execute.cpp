@@ -3,25 +3,6 @@
 #include <iomanip>
 #include <iostream>
 
-template <typename T>
-inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(width) << std::hex << (val | 0);
-    return ss.str();
-}
-
-Execute::Execute(Controller* c, Bus* bus, Decode* d, uint32_t regs[])
-    : crt(c), bus(bus), decode(d), regs(regs), state(PipelineState::Execute) {}
-
-Execute::~Execute() {}
-
-bool Execute::writeToFile(const char* filepath) {
-    std::ofstream outfile(filepath, std::ios::binary);
-    outfile.write((char*)&regs, 32 * sizeof(int));
-    outfile.close();
-    return true;
-}
-
 void Execute::loadRegister() {
 
     data.address = regs[rs1] + imm32;
@@ -205,23 +186,20 @@ void Execute::branchCase() {
 
     const uint32_t final = pc + imm32;
     if (doBranch) {
-        std::cout << "pc = " << int_to_hex(final) << " ";
-        crt->setBranchAddress(final);
+        csr->setBranchAddress(final);
     }
 }
 
 void Execute::jalr() {
     data.index = rd;
     data.address = pcPlus4;
-    std::cout << "pc = " << int_to_hex(regs[rs1] + imm32) << " ";
-    crt->setBranchAddress(regs[rs1] + imm32);
+    csr->setBranchAddress(regs[rs1] + imm32);
 }
 
 void Execute::jal() {
     data.index = rd;
     data.address = pcPlus4;
-    std::cout << "pc = " << int_to_hex(pc + imm32) << " ";
-    crt->setBranchAddress(pc + imm32);
+    csr->setBranchAddress(pc + imm32);
 }
 
 void Execute::reset() {}
@@ -240,7 +218,7 @@ void Execute::setSystem() {
 
         case OpCodeSetSystem::ECALL:
             std::cout << "Ecall - Exiting program" << '\n';
-            crt->ecall = true;
+            csr->ecall = true;
             // mepc = fetch->getPcPlus4();
             // mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
             // mtval = 0;
@@ -266,14 +244,14 @@ void Execute::setSystem() {
 
 void Execute::step() {
 
-    if (crt->resetSignal()) {
+    if (csr->resetSignal()) {
         this->reset();
 
-    } else if (!crt->shoulStall(state)) {
+    } else if (!csr->shoulStall(state)) {
 
         const DecodeData& d = decode->getData();
 
-        // std::cout << crt->debugCommandRegs(d);
+        std::cout << csr->prt.debugCommandRegs(d);
 
         pc = d.pc;
         pcPlus4 = d.pcPlus4;

@@ -290,3 +290,29 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
 
     return ss.str();
 }
+
+void PrintAs::printPC(const uint32_t& val) { std::cout << "pc = " << int_to_hex(val) << " "; }
+
+void PrintAs::printRegtoMemory(const uint8_t& index, const uint32_t& valRS, const uint32_t& address) {
+    std::cout << alias[index] << " = " << int_to_hex(valRS) << " -> (0x" << int_to_hex(address) << ")";
+}
+
+void PrintAs::printRegVal(const uint8_t& index, const uint32_t& value) {
+    std::cout << alias[index] << " = " << int_to_hex(value);
+}
+
+void PrintAs::printAddress(const uint32_t& addr) { std::cout << "(0x" << int_to_hex(addr) << ") -> "; }
+
+void PrintAs::printRegisters(uint32_t* regs) {
+    std::cout << "Value of registers: \n" << std::endl;
+    for (int i = 0; i < 32; i++) {
+        std::cout << "x" << i << " " << regs[i] << std::endl;
+    }
+}
+
+bool PrintAs::writeToFile(uint32_t* regs, const char* filepath) {
+    std::ofstream outfile(filepath, std::ios::binary);
+    outfile.write((char*)regs, 32 * sizeof(int));
+    outfile.close();
+    return true;
+}
