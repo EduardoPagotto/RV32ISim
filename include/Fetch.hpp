@@ -32,7 +32,7 @@ class Fetch {
 
             bus->load(data.instruction, data.pc, 4);
 
-            crt->printAsHex(data.pc, data.instruction);
+            // crt->printAsHex(data.pc, data.instruction);
         }
     }
 
@@ -44,7 +44,7 @@ class Fetch {
 
             uint32_t instr;
             bus->load(instr, 4 * addr, 4);
-            crt->printAsHex(4 * addr, instr);
+            // crt->printAsHex(4 * addr, instr);
             std::cout << "" << '\n';
 
             addr++;

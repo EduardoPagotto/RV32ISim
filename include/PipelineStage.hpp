@@ -1,18 +1,16 @@
 #pragma once
-#include "RegisterBank.hpp"
+#include "Controller.hpp"
 
 class PipelineStage {
   public:
-    PipelineStage() { regs = new RegisterBank(); }
-    virtual ~PipelineStage() {
-        delete regs;
-        regs = nullptr;
-    }
+    PipelineStage(PipelineState s, Controller* c) : state(s), crt(c) {}
+    virtual ~PipelineStage() {}
 
-    virtual void compute() = 0;
-    virtual void latchNext() = 0;
-    void reset() { this->regs->reset(); }
+    virtual void step() = 0;
+    virtual void commit() = 0;
+    virtual void reset() = 0;
 
-  private:
-    RegisterBank* regs;
+  protected:
+    Controller* crt;
+    PipelineState state;
 };

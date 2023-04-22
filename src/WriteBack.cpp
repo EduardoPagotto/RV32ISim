@@ -21,7 +21,7 @@ void WriteBack::step() {
         if (m.isValid) {
             if (m.rd != 0) {
                 regs[m.rd] = m.value;
-                std::cout << crt->alias[m.rd] << " = " << int_to_hex(m.value);
+                // std::cout << crt->alias[m.rd] << " = " << int_to_hex(m.value);
             } else {
                 regs[0] = 0;
             }

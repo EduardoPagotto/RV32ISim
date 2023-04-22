@@ -35,8 +35,9 @@ void MemoryAccess::step() {
             case OpCodeSet::SAVE:
                 bus->store(d.valueRS, d.address, d.memSize);
 
-                std::cout << crt->alias[d.index] << " = " << int_to_hex(d.valueRS) << " -> (0x" << int_to_hex(d.address)
-                          << ")";
+                // std::cout << crt->alias[d.index] << " = " << int_to_hex(d.valueRS) << " -> (0x" <<
+                // int_to_hex(d.address)
+                //           << ")";
 
                 break;
 

@@ -273,7 +273,7 @@ void Execute::step() {
 
         const DecodeData& d = decode->getData();
 
-        std::cout << crt->debugCommandRegs(d);
+        // std::cout << crt->debugCommandRegs(d);
 
         pc = d.pc;
         pcPlus4 = d.pcPlus4;

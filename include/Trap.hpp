@@ -66,6 +66,7 @@ class Trap {
     void trapReturn() { this->state = TrapState::ReturnFromTrap; }
 
     void step() {
+
         if (this->crt->beginTrap()) { // FIXME funcao aqui mover para o controller!!!!
 
             this->state = TrapState::SetCSRJump;
@@ -86,23 +87,23 @@ class Trap {
                 }
 
                 case TrapState::SetCSRJump: {
-                    csr->mepc = mepc;
-                    csr->mcause = mcause;
-                    csr->mtval = mtval;
+                    csr->mem.mepc = mepc;
+                    csr->mem.mcause = mcause;
+                    csr->mem.mtval = mtval;
 
-                    const uint32_t mie = (csr->mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
+                    const uint32_t mie = (csr->mem.mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
                     // Unset MPIE bit
-                    csr->mstatus = (csr->mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                    csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
                     // Save MIE to MPIE
-                    csr->mstatus = (csr->mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
+                    csr->mem.mstatus = (csr->mem.mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
                     // Unset mie
-                    csr->mstatus = (csr->mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                    csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
 
                     const uint32_t index = mcause & 0x7fffffff;
                     const uint32_t isInterrupt = mcause & 0x80000000;
                     const uint32_t offset = isInterrupt ? 0 : 48;
 
-                    this->pcToSet = (csr->mtvec & 0xfffffffc) + offset + (index << 2);
+                    this->pcToSet = (csr->mem.mtvec & 0xfffffffc) + offset + (index << 2);
 
                     this->setPc = true;
                     this->returnToPipelineMode = true;
@@ -122,17 +123,17 @@ class Trap {
                 }
 
                 case TrapState::ReturnFromTrap: {
-                    this->pcToSet = csr->mepc;
+                    this->pcToSet = csr->mem.mepc;
                     this->state = TrapState::SetPc;
                     this->flush = false;
 
-                    const uint32_t mpie = (csr->mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
+                    const uint32_t mpie = (csr->mem.mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
                     // Unset MIE bit
-                    csr->mstatus = (csr->mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                    csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
                     // Save MPIE to MIE
-                    csr->mstatus = (csr->mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
+                    csr->mem.mstatus = (csr->mem.mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
                     // Unset mpie
-                    csr->mstatus = (csr->mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                    csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
 
                     return;
                 }

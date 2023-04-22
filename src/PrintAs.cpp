@@ -1,4 +1,7 @@
-#include "../include/Controller.hpp"
+#include "../include/PrintAs.hpp"
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 
 template <typename T>
 inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
@@ -7,7 +10,7 @@ inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
     return ss.str();
 }
 
-Controller::Controller() {
+PrintAs::PrintAs() {
     alias.push_back("r0"); // 0  -> zero
     alias.push_back("ra"); // 1  -> return address
     alias.push_back("sp"); // 2  -> stackp pointer
@@ -45,7 +48,7 @@ Controller::Controller() {
     alias.push_back("t6");  // 31 -> temporary
 }
 
-std::string Controller::printValue(const uint32_t& indice, const uint32_t value) {
+std::string PrintAs::printValue(const uint32_t& indice, const uint32_t value) {
 
     std::stringstream ss;
 
@@ -57,7 +60,7 @@ std::string Controller::printValue(const uint32_t& indice, const uint32_t value)
     return ss.str();
 }
 
-void Controller::printAsHex(const uint32_t& addr, const uint32_t& instr) {
+void PrintAs::printAsHex(const uint32_t& addr, const uint32_t& instr) {
     int res = 0;
 
     std::cout << int_to_hex(addr) << " ";
@@ -91,7 +94,7 @@ void Controller::printAsHex(const uint32_t& addr, const uint32_t& instr) {
     std::cout << "    ";
 }
 
-std::string Controller::debugCommandRegs(const DecodeData& d) {
+std::string PrintAs::debugCommandRegs(const DecodeData& d) {
     std::stringstream ss;
 
     switch (d.opcode) {
