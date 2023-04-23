@@ -1,4 +1,5 @@
 #pragma once
+#include "Bus.hpp"
 #include <cstdint>
 
 // #define OPC_LOAD 0x03
@@ -197,7 +198,7 @@ struct ExecuteData {
 
     uint32_t address;
     uint8_t index;
-    uint8_t memSize;
+    MemoryAccessWidth width;
     bool valSigned;
     uint32_t valueRS;
     uint32_t valueRD;

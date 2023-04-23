@@ -1,4 +1,4 @@
-#include "../include/MemoryAccess.hpp"
+#include "include/MemoryAccess.hpp"
 
 void MemoryAccess::step() {
 
@@ -16,14 +16,14 @@ void MemoryAccess::step() {
             case OpCodeSet::LOAD:
                 data.isValid = true;
                 data.rd = d.index;
-                bus->load(data.value, d.address, d.memSize, d.valSigned);
+                bus->load(data.value, d.address, d.width, d.valSigned);
 
                 csr->prt.printAddress(d.address); // TODO: Melhorar o print
 
                 break;
 
             case OpCodeSet::SAVE:
-                bus->store(d.valueRS, d.address, d.memSize);
+                bus->store(d.valueRS, d.address, d.width);
 
                 csr->prt.printRegtoMemory(d.index, d.valueRS, d.address); // TODO: Melhorar o print
 

@@ -1,4 +1,4 @@
-#include "../include/Execute.hpp"
+#include "include/Execute.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -10,23 +10,23 @@ void Execute::loadRegister() {
 
     switch (funct3) {
         case 0x0: // lb
-            data.memSize = 1;
+            data.width = MemoryAccessWidth::Byte;
             data.valSigned = false;
             break;
         case 0x1: // lH
-            data.memSize = 2;
+            data.width = MemoryAccessWidth::HalfWord;
             data.valSigned = false;
             break;
         case 0x2: // lW
-            data.memSize = 4;
+            data.width = MemoryAccessWidth::Word;
             data.valSigned = false;
             break;
         case 0x4: // lbu
-            data.memSize = 1;
+            data.width = MemoryAccessWidth::Byte;
             data.valSigned = true;
             break;
         case 0x5: // lhu
-            data.memSize = 2;
+            data.width = MemoryAccessWidth::Byte;
             data.valSigned = true;
             break;
     }
@@ -87,13 +87,13 @@ void Execute::saveRegister() {
 
     switch (funct3) {
         case 0x0:
-            data.memSize = 1;
+            data.width = MemoryAccessWidth::Byte;
             break;
         case 0x1:
-            data.memSize = 2;
+            data.width = MemoryAccessWidth::HalfWord;
             break;
         case 0x2:
-            data.memSize = 4;
+            data.width = MemoryAccessWidth::Word;
             break;
     }
 }

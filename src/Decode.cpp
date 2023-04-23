@@ -1,5 +1,5 @@
-#include "../include/Decode.hpp"
-#include "../include/Trap.hpp"
+#include "include/Decode.hpp"
+#include "include/Trap.hpp"
 
 void Decode::step() {
 

@@ -32,7 +32,7 @@ class Fetch : public PipelineStage {
             data.pc = csr->getBranchAddressValid() ? csr->getBranchAddress() : data.pcPlus4;
             data.pcPlus4 = data.pc + 4;
 
-            bus->load(data.instruction, data.pc, 4);
+            bus->load(data.instruction, data.pc, MemoryAccessWidth::Word);
 
             csr->prt.printAsHex(data.pc, data.instruction);
         }
@@ -45,7 +45,7 @@ class Fetch : public PipelineStage {
         do {
 
             uint32_t instr;
-            bus->load(instr, 4 * addr, 4);
+            bus->load(instr, 4 * addr, MemoryAccessWidth::Word);
             csr->prt.printAsHex(4 * addr, instr);
             std::cout << "" << '\n';
 

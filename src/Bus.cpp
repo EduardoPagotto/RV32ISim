@@ -15,20 +15,20 @@ bool Bus::hasData(const uint32_t& address) const {
     return false;
 }
 
-bool Bus::store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes) {
+bool Bus::store(const uint32_t& reg, const uint32_t& address, const MemoryAccessWidth& width) {
 
     for (auto& v : vDevs) {
-        if (v->store(reg, address, bytes))
+        if (v->store(reg, address, static_cast<uint8_t>(width)))
             return true;
     }
 
     return false;
 }
 
-bool Bus::load(uint32_t& retVal, const uint32_t& address, const uint8_t& bytes, const bool& u) {
+bool Bus::load(uint32_t& retVal, const uint32_t& address, const MemoryAccessWidth& width, const bool& u) {
 
     for (auto& v : vDevs) {
-        if (v->load(retVal, address, bytes, u))
+        if (v->load(retVal, address, static_cast<uint8_t>(width), u))
             return true;
     }
 

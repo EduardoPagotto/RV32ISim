@@ -1,4 +1,4 @@
-#include "../include/CSR.hpp"
+#include "include/CSR.hpp"
 
 uint32_t CSR::read(uint32_t address) {
     switch (address) {
