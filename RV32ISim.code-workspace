@@ -71,7 +71,7 @@
 				"name": "sim_test",
 				"program": "${workspaceFolder}/bin/sim",
 				"args": [
-					"./tests/t12.bin",
+					"./tests/t1.bin",
 					"registers.res"
 				],
 				"cwd": "${workspaceFolder}"

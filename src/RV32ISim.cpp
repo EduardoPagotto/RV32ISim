@@ -33,29 +33,32 @@ RV32ISim::RV32ISim(Bus* bus) {
 
 RV32ISim::~RV32ISim() {}
 
+void RV32ISim::step() {
+    fetch->step();
+    decode->step();
+    execute->step();
+    memory->step();
+    writeBack->step();
+    csr.step();
+    trap->step();
+}
+
+void RV32ISim::commit() {
+    fetch->commit();
+    decode->commit();
+    execute->commit();
+    memory->commit();
+    writeBack->commit();
+
+    csr.commit();
+    trap->commit();
+}
+
 void RV32ISim::play() {
 
     while (fetch->hasNext()) {
-
-        fetch->step();
-        fetch->commit();
-
-        decode->step();
-        decode->commit();
-
-        execute->step();
-        execute->commit();
-
-        memory->step();
-        memory->commit();
-
-        writeBack->step();
-        writeBack->commit();
-
-        csr.step();
-        csr.commit();
-
-        trap->step();
-        trap->commit();
+        this->step();
+        this->commit();
+        this->csr.nextState();
     }
 }

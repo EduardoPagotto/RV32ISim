@@ -16,6 +16,9 @@ class RV32ISim {
     void play();
 
   private:
+    void step();
+    void commit();
+
     uint32_t regs[32];
     CSR csr;
 
