@@ -78,9 +78,16 @@ void Decode::step() {
                     switch (data.imm32) {
                         case 0x0:
                             data.opcodeSys = OpCodeSetSystem::ECALL;
+                            std::cout << "Ecall - Exiting program" << '\n';
+                            // csr->ecall = true;
+                            trap->trapException(f.pcPlus4, static_cast<uint32_t>(MCause::EnvironmentCallFromMMode),
+                                                0); // ultimo e mtab
+
                             break;
                         case 0x1:
                             data.opcodeSys = OpCodeSetSystem::EBREAK;
+                            trap->trapException(f.pcPlus4, static_cast<uint32_t>(MCause::Breakpoint),
+                                                0); // ultimo e mtab
                             break;
                         case 0x102:
                             data.opcodeSys = OpCodeSetSystem::SRET;

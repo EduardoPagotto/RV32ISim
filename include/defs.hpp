@@ -163,6 +163,8 @@ enum class OpCodeSetSystem : __uint8_t {
     INVALID = 0xff
 };
 
+enum class CPUState : __uint8_t { Pipeline, Trap };
+
 struct FetchData {
     FetchData() = default;
     FetchData(const FetchData& o) = default;

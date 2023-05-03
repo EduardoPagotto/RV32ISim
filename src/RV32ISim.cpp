@@ -23,12 +23,13 @@ RV32ISim::RV32ISim(Bus* bus) {
         regs[i] = 0;
     }
 
+    trap = new Trap(&csr);
+
     fetch = new Fetch(&csr, bus, 0x0);
-    decode = new Decode(&csr, fetch);
+    decode = new Decode(&csr, fetch, trap);
     execute = new Execute(&csr, bus, decode, regs);
     memory = new MemoryAccess(&csr, bus, execute);
     writeBack = new WriteBack(&csr, bus, memory, regs);
-    trap = new Trap(&csr);
 }
 
 RV32ISim::~RV32ISim() {}
@@ -39,6 +40,7 @@ void RV32ISim::step() {
     execute->step();
     memory->step();
     writeBack->step();
+
     csr.step();
     trap->step();
 }
@@ -56,7 +58,8 @@ void RV32ISim::commit() {
 
 void RV32ISim::play() {
 
-    while (fetch->hasNext()) {
+    while (true) {
+        // while (fetch->hasNext()) {
         this->step();
         this->commit();
         this->csr.nextState();

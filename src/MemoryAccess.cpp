@@ -51,21 +51,21 @@ void MemoryAccess::step() {
             case OpCodeSet::SYSTEM:
                 data.isValid = true;
                 switch (d.opcodeSys) {
-                    case OpCodeSetSystem::EBREAK:
-                        // FIXME: mover para execute ???
-                        // mepc = fetch->getPcPlus4();
-                        // mcause = static_cast<uint32_t>(MCause::Breakpoint);
-                        // mtval = 0;
-                        // trap = 1;
-                        break;
-                    case OpCodeSetSystem::ECALL:
-                        std::cout << "Ecall - Exiting program" << '\n';
-                        csr->ecall = true;
-                        // mepc = fetch->getPcPlus4();
-                        // mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
-                        // mtval = 0;
-                        // trap = 1;
-                        break;
+                        // case OpCodeSetSystem::EBREAK:
+                        //     // FIXME: mover para execute ???
+                        //     // mepc = fetch->getPcPlus4();
+                        //     // mcause = static_cast<uint32_t>(MCause::Breakpoint);
+                        //     // mtval = 0;
+                        //     // trap = 1;
+                        //     break;
+                        // case OpCodeSetSystem::ECALL:
+                        //     std::cout << "Ecall - Exiting program" << '\n';
+                        //     csr->ecall = true;
+                        //     // mepc = fetch->getPcPlus4();
+                        //     // mcause = static_cast<uint32_t>(MCause::EnvironmentCallFromMMode);
+                        //     // mtval = 0;
+                        //     // trap = 1;
+                        //     break;
 
                     case OpCodeSetSystem::INVALID:
                         break;

@@ -20,7 +20,7 @@ class Fetch : public PipelineStage {
     virtual void commit() override { this->done = this->data; }
 
     inline const FetchData& get() const { return done; }
-    inline bool hasNext() const { return ((bus->hasData(data.pc)) & !this->csr->ecall); }
+    // inline bool hasNext() const { return ((bus->hasData(data.pc)) & !this->csr->ecall); }
 
     virtual void step() override {
 

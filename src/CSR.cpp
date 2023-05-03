@@ -94,22 +94,29 @@ void CSR::write(uint32_t address, uint32_t value) {
     }
 }
 
+void CSR::cpuControl() {
+
+    // this->trapStall = this->cpuState == CPUState::Trap;
+
+    // if
+}
+
 void CSR::nextState() {
-    switch (state) {
+    switch (pipelineState) {
         case PipelineState::Fetch:
-            state = PipelineState::Decode;
+            pipelineState = PipelineState::Decode;
             break;
         case PipelineState::Decode:
-            state = PipelineState::Execute;
+            pipelineState = PipelineState::Execute;
             break;
         case PipelineState::Execute:
-            state = PipelineState::MemoryAccess;
+            pipelineState = PipelineState::MemoryAccess;
             break;
         case PipelineState::MemoryAccess:
-            state = PipelineState::WriteBack;
+            pipelineState = PipelineState::WriteBack;
             break;
         case PipelineState::WriteBack:
-            state = PipelineState::Fetch;
+            pipelineState = PipelineState::Fetch;
             mem.instret++;
             break;
     }

@@ -28,14 +28,15 @@ class CSR {
         prt.printPC(addr); // TODO: melhorar
     }
 
-    bool shoulStall(PipelineState state) { return !(state == this->state); }
+    bool shoulStall(PipelineState state) { return !(state == this->pipelineState); }
 
     bool beginTrap() { return __beginTrap; }
     bool beginTrapReturn() { return __beginTrapReturn; }
 
-    bool ecall = false; // For program termination
+    // bool ecall = false; // For program termination
 
     void nextState();
+    void cpuControl();
 
   public: // FIXME em Trap
     CsrMem mem;
@@ -43,7 +44,9 @@ class CSR {
 
   private:
     // controller
-    PipelineState state = PipelineState::Fetch;
+    bool trapStall = false;
+    CPUState cpuState = CPUState::Pipeline;
+    PipelineState pipelineState = PipelineState::Fetch;
     uint32_t branchAddress = 0;
     bool branchAddressValid = false;
     bool __beginTrap = false;

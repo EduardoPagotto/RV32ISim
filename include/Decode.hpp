@@ -1,9 +1,10 @@
 #pragma once
 #include "Fetch.hpp"
+#include "Trap.hpp"
 
 class Decode : public PipelineStage {
   public:
-    Decode(CSR* c, Fetch* f) : PipelineStage(PipelineState::Decode, c), fetch(f) {}
+    Decode(CSR* c, Fetch* f, Trap* t) : PipelineStage(PipelineState::Decode, c), fetch(f), trap(t) {}
     virtual ~Decode() = default;
 
     virtual void step() override;
@@ -16,4 +17,5 @@ class Decode : public PipelineStage {
     DecodeData data;
     DecodeData done;
     Fetch* fetch;
+    Trap* trap;
 };
