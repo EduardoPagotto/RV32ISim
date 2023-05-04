@@ -208,6 +208,33 @@ MSTATUS: permite habilitar e desabilitar interrupts
 MTVAL: detalhe do tipo de tra que ocorreu, como o address de uma leitura mal alinhada
 
 
+12 |11 | R/W Acessibilidade
+-----------------------------
+0  |0  | Standart RW 
+0  |1  | Standart RW
+1  |0  | Custom RW
+1  |1  | Custom RO
+
+10 | 09 | Nivel de Privilegio
+-----------------------------
+0  | 0  | User
+0  | 1  | Supervisor
+1  | 0  | Hypervisior
+1  | 1  | Machine
+
+
+11 |10 |09 |08 |07 |06 |05 |04 |03 |02 |01 |00 |Tipo
+---|---|---|---|---|---|---|---|---|---|---|---|---------------------------
+0  |0  |X  |X  |X  |X  |X  |X  |X  |X  |X  |X  |Acessibilidade Standart RW 
+0  |1  |X  |X  |X  |X  |X  |X  |X  |X  |X  |X  |Acessibilidade Standart RW
+1  |0  |X  |X  |X  |X  |X  |X  |X  |X  |X  |X  |Acessibilidade Custom RW
+1  |1  |X  |X  |X  |X  |X  |X  |X  |X  |X  |X  |Acessibilidade Custom RO
+X  |X  |0  |0  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel user
+X  |X  |0  |1  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel Supervisor
+X  |X  |1  |0  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel Hypervisior
+X  |X  |1  |1  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel Machine
+
+
 
 
 refs:

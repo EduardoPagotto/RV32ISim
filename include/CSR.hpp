@@ -28,10 +28,12 @@ class CSR {
         prt.printPC(addr); // TODO: melhorar
     }
 
-    bool shoulStall(PipelineState state) { return !(state == this->pipelineState); }
+    bool shoulStall(PipelineState state) {
+        return (this->cpuState == CPUState::Pipeline) ? !(state == this->pipelineState) : false;
+    }
 
-    bool beginTrap() { return __beginTrap; }
-    bool beginTrapReturn() { return __beginTrapReturn; }
+    // bool beginTrap() { return __beginTrap; }
+    // bool beginTrapReturn() { return __beginTrapReturn; }
 
     // bool ecall = false; // For program termination
 
