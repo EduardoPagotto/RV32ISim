@@ -65,9 +65,6 @@ class Trap {
 
         switch (static_cast<TrapState>(state)) {
             case TrapState::Idle: {
-                this->returnToPipelineMode = false;
-                this->setPc = false;
-                this->flush = false;
                 return;
             }
 
@@ -77,66 +74,65 @@ class Trap {
                 csr->write(CSR_MCAUSE, mcause);
                 csr->write(CSR_MTVAL, mtval);
 
-                // // TODO!!!!
-                // const uint32_t mie = (csr->mem.mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
-                // // Unset MPIE bit
-                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
-                // // Save MIE to MPIE
-                // csr->mem.mstatus = (csr->mem.mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
-                // // Unset mie
-                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                uint32_t mstatus = csr->read(CSR_MSTATUS);
+                const uint32_t mie = (mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
+                // Unset MPIE bit
+                mstatus = (mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                // Save MIE to MPIE
+                mstatus = (mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
+                // Unset mie
+                mstatus = (mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
 
-                // const uint32_t index = mcause & 0x7fffffff;
-                // const bool isInterrupt = mcause & 0x80000000;
-                // const uint32_t offset = isInterrupt ? 0 : 48;
+                csr->write(CSR_MSTATUS, mstatus);
 
-                // this->pcToSet = (csr->mem.mtvec & 0xfffffffc) + offset + (index << 2);
+                const uint32_t index = mcause & 0x7fffffff;
+                const bool isInterrupt = mcause & 0x80000000;
+                const uint32_t offset = isInterrupt ? 0 : 48;
 
-                // this->setPc = true;
-                // this->returnToPipelineMode = true;
-                // this->flush = false;
+                uint32_t mtvec = csr->read(CSR_MTVEC);
+                this->pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
 
-                // this->state = TrapState::Idle;
+                this->state = TrapState::SetPc;
+
+                csr->beginTrap();
 
                 return;
             }
 
             case TrapState::SetPc: {
-                this->setPc = true;
-                this->returnToPipelineMode = true;
+                csr->setBranchAddress(this->pcToSet);
+                csr->intoTrap();
                 this->state = TrapState::Idle;
-                this->flush = false;
                 return;
             }
 
             case TrapState::ReturnFromTrap: {
 
-                // // TODO
-                // this->pcToSet = csr->mem.mepc;
-                // this->state = TrapState::SetPc;
-                // this->flush = false;
+                // TODO
+                this->pcToSet = csr->read(CSR_MEPC); // sr->mem.mepc;
+                this->state = TrapState::SetPc;
 
-                // const uint32_t mpie = (csr->mem.mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
-                // // Unset MIE bit
-                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
-                // // Save MPIE to MIE
-                // csr->mem.mstatus = (csr->mem.mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
-                // // Unset mpie
-                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                uint32_t mstatus = csr->read(CSR_MSTATUS);
+                const uint32_t mpie = (mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
+                // Unset MIE bit
+                mstatus = (mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                // Save MPIE to MIE
+                mstatus = (mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
+                // Unset mpie
+                mstatus = (mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+
+                csr->write(CSR_MSTATUS, mstatus);
 
                 return;
             }
         }
-        // }
     }
 
     void commit() {}
-
     void reset() {}
 
   private:
     CSR* csr;
     TrapState state;
     uint32_t mepc, mcause, mtval, pcToSet;
-    bool returnToPipelineMode, setPc, flush;
 };

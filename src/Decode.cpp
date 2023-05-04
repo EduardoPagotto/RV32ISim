@@ -80,7 +80,7 @@ void Decode::step() {
                             data.opcodeSys = OpCodeSetSystem::ECALL;
                             std::cout << "Ecall - Exiting program" << '\n';
                             // csr->ecall = true;
-                            throw std::string(std::string("FIM"));
+                            // throw std::string(std::string("FIM"));
                             trap->trapException(f.pc, static_cast<uint32_t>(MCause::EnvironmentCallFromMMode),
                                                 0); // ultimo e mtab
 

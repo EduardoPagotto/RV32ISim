@@ -32,7 +32,8 @@ class Fetch : public PipelineStage {
             data.pc = csr->getBranchAddressValid() ? csr->getBranchAddress() : data.pcPlus4;
             data.pcPlus4 = data.pc + 4;
 
-            bus->load(data.instruction, data.pc, MemoryAccessWidth::Word);
+            if (!bus->load(data.instruction, data.pc, MemoryAccessWidth::Word))
+                throw std::string("Fora da memoria");
 
             csr->prt.printAsHex(data.pc, data.instruction);
         }

@@ -71,15 +71,23 @@ class CSR {
     }
 
     bool shoulStall(PipelineState state) {
-        return (this->cpuState == CPUState::Pipeline) ? !(state == this->pipelineState) : false;
+        return (this->cpuState == CPUState::Pipeline) ? !(state == this->pipelineState) : true;
     }
 
-    // bool beginTrap() { return __beginTrap; }
+    bool beginTrap() {
+        this->cpuState = CPUState::Trap;
+        return true;
+    }
+
+    void intoTrap() {
+        this->cpuState = CPUState::Pipeline;
+        this->pipelineState = PipelineState::WriteBack; // PipelineState::Fetch;
+    }
+
     // bool beginTrapReturn() { return __beginTrapReturn; }
     // bool ecall = false; // For program termination
 
     void nextState();
-    void cpuControl();
 
   public: // FIXME em Trap
     PrintAs prt;
@@ -89,7 +97,6 @@ class CSR {
     void increment64(const uint32_t add, const uint32_t add2);
 
     // controller
-    bool trapStall = false;
     CPUState cpuState = CPUState::Pipeline;
     PipelineState pipelineState = PipelineState::Fetch;
     uint32_t branchAddress = 0;
