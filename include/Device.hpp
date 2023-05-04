@@ -8,28 +8,22 @@
 
 class Device {
   public:
-    Device(const uint32_t& start, const uint32_t& size, const uint8_t& status);
-    virtual ~Device();
+    Device(const uint8_t& status) : status(status) {}
+    virtual ~Device() = default;
+
+    virtual bool read(const uint32_t& address, const uint32_t& size, uint8_t* valueRet) = 0;
+    virtual bool write(const uint32_t& address, const uint32_t& size, uint8_t* value) = 0;
+    virtual bool validRange(const uint32_t& address, const uint32_t& size) const = 0;
+    virtual bool validWrite(const uint32_t& address, const uint32_t& size) const = 0;
+    virtual const uint32_t getStart() const = 0;
+    virtual const uint32_t getTop() const = 0;
 
     inline void open() { this->status |= DEV_OPENED; }
     inline void close() { this->status &= (~DEV_OPENED); }
     inline const bool isOpen() const { return this->status & DEV_OPENED; }
-    inline const uint8_t& getFlags() const { return status; }
-    inline std::vector<uint8_t>& getRaw() { return mem; }
+    inline const uint8_t& getStatus() const { return status; }
+    inline const bool isWritetable() const { return ((status & (DEV_RW | DEV_OPENED)) == 0x5); }
 
-    bool store(const uint32_t& reg, const uint32_t& address, const uint8_t& bytes);
-    bool load(uint32_t& retVal, const uint32_t& address, const uint8_t& bytes, const bool& u = false);
-
-    inline bool isValid(const uint32_t& address, const uint8_t& size) const {
-        return (status & DEV_OPENED) && (address >= start) && (address < top + size);
-    }
-
-  private:
-    inline bool okWrite(const uint32_t& address, const uint8_t& size) const {
-        return ((status & (DEV_RW | DEV_OPENED)) == 0x5) && (address >= start) && ((address + size) < top);
-    }
-
+  protected:
     uint8_t status;
-    uint32_t start, top;
-    std::vector<uint8_t> mem;
 };

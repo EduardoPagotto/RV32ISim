@@ -16,7 +16,6 @@ add_executable (sim RV32ISim.cpp
                     MemoryAccess.cpp
                     WriteBack.cpp
                     Bus.cpp
-                    Device.cpp
                     main.cpp)
 
 target_link_libraries(sim ${LibsSim})
