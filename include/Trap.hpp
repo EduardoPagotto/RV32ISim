@@ -72,29 +72,31 @@ class Trap {
             }
 
             case TrapState::SetCSRJump: {
-                csr->mem.mepc = mepc;
-                csr->mem.mcause = mcause;
-                csr->mem.mtval = mtval;
 
-                const uint32_t mie = (csr->mem.mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
-                // Unset MPIE bit
-                csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
-                // Save MIE to MPIE
-                csr->mem.mstatus = (csr->mem.mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
-                // Unset mie
-                csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                csr->write(CSR_MEPC, mepc);
+                csr->write(CSR_MCAUSE, mcause);
+                csr->write(CSR_MTVAL, mtval);
 
-                const uint32_t index = mcause & 0x7fffffff;
-                const bool isInterrupt = mcause & 0x80000000;
-                const uint32_t offset = isInterrupt ? 0 : 48;
+                // // TODO!!!!
+                // const uint32_t mie = (csr->mem.mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
+                // // Unset MPIE bit
+                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                // // Save MIE to MPIE
+                // csr->mem.mstatus = (csr->mem.mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
+                // // Unset mie
+                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
 
-                this->pcToSet = (csr->mem.mtvec & 0xfffffffc) + offset + (index << 2);
+                // const uint32_t index = mcause & 0x7fffffff;
+                // const bool isInterrupt = mcause & 0x80000000;
+                // const uint32_t offset = isInterrupt ? 0 : 48;
 
-                this->setPc = true;
-                this->returnToPipelineMode = true;
-                this->flush = false;
+                // this->pcToSet = (csr->mem.mtvec & 0xfffffffc) + offset + (index << 2);
 
-                this->state = TrapState::Idle;
+                // this->setPc = true;
+                // this->returnToPipelineMode = true;
+                // this->flush = false;
+
+                // this->state = TrapState::Idle;
 
                 return;
             }
@@ -108,17 +110,19 @@ class Trap {
             }
 
             case TrapState::ReturnFromTrap: {
-                this->pcToSet = csr->mem.mepc;
-                this->state = TrapState::SetPc;
-                this->flush = false;
 
-                const uint32_t mpie = (csr->mem.mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
-                // Unset MIE bit
-                csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
-                // Save MPIE to MIE
-                csr->mem.mstatus = (csr->mem.mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
-                // Unset mpie
-                csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                // // TODO
+                // this->pcToSet = csr->mem.mepc;
+                // this->state = TrapState::SetPc;
+                // this->flush = false;
+
+                // const uint32_t mpie = (csr->mem.mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
+                // // Unset MIE bit
+                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                // // Save MPIE to MIE
+                // csr->mem.mstatus = (csr->mem.mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
+                // // Unset mpie
+                // csr->mem.mstatus = (csr->mem.mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
 
                 return;
             }

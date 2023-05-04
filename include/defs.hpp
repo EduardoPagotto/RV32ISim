@@ -110,22 +110,6 @@
 //     CSRFields csr;
 // };
 
-enum class CSRMMode {
-    misa = 0x301,
-    mvendorid = 0xF11,
-    marchid = 0xF12,
-    mimpid = 0xF13,
-    mhartid = 0xF14,
-    mstatus = 0x300,
-    mtvec = 0x305,
-    mie = 0x304,
-    mip = 0x344,
-    mcause = 0x342,
-    mepc = 0x341,
-    mscratch = 0x340,
-    mtval = 0x343,
-};
-
 enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
 
 enum class OpCodeSet : __uint8_t {
@@ -218,26 +202,4 @@ struct MemoryAccessData {
     uint32_t value;
     uint32_t rd;
     bool isValid;
-};
-
-struct CsrMem {
-    CsrMem() = default;
-    ~CsrMem() = default;
-    CsrMem(const CsrMem& o) = default;
-    uint64_t cycles = 0;
-    uint64_t instret = 0;
-    // uint64_t mtimecmp = 0;
-    uint64_t misa = 0x40000100; // Encodes CPU capabilities, top 2 bits encode width (XLEN), bottom 26 encode extensions
-    uint64_t mvendorid = 0;     // JEDEC manufacturer ID
-    uint64_t marchid = 0;       // Microarchitecture ID
-    uint64_t mimpid = 0;        // Processor version
-    uint64_t mhartid = 0;       // Hart ID
-    uint64_t mstatus = 0;       // Various specific flags and settings, including global interrupt enable
-    uint64_t mtvec = 0x10000004 | 1; // Encodes the base trap vector address + mode (table or single handler)
-    uint64_t mie = 0x00000888;       // Interrupt enable / disable
-    uint64_t mip = 0;                // Interrupt-pending
-    uint64_t mcause = 0;   // Trap cause. Top bit set = interrupt, reset = exception - reset indicates the type
-    uint64_t mepc = 0;     // Exception Program Counter
-    uint64_t mscratch = 0; // General use reg for M-Mode, mostly used to hold a pointer context space apparently
-    uint64_t mtval = 0;    // Trap-value register, can hold the address of a faulting instruction
 };

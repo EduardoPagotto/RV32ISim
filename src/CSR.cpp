@@ -1,53 +1,24 @@
 #include "include/CSR.hpp"
+#include "include/Memory.hpp"
+
+CSR::CSR() {
+    bus.add(new Memory(0x300 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0300 << 2
+    bus.add(new Memory(0xC00 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_USER0), 0)); // 0x0300 << 2
+    bus.add(new Memory(0xF00 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0F00 << 2
+
+    bus.store(0x40000100, CSR_MISA);
+    bus.store(0x10000004 | 1, CSR_MTVEC);
+    bus.store(0x00000888, CSR_MIE);
+}
 
 uint32_t CSR::read(uint32_t address) {
-    switch (address) {
-        // User Level
-        case 0xc00:
-            return (mem.cycles & 0xffffffff);
-        case 0xc01:
-            return (mem.cycles & 0xffffffff);
-        case 0xc02:
-            return (mem.instret & 0xffffffff);
-        case 0xc80:
-            return (mem.cycles >> 32);
-        case 0xc81:
-            return (mem.cycles >> 32);
-        case 0xc82:
-            return (mem.instret >> 32);
 
-        // Machine Mode
-        case 0x301:
-            return mem.misa;
-        case 0xf11:
-            return mem.mvendorid;
-        case 0xf12:
-            return mem.marchid;
-        case 0xf13:
-            return mem.mimpid;
-        case 0xf14:
-            return mem.mhartid;
-        case 0x300:
-            return mem.mstatus;
-        case 0x305:
-            return mem.mtvec;
-        case 0x304:
-            return mem.mie;
-        case 0x344:
-            return mem.mip;
-        case 0x342:
-            return mem.mcause;
-        case 0x341:
-            return mem.mepc;
-        case 0x340:
-            return mem.mscratch;
-        case 0x343:
-            return mem.mtval;
-    }
+    uint32_t val = 0;
 
-    // FIXME:
-    return 0;
-    //  throw new Error(`Unknown CSR : 0x $ { toHexString(address, 3) }`);
+    if (!bus.load(val, address))
+        throw std::string("Registro invalido");
+
+    return val;
 }
 
 void CSR::write(uint32_t address, uint32_t value) {
@@ -59,45 +30,15 @@ void CSR::write(uint32_t address, uint32_t value) {
         // throw new Error('CSR Write: Attempt to write a read-only register');
     }
 
-    switch (static_cast<CSRMMode>(address)) { // FIXME:
-        case CSRMMode::mstatus: {
-            mem.mstatus = value & (1 << 3) | (1 << 7);
-            return;
-        }
-        case CSRMMode::mie: {
-            mem.mie = value;
-            return;
-        }
-        case CSRMMode::mip: {
-            mem.mip = value;
-            return;
-        }
-        case CSRMMode::mcause: {
-            mem.mcause = value;
-            return;
-        }
-        case CSRMMode::mepc: {
-            mem.mepc = value;
-            return;
-        }
-        case CSRMMode::mscratch: {
-            mem.mscratch = value;
-            return;
-        }
-        case CSRMMode::mtval: {
-            mem.mtval = value;
-            return;
-        }
-        default:
-            // TODO: implementar
-            return;
-    }
+    if (!bus.store(value, address))
+        throw std::string("Registro invalido");
+
+    // mem.mstatus = value & (1 << 3) | (1 << 7);
 }
 
 void CSR::cpuControl() {
 
     // this->trapStall = this->cpuState == CPUState::Trap;
-
     // if
 }
 
@@ -117,7 +58,23 @@ void CSR::nextState() {
             break;
         case PipelineState::WriteBack:
             pipelineState = PipelineState::Fetch;
-            mem.instret++;
+            increment64(CSR_INSTRET, CSR_INSTRETH);
             break;
     }
 }
+
+void CSR::increment64(const uint32_t add, const uint32_t add2) {
+
+    uint32_t low = 0;
+    bus.load(low, add);
+    low++;
+    bus.store(low, add);
+    if (low == 0) {
+        uint32_t hight = 0;
+        bus.load(hight, add2);
+        hight++;
+        bus.store(hight, add2);
+    }
+}
+
+void CSR::step() { increment64(CSR_CYCLE, CSR_CYCLEH); }

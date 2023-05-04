@@ -3,11 +3,11 @@
 
 class Memory : public Device {
   public:
-    Memory(const uint32_t& start, const uint32_t& size, const uint8_t& status)
+    Memory(const uint32_t& start, const uint32_t& size, const uint8_t& status, const uint8_t& initval = 0xFC)
         : Device(status), start(start), top(start + size) {
         this->mem.reserve(size);
         for (uint32_t i = 0; i < size; i++)
-            this->mem.push_back(0xFC);
+            this->mem.push_back(initval);
     }
 
     virtual ~Memory() { this->mem.clear(); }
