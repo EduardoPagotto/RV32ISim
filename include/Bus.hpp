@@ -15,6 +15,7 @@ class Bus {
     Bus() {}
     virtual ~Bus() {}
     uint32_t add(Device* dev);
+    Device* get(const uint32_t& index) { return vDevs[index]; }
 
     bool store(const uint32_t& reg, const uint32_t& address, const MemoryAccessWidth& width);
     bool load(uint32_t& retVal, const uint32_t& address, const MemoryAccessWidth& width, const bool& u = false);

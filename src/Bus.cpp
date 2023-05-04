@@ -72,6 +72,16 @@ void Bus::loadFile(const std::string& file, const uint32_t& index) {
 
     if (index < vDevs.size()) {
         Device* dev = vDevs[index];
+
+        bool alterar = false;
+        if (!dev->isRW()) {
+            dev->setRW(true);
+            alterar = true;
+        }
+
         dev->write(dev->getStart(), data.size(), &data[0]);
+
+        if (alterar)
+            dev->setRW(false);
     }
 }

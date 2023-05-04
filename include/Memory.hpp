@@ -47,7 +47,7 @@ class Memory : public Device {
     }
 
     inline virtual bool validWrite(const uint32_t& address, const uint32_t& size) const override {
-        return isWritetable() && (address >= start) && ((address + size) < top);
+        return (isWritetable() && (address >= start) && ((address + size) <= top));
     }
 
     inline virtual const uint32_t getStart() const override { return start; };
