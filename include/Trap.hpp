@@ -1,7 +1,7 @@
 #pragma once
 #include "CSR.hpp"
 
-enum class MCause : uint64_t {
+enum class MCause : uint32_t {
     // Interrupts
     UserSoftwareInterrupt = 0x80000000,
     SupervisorSoftwareInterrupt,

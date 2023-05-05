@@ -101,6 +101,4 @@ class CSR {
     PipelineState pipelineState = PipelineState::Fetch;
     uint32_t branchAddress = 0;
     bool branchAddressValid = false;
-    bool __beginTrap = false;
-    bool __beginTrapReturn = false;
 };

@@ -4,9 +4,9 @@ OUTPUT_FORMAT("elf32-littleriscv")
 ENTRY( _start )
 
 __start_memory_rom = 0x0;
-__size_memory_rom = 0x100;
-__start_memory_ram = 0x100;
-__size_memory_ram = 0x400;
+__size_memory_rom = 0x200;
+__start_memory_ram = 0x200;
+__size_memory_ram = 0x200;
  
 MEMORY
 {
