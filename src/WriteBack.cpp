@@ -9,9 +9,9 @@ void WriteBack::step() {
 
         const MemoryAccessData& m = memory->get();
         if (m.isValid) {
-            if (m.rd != 0) {
-                regs[m.rd] = m.value;
-                csr->prt.printRegVal(m.rd, m.value); // TODO: Melhorar o print
+            if (m.execute.decode.rd != 0) {
+                regs[m.execute.decode.rd] = m.value;
+                csr->prt.printRegVal(m.execute.decode.rd, m.value); // TODO: Melhorar o print
             } else {
                 regs[0] = 0;
             }

@@ -32,7 +32,9 @@ int main(int argc, char** argv) {
     RV32ISim simulate(&bus);
 
     // Run the program
-    simulate.play();
+    try {
+        simulate.play();
+    } catch (std::string& v) { std::cout << v << '\n'; }
 
     // Perhaps get name of output file
     const char* outFile;

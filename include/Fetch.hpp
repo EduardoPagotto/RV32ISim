@@ -20,7 +20,6 @@ class Fetch : public PipelineStage {
     virtual void commit() override { this->done = this->data; }
 
     inline const FetchData& get() const { return done; }
-    // inline bool hasNext() const { return ((bus->hasData(data.pc)) & !this->csr->ecall); }
 
     virtual void step() override {
 
@@ -32,10 +31,10 @@ class Fetch : public PipelineStage {
             data.pc = csr->getBranchAddressValid() ? csr->getBranchAddress() : data.pcPlus4;
             data.pcPlus4 = data.pc + 4;
 
-            if (!bus->load(data.instruction, data.pc, MemoryAccessWidth::Word))
+            if (!bus->load(data.instr, data.pc, MemoryAccessWidth::Word))
                 throw std::string("Fora da memoria");
 
-            csr->prt.printAsHex(data.pc, data.instruction);
+            csr->prt.printAsHex(data.pc, data.instr);
         }
     }
 

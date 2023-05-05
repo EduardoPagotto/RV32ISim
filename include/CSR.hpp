@@ -46,19 +46,62 @@
 #define CSR_MHARTID 0xf14    // MRO
 #define CSR_MCONFIGPTR 0xf15 // MRO
 
+enum class MCause : uint32_t {
+    // Interrupts
+    UserSoftwareInterrupt = 0x80000000,
+    SupervisorSoftwareInterrupt,
+    Reserved0,
+    MachineSoftwareInterrupt,
+    UserTimerInterrupt,
+    SupervisorTimerInterrupt,
+    Reserved1,
+    MachineTimerInterrupt,
+    UserExternalInterrupt,
+    SupervisorExternalInterrupt,
+    Reserved2,
+    MachineExternalInterrupt,
+    // Exceptions
+    InstructionAddressMisaligned = 0x00000000,
+    InstructionAccessFault,
+    IllegalInstruction,
+    Breakpoint,
+    LoadAddressMisaligned,
+    LoadAccessFault,
+    StoreAMOAddressMisaligned,
+    StoreAMOAccessFault,
+    EnvironmentCallFromUMode,
+    EnvironmentCallFromSMode,
+    Reserved3,
+    EnvironmentCallFromMMode,
+    InstructionPageFault,
+    LoadPageFault,
+    Reserved4,
+    StoreAMOPageFault,
+};
+
+enum class TrapState { Idle, SetCSRJump, ReturnFromTrap, SetPc };
+
+#define MSTATUS_MIE_BIT 3
+#define MSTATUS_MIE_MASK (1 << MSTATUS_MIE_BIT)
+#define MSTATUS_MPIE_BIT 7
+#define MSTATUS_MPIE_MASK (1 << MSTATUS_MPIE_BIT)
+
 class CSR {
   public:
     CSR();
     virtual ~CSR() = default;
 
     void step();
-    void commit() {}
+    void commit() { this->nextState(); }
+
     uint32_t read(uint32_t address);
     void write(uint32_t address, uint32_t value);
 
     // Controller
     const bool resetSignal() const { return false; }
+
     const bool getBranchAddressValid() { return branchAddressValid; }
+
     const uint32_t getBranchAddress() {
         branchAddressValid = false;
         return branchAddress;
@@ -73,6 +116,15 @@ class CSR {
     bool shoulStall(PipelineState state) {
         return (this->cpuState == CPUState::Pipeline) ? !(state == this->pipelineState) : true;
     }
+
+    void trapException(uint32_t mepc, uint32_t mcause, uint32_t mtval) {
+        this->mepc = mepc;
+        this->mcause = mcause;
+        this->mtval = mtval;
+        this->trapState = TrapState::SetCSRJump;
+    }
+
+    void trapReturn() { this->trapState = TrapState::ReturnFromTrap; }
 
     bool beginTrap() {
         this->cpuState = CPUState::Trap;
@@ -91,14 +143,19 @@ class CSR {
 
   public: // FIXME em Trap
     PrintAs prt;
-    CSRBus bus;
 
   private:
     void increment64(const uint32_t add, const uint32_t add2);
 
+    CSRBus bus;
+
     // controller
     CPUState cpuState = CPUState::Pipeline;
     PipelineState pipelineState = PipelineState::Fetch;
+
+    TrapState trapState;
+    uint32_t mepc, mcause, mtval, pcToSet;
+
     uint32_t branchAddress = 0;
     bool branchAddressValid = false;
 };

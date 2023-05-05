@@ -40,76 +40,6 @@
 // // not existe in doc
 // #define SYS_INVALID 0xff
 
-// // TODO: implementar
-// enum class TypeField : __uint8_t { CSR, Memory, Fetch, Decode, Execute };
-
-// // TODO: implementar
-// struct CSRFields {
-//     TypeField type;
-//     uint8_t rs1Index;
-//     uint8_t rdIndex;
-//     int32_t address;
-//     uint32_t rs1Value;
-//     uint32_t rdValue;
-// };
-
-// // TODO: implementar
-// struct MemoryFields {
-//     TypeField type;
-//     uint32_t address;
-//     uint32_t value;
-//     uint8_t memSize;
-//     bool isSigned;
-// };
-
-// // TODO: implementar
-// struct FetchFields {
-//     TypeField type;
-//     uint32_t pc;
-//     uint32_t pcPlus4;
-//     uint32_t instruction;
-// };
-
-// // TODO: implementar
-// struct DecodeFilelds {
-//     TypeField type;
-//     uint32_t pc = 0;
-//     uint32_t pcPlus4 = 0;
-//     int32_t instr = 0;
-//     int32_t imm32 = 0;
-//     uint8_t funct3 = 0;
-//     uint8_t funct7 = 0;
-//     uint8_t rd = 0;
-//     uint8_t rs1 = 0;
-//     uint8_t rs2 = 0;
-//     OpCodeSet opcode = OpCodeSet::INVALID;
-//     OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
-// };
-
-// // TODO: implementar
-// struct ExecuteFields {
-//     TypeField type;
-//     uint32_t address;
-//     uint32_t index;
-//     uint32_t valueRS;
-//     uint32_t valueRD;
-//     uint8_t memSize;
-//     bool valSigned;
-//     OpCodeSet opcode;
-//     OpCodeSetSystem opcodeSys;
-//     uint8_t funct3;
-// };
-
-// // TODO: implementar
-// union Fields {
-//     TypeField type;
-//     FetchFields fetch;
-//     MemoryFields mem;
-//     DecodeFilelds decode;
-//     ExecuteFields exec;
-//     CSRFields csr;
-// };
-
 enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
 
 enum class OpCodeSet : __uint8_t {
@@ -155,51 +85,45 @@ struct FetchData {
     ~FetchData() = default;
     uint32_t pc = 0;
     uint32_t pcPlus4 = 0;
-    uint32_t instruction = 0;
+    uint32_t instr = 0;
 };
 
 struct DecodeData {
     DecodeData() = default;
-    ~DecodeData() = default;
     DecodeData(const DecodeData& o) = default;
-
+    DecodeData(const FetchData& f) { fetch = f; }
+    ~DecodeData() = default;
+    FetchData fetch;
     uint8_t funct3 = 0;
     uint8_t funct7 = 0;
     uint8_t rd = 0;
     uint8_t rs1 = 0;
     uint8_t rs2 = 0;
+    int32_t imm32 = 0;
     OpCodeSet opcode = OpCodeSet::INVALID;
     OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
-
-    int32_t instr = 0;
-    int32_t imm32 = 0;
-    uint32_t pc = 0;
-    uint32_t pcPlus4 = 0;
 };
 
 struct ExecuteData {
     ExecuteData() = default;
     ExecuteData(const ExecuteData& o) = default;
+    ExecuteData(const DecodeData& d) { decode = d; };
     ~ExecuteData() = default;
-
-    uint32_t address;
-    uint8_t index;
+    DecodeData decode;
     MemoryAccessWidth width;
     bool valSigned;
-    uint32_t valueRS;
+    uint32_t address;
+    uint32_t valueRS1;
+    uint32_t valueRS2;
     uint32_t valueRD;
-
-    OpCodeSet opcode;
-    OpCodeSetSystem opcodeSys;
-    uint8_t funct3;
 };
 
 struct MemoryAccessData {
     MemoryAccessData() = default;
-    ~MemoryAccessData() = default;
     MemoryAccessData(const MemoryAccessData& o) = default;
-
+    MemoryAccessData(const ExecuteData& e) { execute = e; };
+    ~MemoryAccessData() = default;
+    ExecuteData execute;
     uint32_t value;
-    uint32_t rd;
     bool isValid;
 };

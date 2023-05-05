@@ -189,7 +189,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
         case OpCodeSet::ULA:
             switch (d.funct3) {
                 case 0x0:
-                    if ((d.instr >> 25) == 0) {
+                    if ((d.fetch.instr >> 25) == 0) {
                         ss << "add   ";
                     } else {
                         ss << "sub   ";
@@ -208,7 +208,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     ss << "xor   ";
                     break;
                 case 0x5:
-                    if ((d.instr >> 25) == 0) {
+                    if ((d.fetch.instr >> 25) == 0) {
                         ss << "srl   ";
                     } else {
                         ss << "sra   ";
@@ -268,41 +268,52 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
 
         case OpCodeSet::SYSTEM:
             switch (d.opcodeSys) {
-                // case OpCodeSetSystem::EBREAK:
-                //     break;
-                // case OpCodeSetSystem::ECALL:
-                //     break;
+                case OpCodeSetSystem::EBREAK:
+                    ss << "Ebreak";
+                    break;
+                case OpCodeSetSystem::ECALL:
+                    ss << "Ecall";
+                    break;
+
+                case OpCodeSetSystem::SRET:
+                    ss << "sret";
+                    break;
+
+                case OpCodeSetSystem::MRET:
+                    ss << "mret";
+                    break;
+
+                case OpCodeSetSystem::WFI:
+                    ss << "wfi";
+                    break;
+
                 case OpCodeSetSystem::CSRRC:
                     ss << "csrrc";
                     break;
+
                 case OpCodeSetSystem::CSRRCI:
                     ss << "csrrci";
                     break;
+
                 case OpCodeSetSystem::CSRRS:
                     ss << "csrrs";
                     break;
+
                 case OpCodeSetSystem::CSRRSI:
                     ss << "csrrsi";
                     break;
+
                 case OpCodeSetSystem::CSRRW:
                     ss << "csrrw " << this->alias[d.rd] << ", " << int_to_hex(d.imm32) << ", " << this->alias[d.rs1];
                     break;
+
                 case OpCodeSetSystem::CSRRWI:
                     ss << "csrrrwi";
                     break;
 
                 case OpCodeSetSystem::INVALID:
+                    throw std::string("System opcode invalid");
                     break;
-
-                    // case OpCodeSetSystem::EBREAK:
-                    //     ss << "Ebreak - Exiting program" << '\n';
-                    //     break;
-                    // case OpCodeSetSystem::ECALL:
-                    //     ss << "Ecall - Exiting program" << '\n';
-                    //     break;
-                    // default:
-
-                    //     break;
             }
 
             break;
