@@ -96,6 +96,8 @@ class Trap {
 
                 csr->beginTrap();
 
+                std::cout << "ECALL" << '\n';
+
                 return;
             }
 

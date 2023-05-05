@@ -78,7 +78,6 @@ void Decode::step() {
                     switch (data.imm32) {
                         case 0x0:
                             data.opcodeSys = OpCodeSetSystem::ECALL;
-                            std::cout << "Ecall - Exiting program" << '\n';
                             // csr->ecall = true;
                             // throw std::string(std::string("FIM"));
                             trap->trapException(f.pc, static_cast<uint32_t>(MCause::EnvironmentCallFromMMode),
@@ -92,9 +91,11 @@ void Decode::step() {
                             break;
                         case 0x102:
                             data.opcodeSys = OpCodeSetSystem::SRET;
+                            trap->trapReturn();
                             break;
                         case 0x302:
                             data.opcodeSys = OpCodeSetSystem::MRET;
+                            trap->trapReturn();
                             break;
                         case 0x105:
                             data.opcodeSys = OpCodeSetSystem::WFI;
