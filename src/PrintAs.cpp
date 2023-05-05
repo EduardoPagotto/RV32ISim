@@ -120,54 +120,54 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     ss << "lhu   ";
                     break;
             }
-            ss << this->alias[d.rd] << " " << d.imm32 << "(" << this->alias[d.rs1] << ")";
+            ss << this->alias[d.rd] << ", " << d.imm32 << "(" << this->alias[d.rs1] << ")";
             break;
 
         case OpCodeSet::ULAI:
             switch (d.funct3) {
                 case 0x0: // ADDI
-                    ss << "addi  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                    ss << "addi  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     break;
 
                 case 0x1: // SLLI
-                    ss << "slli  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                    ss << "slli  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     break;
 
                 case 0x2: // SLTI
-                    ss << "slti  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                    ss << "slti  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     break;
 
                 case 0x3: // SLTIU
-                    ss << "sltiu " << this->alias[d.rd] << " " << this->alias[d.rs1] << " "
+                    ss << "sltiu " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", "
                        << (unsigned int)(d.imm32 & 0xfff);
                     break;
 
                 case 0x4: // XORI
-                    ss << "xori  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                    ss << "xori  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     break;
 
                 case 0x5: // SLRI / SRAI  TODO: check!
                     if ((d.imm32 & 0xf00) == 0)
-                        ss << "slri  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                        ss << "slri  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     else
-                        ss << "srai  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << (d.imm32 & 0x1f);
+                        ss << "srai  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << (d.imm32 & 0x1f);
                     break;
 
                 case 0x6: // ORI
-                    ss << "ori   " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                    ss << "ori   " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     break;
                 case 0x7: // ANDI
-                    ss << "andi  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+                    ss << "andi  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
                     break;
             }
             break;
 
         case OpCodeSet::AUIPC:
-            ss << "auipc " << this->alias[d.rd] << " " << int_to_hex(d.imm32);
+            ss << "auipc " << this->alias[d.rd] << ", " << int_to_hex(d.imm32);
             break;
 
         case OpCodeSet::LUI:
-            ss << "lui   " << this->alias[d.rd] << " " << int_to_hex(d.imm32);
+            ss << "lui   " << this->alias[d.rd] << ", " << int_to_hex(d.imm32);
             break;
 
         case OpCodeSet::SAVE:
@@ -183,7 +183,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
             }
 
-            ss << this->alias[d.rs2] << " " << d.imm32 << "(" << this->alias[d.rs1] << ")";
+            ss << this->alias[d.rs2] << ", " << d.imm32 << "(" << this->alias[d.rs1] << ")";
             break;
 
         case OpCodeSet::ULA:
@@ -222,7 +222,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
             }
 
-            ss << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << this->alias[d.rs2 & 0x1f];
+            ss << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << this->alias[d.rs2 & 0x1f];
             break;
 
         case OpCodeSet::BRANCH:
@@ -252,15 +252,15 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
             }
 
-            ss << this->alias[d.rs1] << " " << this->alias[d.rs2] << " " << d.imm32;
+            ss << this->alias[d.rs1] << ", " << this->alias[d.rs2] << ", " << d.imm32;
             break;
 
         case OpCodeSet::JALR:
-            ss << "jalr  " << this->alias[d.rd] << " " << this->alias[d.rs1] << " " << d.imm32;
+            ss << "jalr  " << this->alias[d.rd] << ", " << this->alias[d.rs1] << ", " << d.imm32;
             break;
 
         case OpCodeSet::JAL:
-            ss << "jal " << this->alias[d.rd] << " " << d.imm32;
+            ss << "jal " << this->alias[d.rd] << ", " << d.imm32;
             break;
 
         case OpCodeSet::FENCE:
@@ -268,15 +268,41 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
 
         case OpCodeSet::SYSTEM:
             switch (d.opcodeSys) {
-                case OpCodeSetSystem::EBREAK:
-                    ss << "Ebreak - Exiting program" << '\n';
+                // case OpCodeSetSystem::EBREAK:
+                //     break;
+                // case OpCodeSetSystem::ECALL:
+                //     break;
+                case OpCodeSetSystem::CSRRC:
+                    ss << "csrrc";
                     break;
-                case OpCodeSetSystem::ECALL:
-                    ss << "Ecall - Exiting program" << '\n';
+                case OpCodeSetSystem::CSRRCI:
+                    ss << "csrrci";
                     break;
-                default:
+                case OpCodeSetSystem::CSRRS:
+                    ss << "csrrs";
+                    break;
+                case OpCodeSetSystem::CSRRSI:
+                    ss << "csrrsi";
+                    break;
+                case OpCodeSetSystem::CSRRW:
+                    ss << "csrrw " << this->alias[d.rd] << ", " << int_to_hex(d.imm32) << ", " << this->alias[d.rs1];
+                    break;
+                case OpCodeSetSystem::CSRRWI:
+                    ss << "csrrrwi";
+                    break;
 
+                case OpCodeSetSystem::INVALID:
                     break;
+
+                    // case OpCodeSetSystem::EBREAK:
+                    //     ss << "Ebreak - Exiting program" << '\n';
+                    //     break;
+                    // case OpCodeSetSystem::ECALL:
+                    //     ss << "Ecall - Exiting program" << '\n';
+                    //     break;
+                    // default:
+
+                    //     break;
             }
 
             break;
@@ -285,13 +311,13 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
             break;
     }
 
-    ss << " \t\t# ";
+    ss << "\t\t# ";
     // ss << '\n'
 
     return ss.str();
 }
 
-void PrintAs::printPC(const uint32_t& val) { std::cout << "pc = " << int_to_hex(val) << " "; }
+void PrintAs::printPC(const uint32_t& val) { std::cout << "pc <- " << int_to_hex(val) << " "; }
 
 void PrintAs::printRegtoMemory(const uint8_t& index, const uint32_t& valRS, const uint32_t& address) {
     std::cout << alias[index] << " = " << int_to_hex(valRS) << " -> (0x" << int_to_hex(address) << ")";
@@ -306,7 +332,7 @@ void PrintAs::printAddress(const uint32_t& addr) { std::cout << "(0x" << int_to_
 void PrintAs::printRegisters(uint32_t* regs) {
     std::cout << "Value of registers: \n" << std::endl;
     for (int i = 0; i < 32; i++) {
-        std::cout << "x" << i << " " << regs[i] << std::endl;
+        std::cout << "x" << i << ", " << regs[i] << std::endl;
     }
 }
 
