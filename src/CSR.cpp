@@ -9,6 +9,7 @@ CSR::CSR() {
     bus.store(0x40000100, CSR_MISA);
     bus.store(0x10000004 | 1, CSR_MTVEC);
     bus.store(0x00000888, CSR_MIE);
+    bus.store(0x00000008, CSR_MSTATUS);
 }
 
 uint32_t CSR::read(uint32_t address) {

@@ -207,7 +207,6 @@ MTVEC: tabela de vetores apontam para tipos diferentes de interrupcoes baseados 
 MSTATUS: permite habilitar e desabilitar interrupts
 MTVAL: detalhe do tipo de tra que ocorreu, como o address de uma leitura mal alinhada
 
-
 12 |11 | R/W Acessibilidade
 -----------------------------
 0  |0  | Standart RW 
@@ -234,6 +233,22 @@ X  |X  |0  |1  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel Supervisor
 X  |X  |1  |0  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel Hypervisior
 X  |X  |1  |1  |X  |X  |X  |X  |X  |X  |X  |X  |Nivel Machine
 
+
+
+MSTATUS
+ 12 | 11 |10 |09 |08 |07 |06 |05 |04 |03 |02 |01 |00 |Tipo
+--- |-- -|---|---|---|---|---|---|---|---|---|---|---|------------------------
+    |    |   |   |   |   |   |   | X |   |   |   |   | MIE  Determina se irq esta habilitadas 1
+    |    |   |   | X |   |   |   |   |   |   |   |   | MPIE Amrazena o MIE anterior (usara para restaurar MIE apos o MRET)
+ X  | X  |   |   |   |   |   |   |   |   |   |   |   | MPP Determina o nivel de privilegio a ser definido quando a inst de ret de irq ocorer
+    |    |   |   |   |   |   |   |   |   |   |   |
+    |    |   |   |   |   |   |   |   |   |   |   |
+
+MTVEC
+31:2 | 1:0 |
+-----|-----|-------
+ X:X |     | BASE Garda o Endereco de interrupcao  [31:2] + o2
+     | XX  | MODE 0 endereco direto, 1 endereco somado com 4x o valor da causa 
 
 
 

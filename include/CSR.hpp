@@ -95,7 +95,13 @@ struct Trap {
         const bool isInterrupt = mc & 0x80000000;
         const uint32_t offset = isInterrupt ? 0 : 48;
 
-        pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
+        if ((mtvec & 01) == 01) {
+            pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
+        } else {
+            pcToSet = (mtvec & 0xfffffffc);
+        }
+
+        // pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
         trapState = TrapState::SetPc;
     }
 
