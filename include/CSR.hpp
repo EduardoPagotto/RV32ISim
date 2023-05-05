@@ -81,6 +81,31 @@ enum class MCause : uint32_t {
 
 enum class TrapState { Idle, SetCSRJump, ReturnFromTrap, SetPc };
 
+struct Trap {
+    Trap() = default;
+    Trap(const uint32_t& addr, MCause cause, uint32_t mtval)
+        : trapState(TrapState::SetCSRJump), mepc(addr), mcause(cause), mtval(mtval), pcToSet(0) {}
+
+    Trap(const Trap& t) = default;
+    ~Trap() = default;
+
+    void setPC(const uint32_t& mtvec) {
+        const uint32_t mc = static_cast<uint32_t>(mcause);
+        const uint32_t index = mc & 0x7fffffff;
+        const bool isInterrupt = mc & 0x80000000;
+        const uint32_t offset = isInterrupt ? 0 : 48;
+
+        pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
+        trapState = TrapState::SetPc;
+    }
+
+    TrapState trapState = TrapState::Idle;
+    uint32_t mepc = 0;
+    MCause mcause = MCause::IllegalInstruction;
+    uint32_t mtval = 0;
+    uint32_t pcToSet = 0;
+};
+
 #define MSTATUS_MIE_BIT 3
 #define MSTATUS_MIE_MASK (1 << MSTATUS_MIE_BIT)
 #define MSTATUS_MPIE_BIT 7
@@ -117,27 +142,13 @@ class CSR {
         return (this->cpuState == CPUState::Pipeline) ? !(state == this->pipelineState) : true;
     }
 
-    void trapException(uint32_t mepc, uint32_t mcause, uint32_t mtval) {
-        this->mepc = mepc;
-        this->mcause = mcause;
-        this->mtval = mtval;
-        this->trapState = TrapState::SetCSRJump;
-    }
-
-    void trapReturn() { this->trapState = TrapState::ReturnFromTrap; }
-
-    bool beginTrap() {
+    void trapException(const Trap& t) {
+        trap = t;
         this->cpuState = CPUState::Trap;
-        return true;
     }
 
-    void intoTrap() {
-        this->cpuState = CPUState::Pipeline;
-        this->pipelineState = PipelineState::WriteBack; // PipelineState::Fetch;
-    }
-
-    // bool beginTrapReturn() { return __beginTrapReturn; }
-    // bool ecall = false; // For program termination
+    void trapReturn() { trap.trapState = TrapState::ReturnFromTrap; }
+    //  bool beginTrapReturn() { return false; }
 
     void nextState();
 
@@ -147,15 +158,12 @@ class CSR {
   private:
     void increment64(const uint32_t add, const uint32_t add2);
 
+    Trap trap;
     CSRBus bus;
 
     // controller
     CPUState cpuState = CPUState::Pipeline;
     PipelineState pipelineState = PipelineState::Fetch;
-
-    TrapState trapState;
-    uint32_t mepc, mcause, mtval, pcToSet;
-
     uint32_t branchAddress = 0;
     bool branchAddressValid = false;
 };

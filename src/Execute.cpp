@@ -200,12 +200,11 @@ void Execute::step() {
                 // returnFromTrap = data.decode.imm32 == 0x302;
                 switch (data.decode.opcodeSys) {
                     case OpCodeSetSystem::EBREAK:
-                        csr->trapException(data.decode.fetch.pc, static_cast<uint32_t>(MCause::Breakpoint), 0);
+                        csr->trapException(Trap(data.decode.fetch.pc, MCause::Breakpoint, 0));
                         break;
 
                     case OpCodeSetSystem::ECALL:
-                        csr->trapException(data.decode.fetch.pc,
-                                           static_cast<uint32_t>(MCause::EnvironmentCallFromMMode), 0);
+                        csr->trapException(Trap(data.decode.fetch.pc, MCause::EnvironmentCallFromMMode, 0));
                         break;
 
                     case OpCodeSetSystem::SRET:

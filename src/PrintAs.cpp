@@ -276,19 +276,19 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
 
                 case OpCodeSetSystem::SRET:
-                    ss << "sret";
+                    ss << "sret  ";
                     break;
 
                 case OpCodeSetSystem::MRET:
-                    ss << "mret";
+                    ss << "mret  ";
                     break;
 
                 case OpCodeSetSystem::WFI:
-                    ss << "wfi";
+                    ss << "wfi   ";
                     break;
 
                 case OpCodeSetSystem::CSRRC:
-                    ss << "csrrc";
+                    ss << "csrrc ";
                     break;
 
                 case OpCodeSetSystem::CSRRCI:
@@ -296,7 +296,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
 
                 case OpCodeSetSystem::CSRRS:
-                    ss << "csrrs";
+                    ss << "csrrs ";
                     break;
 
                 case OpCodeSetSystem::CSRRSI:
@@ -308,7 +308,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
 
                 case OpCodeSetSystem::CSRRWI:
-                    ss << "csrrrwi";
+                    ss << "csrrwi";
                     break;
 
                 case OpCodeSetSystem::INVALID:

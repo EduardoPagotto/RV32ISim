@@ -7,8 +7,7 @@ void Decode::step() {
 
     } else if (!csr->shoulStall(state)) {
 
-        const FetchData& f = fetch->get();
-        data = f;
+        data = fetch->get();
 
         data.opcode = static_cast<OpCodeSet>(data.fetch.instr & 0x7f);
         data.rs1 = (data.fetch.instr >> 15) & 0x1f;

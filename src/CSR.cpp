@@ -75,16 +75,16 @@ void CSR::increment64(const uint32_t add, const uint32_t add2) {
 
 void CSR::step() {
 
-    switch (static_cast<TrapState>(trapState)) {
+    switch (trap.trapState) {
         case TrapState::Idle: {
             return;
         }
 
         case TrapState::SetCSRJump: {
 
-            this->write(CSR_MEPC, mepc);
-            this->write(CSR_MCAUSE, mcause);
-            this->write(CSR_MTVAL, mtval);
+            this->write(CSR_MEPC, trap.mepc);
+            this->write(CSR_MCAUSE, static_cast<uint32_t>(trap.mcause));
+            this->write(CSR_MTVAL, trap.mtval);
 
             uint32_t mstatus = this->read(CSR_MSTATUS);
             const uint32_t mie = (mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
@@ -97,34 +97,24 @@ void CSR::step() {
 
             this->write(CSR_MSTATUS, mstatus);
 
-            const uint32_t index = mcause & 0x7fffffff;
-            const bool isInterrupt = mcause & 0x80000000;
-            const uint32_t offset = isInterrupt ? 0 : 48;
-
-            uint32_t mtvec = this->read(CSR_MTVEC);
-            this->pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
-
-            this->trapState = TrapState::SetPc;
-
-            this->beginTrap();
-
-            // std::cout << "ECALL" << '\n';
+            trap.setPC(this->read(CSR_MTVEC));
 
             return;
         }
 
         case TrapState::SetPc: {
-            this->setBranchAddress(this->pcToSet);
-            this->intoTrap();
-            this->trapState = TrapState::Idle;
+            this->setBranchAddress(trap.pcToSet);
+            this->cpuState = CPUState::Pipeline;
+            this->pipelineState = PipelineState::WriteBack; // PipelineState::Fetch;
+            this->trap.trapState = TrapState::Idle;
             return;
         }
 
         case TrapState::ReturnFromTrap: {
 
             // TODO
-            this->pcToSet = this->read(CSR_MEPC); // sr->mem.mepc;
-            this->trapState = TrapState::SetPc;
+            trap.pcToSet = this->read(CSR_MEPC);
+            trap.trapState = TrapState::SetPc;
 
             uint32_t mstatus = this->read(CSR_MSTATUS);
             const uint32_t mpie = (mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
