@@ -114,7 +114,7 @@ void CSR::step() {
         case TrapState::ReturnFromTrap: {
 
             // TODO
-            trap.pcToSet = this->read(CSR_MEPC);
+            trap.pcToSet = this->read(CSR_MEPC) + 4;
             trap.trapState = TrapState::SetPc;
 
             uint32_t mstatus = this->read(CSR_MSTATUS);

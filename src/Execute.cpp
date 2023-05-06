@@ -85,7 +85,7 @@ void Execute::step() {
                 break;
 
             case OpCodeSet::AUIPC:
-                data.address = static_cast<uint32_t>(data.decode.imm32);
+                data.address = data.decode.fetch.pc + static_cast<uint32_t>(data.decode.imm32);
                 break;
 
             case OpCodeSet::SAVE:
