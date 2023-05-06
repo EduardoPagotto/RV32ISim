@@ -272,7 +272,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     ss << "Ebreak";
                     break;
                 case OpCodeSetSystem::ECALL:
-                    ss << "Ecall";
+                    ss << "Ecall\t";
                     break;
 
                 case OpCodeSetSystem::SRET:
@@ -280,7 +280,7 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
                     break;
 
                 case OpCodeSetSystem::MRET:
-                    ss << "mret  ";
+                    ss << "mret  \t";
                     break;
 
                 case OpCodeSetSystem::WFI:
@@ -328,17 +328,17 @@ std::string PrintAs::debugCommandRegs(const DecodeData& d) {
     return ss.str();
 }
 
-void PrintAs::printPC(const uint32_t& val) { std::cout << "pc <- " << int_to_hex(val) << " "; }
+void PrintAs::printPC(const uint32_t& val) { std::cout << "pc < " << int_to_hex(val) << " "; }
 
 void PrintAs::printRegtoMemory(const uint8_t& index, const uint32_t& valRS, const uint32_t& address) {
-    std::cout << alias[index] << " = " << int_to_hex(valRS) << " -> (0x" << int_to_hex(address) << ")";
+    std::cout << alias[index] << " = " << int_to_hex(valRS) << " > (0x" << int_to_hex(address) << ")";
 }
 
 void PrintAs::printRegVal(const uint8_t& index, const uint32_t& value) {
     std::cout << alias[index] << " = " << int_to_hex(value);
 }
 
-void PrintAs::printAddress(const uint32_t& addr) { std::cout << "(0x" << int_to_hex(addr) << ") -> "; }
+void PrintAs::printAddress(const uint32_t& addr) { std::cout << "(0x" << int_to_hex(addr) << ") > "; }
 
 void PrintAs::printRegisters(uint32_t* regs) {
     std::cout << "Value of registers: \n" << std::endl;

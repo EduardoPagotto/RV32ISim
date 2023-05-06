@@ -212,6 +212,7 @@ void Execute::step() {
                         csr->trapReturn();
                         break;
                     case OpCodeSetSystem::WFI:
+                        throw std::string("WFI!!!!!");
                         break;
                     case OpCodeSetSystem::CSRRC:
                     case OpCodeSetSystem::CSRRCI:

@@ -11,8 +11,8 @@ _start:
     andi t0, t0, 10
     andi t1, t1, 10
     andi t2, t2, 10
-loop:
-    j loop
+sleep:
+    wfi
 
 irqVec:
     j EnvironmentCallFromMMode

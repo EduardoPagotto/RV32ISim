@@ -1,5 +1,6 @@
 #include "include/CSR.hpp"
 #include "include/Memory.hpp"
+#include <iostream>
 
 CSR::CSR() {
     bus.add(new Memory(0x300 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0300 << 2
@@ -105,6 +106,7 @@ void CSR::step() {
 
         case TrapState::SetPc: {
             this->setBranchAddress(trap.pcToSet);
+            std::cout << '\n';
             this->cpuState = CPUState::Pipeline;
             this->pipelineState = PipelineState::WriteBack; // PipelineState::Fetch;
             this->trap.trapState = TrapState::Idle;
