@@ -13,14 +13,29 @@ void MemoryAccess::step() {
         data.isValid = false;
         data.value = 0;
 
+        const bool isUnaligned = ((d.width == MemoryAccessWidth::Word && d.address & 0b11) ||
+                                  (d.width == MemoryAccessWidth::HalfWord && d.address & 0b01));
+
         switch (d.decode.opcode) {
             case OpCodeSet::LOAD:
+
+                if (isUnaligned) {
+                    csr->trapException(Trap(d.address, MCause::LoadAddressMisaligned, d.decode.fetch.instr));
+                    return;
+                }
+
                 data.isValid = true;
                 bus->load(data.value, d.address, d.width, d.valSigned);
                 csr->prt.printAddress(d.address); // TODO: Melhorar o print
                 break;
 
             case OpCodeSet::SAVE:
+
+                if (isUnaligned) {
+                    csr->trapException(Trap(d.address, MCause::StoreAMOAddressMisaligned, d.decode.fetch.instr));
+                    return;
+                }
+
                 bus->store(d.valueRS2, d.address, d.width);
                 csr->prt.printRegtoMemory(d.decode.rs2, d.valueRS2, d.address); // TODO: Melhorar o print
                 break;
