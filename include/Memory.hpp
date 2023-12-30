@@ -1,59 +1,97 @@
 #pragma once
-#include "Device.hpp"
+#include <cstdint>
+#include <optional>
+#include <vector>
 
-class Memory : public Device {
+#define DEV_OPENED 0x01  // status bitwise 0b00000001
+#define DEV_CHANGED 0x02 // status bitwise 0b00000010
+#define DEV_RW 0x04      // status bitwise 0b00000100
+
+class Memory {
+  private:
+    uint8_t status;
+    uint32_t start, top;
+    std::vector<uint8_t> buffer;
+
   public:
     Memory(const uint32_t& start, const uint32_t& size, const uint8_t& status, const uint8_t& initval = 0xFC)
-        : Device(status), start(start), top(start + size) {
-        this->mem.reserve(size);
+        : status(status), start(start), top(start + size) {
+        this->buffer.reserve(size);
         for (uint32_t i = 0; i < size; i++)
-            this->mem.push_back(initval);
+            this->buffer.push_back(initval);
     }
 
-    virtual ~Memory() { this->mem.clear(); }
+    virtual ~Memory() { this->buffer.clear(); }
 
-    virtual bool read(const uint32_t& address, const uint32_t& size, uint8_t* valueRet) override {
+    inline void setRW(const bool& enable) {
+        if (enable)
+            status |= DEV_RW;
+        else
+            status &= (~DEV_RW);
+    }
+
+    // inline void open() { this->status |= DEV_OPENED; }
+
+    // inline void close() { this->status &= (~DEV_OPENED); }
+
+    inline const bool isOpen() const { return this->status & DEV_OPENED; }
+
+    inline const bool isWritetable() const { return ((status & (DEV_RW | DEV_OPENED)) == 0x5); }
+
+    // inline const bool isRW() const { return this->status & DEV_RW; }
+
+    // inline const uint8_t& getStatus() const { return status; }
+
+    // inline const uint32_t& getStart() const { return start; };
+
+    // inline const uint32_t& getTop() const { return top; };
+
+    inline std::vector<uint8_t>& getBank() { return this->buffer; }
+
+    inline const bool validRange(const uint32_t& address, const uint32_t& size) const {
+        return isOpen() && (address >= start) && (address < top + size);
+    }
+
+    inline const bool validWrite(const uint32_t& address, const uint32_t& size) const {
+        return (isWritetable() && (address >= start) && ((address + size) <= top));
+    }
+
+    const std::optional<uint32_t> read(const uint32_t& address, const uint32_t& size, const bool& signedVal = false) {
 
         if (validRange(address, size)) {
-            uint32_t addrFinal = address - start;
+            uint32_t addrFinal{address - start};
 
             status &= ~DEV_CHANGED;
+            uint32_t value{0};
 
             for (uint32_t i = 0; i < size; i++)
-                valueRet[i] = this->mem[addrFinal + i];
+                value |= this->buffer[addrFinal + i] << (8 * i);
 
-            return true;
+            if (signedVal) {
+                const uint32_t lastval = addrFinal + size - 1;
+                if ((this->buffer[lastval] >> 7) == 1) {
+                    for (int i = 4; i > size; i--)
+                        value = value | 0xff << (8 * (i - 1)); // fill FF MSB if negative
+                }
+            }
+
+            return value;
         }
-        return false;
+        return {};
     };
 
-    virtual bool write(const uint32_t& address, const uint32_t& size, uint8_t* value) override {
+    const bool write(const uint32_t& address, const uint32_t& size, const uint32_t& val) {
 
         if (validWrite(address, size)) {
-            uint32_t addrFinal = address - start;
+            uint32_t addrFinal{address - start};
 
             status |= DEV_CHANGED; // set changed
 
             for (uint32_t i = 0; i < size; i++)
-                this->mem[addrFinal + i] = value[i];
+                this->buffer[addrFinal + i] = static_cast<uint8_t>(val >> (8 * i)) & 0xff;
 
             return true;
         }
         return false;
     };
-
-    inline virtual bool validRange(const uint32_t& address, const uint32_t& size) const override {
-        return isOpen() && (address >= start) && (address < top + size);
-    }
-
-    inline virtual bool validWrite(const uint32_t& address, const uint32_t& size) const override {
-        return (isWritetable() && (address >= start) && ((address + size) <= top));
-    }
-
-    inline virtual const uint32_t getStart() const override { return start; };
-    inline virtual const uint32_t getTop() const override { return top; };
-
-  protected:
-    uint32_t start, top;
-    std::vector<uint8_t> mem;
 };

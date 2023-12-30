@@ -4,12 +4,22 @@
  * RV32I simulator program
  */
 
-#include "include/Memory.hpp"
-#include "include/RV32ISim.h"
+#include "include/Bus.hpp"
+#include "include/Riscv32.hpp"
+#include <fstream>
 #include <iostream>
 #include <string>
 
 using namespace std;
+
+void loadFile(const std::string& file, std::vector<uint8_t>& buffer) {
+
+    std::ifstream instream(file, std::ios::in | std::ios::binary);
+    std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+
+    for (auto v : data)
+        buffer.push_back(v);
+}
 
 int main(int argc, char** argv) {
 
@@ -21,28 +31,32 @@ int main(int argc, char** argv) {
 
     const char* filepath = argv[1];
 
+    Memory rom(0x0000, 0x1000, DEV_OPENED);
+    Memory ram(0x1000, 0x1000, DEV_OPENED | DEV_RW);
+
+    loadFile(filepath, rom.getBank());
+
     Bus bus;
-    // uint32_t idRom = bus.add(new Device(0x0000, 0x1000, DEV_OPENED));          // ROM
-    // uint32_t idRam = bus.add(new Device(0x1000, 0x1000, DEV_OPENED | DEV_RW)); // RAM
-    uint32_t idMem = bus.add(new Memory(0x0, 0x1000000, DEV_OPENED | DEV_RW)); // RAM
+    bus.add(&rom);
+    bus.add(&ram);
 
-    bus.loadFile(filepath, idMem);
+    Riscv32 processor;
 
-    // Construct simulator object
-    RV32ISim simulate(&bus);
+    // // Construct simulator object
+    // RV32ISim simulate(&bus);
 
-    // Run the program
-    try {
-        simulate.play();
-    } catch (std::string& v) { std::cout << v << '\n'; }
+    // // Run the program
+    // try {
+    //     simulate.play();
+    // } catch (std::string& v) { std::cout << v << '\n'; }
 
-    // Perhaps get name of output file
-    const char* outFile;
-    if (argc != 2) {
-        outFile = argv[2];
-    } else {
-        outFile = "out.res";
-    }
+    // // Perhaps get name of output file
+    // const char* outFile;
+    // if (argc != 2) {
+    //     outFile = argv[2];
+    // } else {
+    //     outFile = "out.res";
+    // }
 
     // Dump the register content to file
     // simulate.writeToFile(outFile);

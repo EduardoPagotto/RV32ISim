@@ -59,7 +59,8 @@
 			"ctime": "cpp",
 			"iomanip": "cpp",
 			"sstream": "cpp",
-			"set": "cpp"
+			"set": "cpp",
+			"optional": "cpp"
 		},
 	},
 	"launch": {

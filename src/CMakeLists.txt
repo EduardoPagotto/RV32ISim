@@ -8,14 +8,13 @@ set (LibsSim -lpthread)
 #define os includes
 set (IncludesSim ${CMAKE_SOURCE_DIR})
 
-add_executable (sim RV32ISim.cpp
-                    PrintAs.cpp
-                    CSR.cpp
-                    Decode.cpp
-                    Execute.cpp
-                    MemoryAccess.cpp
-                    WriteBack.cpp
-                    Bus.cpp
+add_executable (sim #RV32ISim.cpp
+                    #PrintAs.cpp
+                    #CSR.cpp
+                    #Decode.cpp
+                    #Execute.cpp
+                    #MemoryAccess.cpp
+                    #WriteBack.cpp
                     main.cpp)
 
 target_link_libraries(sim ${LibsSim})
