@@ -39,6 +39,7 @@ clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -L. -Wl,-T,tes
 
 ## Conver from ELF
 llvm-objdump -D pgm.o > pgm.s # dissasembler
+llvm-objdump -t -r pgm.o # show type exec
 llvm-objcopy -O ihex pgm.o pgm.hex # hex file
 llvm-objcopy -O binary pgm.o pgm.bin # binary final !!!!!
 

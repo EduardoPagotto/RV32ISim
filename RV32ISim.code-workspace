@@ -66,6 +66,14 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
+				"type": "venus",
+				"request": "launch",
+				"name": "Venus Debug Current File",
+				"program": "${file}",
+				"stopOnEntry": true,
+				"openViews": []
+			},
+			{
 				"type": "lldb",
 				"request": "launch",
 				"name": "sim_test",
