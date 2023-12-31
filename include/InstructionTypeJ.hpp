@@ -9,8 +9,7 @@ class InstructionTypeJ : public InstructionType {
 
   public:
     InstructionTypeJ(const OpCodeSet& o, const uint32_t& i) : InstructionType(o) {
-        opcode = o;
-        rd = ((i >> 7) & 0x1f);
+        rd = calcRd(i);
         imm = ((i >> 30) << 20) |          //  instr[20]
               (((i >> 12) & 0xff) << 12) | //  instr[19:12]
               (((i >> 20) & 0x1) << 11) |  //  instr[11]

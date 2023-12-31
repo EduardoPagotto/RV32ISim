@@ -71,10 +71,10 @@ class Riscv32 {
                     break;
                 case OpCodeSet::AUIPC:
                 case OpCodeSet::LUI:
-                    executer = new InstructionTypeU(opcode, i); // Instrucoes tipo U
+                    executer = new InstructionTypeU(opcode, i, pc); // Instrucoes tipo U
                     break;
                 case OpCodeSet::SAVE:
-                    executer = new InstructionTypeS(opcode, i); // Instrucoes tipo S
+                    executer = new InstructionTypeS(opcode, i, x); // Instrucoes tipo S
                     break;
                 case OpCodeSet::BRANCH:
                     executer = new InstructionTypeB(opcode, i); // Instrucoes tipo B

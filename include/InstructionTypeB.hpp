@@ -9,11 +9,9 @@ class InstructionTypeB : public InstructionType {
 
   public:
     InstructionTypeB(const OpCodeSet& o, const uint32_t& i) : InstructionType(o) {
-        opcode = o;
-        funct3 = (i >> 12) & 0x7;
-        rs1 = (i >> 15) & 0x1f;
-        rs2 = (i >> 20) & 0x1f;
-
+        funct3 = calcFunct3(i);
+        rs1 = calcRs1(i);
+        rs2 = calcRs2(i);
         imm = ((i >> 25) << 5) + ((i >> 7) & 0x1f) - 1;
         if (imm > 0) {
             imm++;
