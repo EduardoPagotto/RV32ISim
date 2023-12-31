@@ -1,5 +1,6 @@
 #pragma once
 #include "Bus.hpp"
+#include "Debug.hpp"
 #include "InstructionTypeB.hpp"
 #include "InstructionTypeI.hpp"
 #include "InstructionTypeJ.hpp"
@@ -13,6 +14,7 @@ class Riscv32 {
     uint32_t x[32] = {0}; // CPU
     Bus bus;
     Controller controller;
+    static inline Debug debug;
 
   public:
     Riscv32(const uint32_t& startupAddr) { controller.setStartUpAddr(startupAddr); }
@@ -23,7 +25,10 @@ class Riscv32 {
 
     bool step() {
 
-        InstructionType* pipeline = this->decode(this->fetch());
+        uint32_t instr = this->fetch();
+        debug.printAsHex(controller.getPC(), instr);
+
+        InstructionType* pipeline = this->decode(instr);
 
         pipeline->execute(controller);
         WriteBackData w = pipeline->memoryAccess(bus, controller);
@@ -62,7 +67,6 @@ class Riscv32 {
         if (controller.getResetSignal()) {
             // TODO: implementar
         } else {
-
             OpCodeSet opcode = static_cast<OpCodeSet>(i & 0x7f);
             switch (opcode) {
                 case OpCodeSet::ULA:

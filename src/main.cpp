@@ -11,13 +11,14 @@
 
 using namespace std;
 
-void loadFile(const std::string& file, std::vector<uint8_t>& buffer) {
+void loadFile(const std::string& file, std::vector<uint8_t>* buffer) {
 
     std::ifstream instream(file, std::ios::in | std::ios::binary);
     std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
-    for (auto v : data)
-        buffer.push_back(v);
+    for (uint32_t i; i < data.size(); i++) {
+        (*buffer)[i] = data[i];
+    }
 }
 
 int main(int argc, char** argv) {
@@ -30,8 +31,8 @@ int main(int argc, char** argv) {
 
     const char* filepath = argv[1];
 
-    Memory rom(0x0000, 0x1000, DEV_OPENED);
-    Memory ram(0x1000, 0x1000, DEV_OPENED | DEV_RW);
+    Memory rom(0x0000, 0x100, DEV_OPENED);
+    Memory ram(0x100, 0x100, DEV_OPENED | DEV_RW);
 
     loadFile(filepath, rom.getBank());
 

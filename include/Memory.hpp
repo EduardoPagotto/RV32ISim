@@ -53,7 +53,7 @@ class Memory {
 
     // inline const uint32_t& getTop() const { return top; };
 
-    inline std::vector<uint8_t>& getBank() { return this->buffer; }
+    inline std::vector<uint8_t>* getBank() { return &this->buffer; }
 
     inline const bool validRange(const uint32_t& address, const uint32_t& size) const {
         return isOpen() && (address >= start) && (address < top + size);

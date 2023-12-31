@@ -80,7 +80,8 @@
 				"name": "sim_test",
 				"program": "${workspaceFolder}/bin/sim",
 				"args": [
-					"./asm/bootZ.bin",
+					"./tests/t1.bin",
+					//"./asm/bootZ.bin",
 					"registers.res"
 				],
 				"cwd": "${workspaceFolder}"

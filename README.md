@@ -22,6 +22,7 @@ Binary deve ser compilado como RISCV 32 ISA code.
 ```bash
 # Install deps os LLVM
 sudo apt install llvm lld
+#sudo dnf install llvm lld
 
 $ llvm-objdump --version | grep riscv
 riscv32    - 32-bit RISC-V

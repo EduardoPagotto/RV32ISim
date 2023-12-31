@@ -9,7 +9,7 @@ set (LibsSim -lpthread)
 set (IncludesSim ${CMAKE_SOURCE_DIR})
 
 add_executable (sim #RV32ISim.cpp
-                    #PrintAs.cpp
+                    Debug.cpp
                     #CSR.cpp
                     #Decode.cpp
                     #Execute.cpp

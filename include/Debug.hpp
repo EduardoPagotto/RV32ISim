@@ -1,16 +1,17 @@
 #pragma once
-#include "defs.hpp"
+// #include "defs.hpp"
+#include <stdint.h>
 #include <string>
 #include <vector>
 
-class PrintAs {
+class Debug {
   public:
-    PrintAs();
-    virtual ~PrintAs() = default;
+    Debug();
+    virtual ~Debug() = default;
 
     void printAsHex(const uint32_t& addr, const uint32_t& instr);
     std::string printValue(const uint32_t& indice, const uint32_t value);
-    std::string debugCommandRegs(const DecodeData& d);
+    // std::string debugCommandRegs(const DecodeData& d);
 
     void printPC(const uint32_t& val);
     void printRegtoMemory(const uint8_t& index, const uint32_t& valRS, const uint32_t& address);
