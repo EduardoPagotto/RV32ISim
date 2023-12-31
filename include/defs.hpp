@@ -57,25 +57,25 @@ enum class OpCodeSet : __uint8_t {
     INVALID = 0xFF
 };
 
-// enum class OpCodeSetSystem : __uint8_t {
-//     // syscall
-//     ECALL = 0x00,
-//     EBREAK = 0x08,
-//     // trap return
-//     SRET = 0x10,
-//     MRET = 0x11,
-//     // interrupt managent instrucion
-//     WFI = 0x18,
-//     // CSR in funct3
-//     CSRRW = 0x01,
-//     CSRRS = 0x02,
-//     CSRRC = 0x03,
-//     CSRRWI = 0x05,
-//     CSRRSI = 0x06,
-//     CSRRCI = 0x07,
-//     // not existe in doc
-//     INVALID = 0xff
-// };
+enum class OpCodeSetSystem : __uint8_t {
+    // syscall
+    ECALL = 0x00,
+    EBREAK = 0x08,
+    // trap return
+    SRET = 0x10,
+    MRET = 0x11,
+    // interrupt managent instrucion
+    WFI = 0x18,
+    // CSR in funct3
+    CSRRW = 0x01,
+    CSRRS = 0x02,
+    CSRRC = 0x03,
+    CSRRWI = 0x05,
+    CSRRSI = 0x06,
+    CSRRCI = 0x07,
+    // not existe in doc
+    INVALID = 0xff
+};
 
 // enum class CPUState : __uint8_t { Pipeline, Trap };
 

@@ -5,6 +5,7 @@
 #include "InstructionTypeJ.hpp"
 #include "InstructionTypeR.hpp"
 #include "InstructionTypeS.hpp"
+#include "InstructionTypeSys.hpp"
 #include "InstructionTypeU.hpp"
 
 class Riscv32 {
@@ -22,19 +23,20 @@ class Riscv32 {
 
     bool step() {
 
-        this->fetch();
+        uint32_t instruction = this->fetch();
+        this->decode(instruction);
 
         return true;
     }
 
   private:
-    void fetch() {
+    uint32_t fetch() {
 
         controller.step();
 
         auto v = bus.load(controller.getPC(), MemoryAccessWidth::Word);
         if (v.has_value()) {
-            this->decode(v.value());
+            return v.value();
         } else {
             throw std::string("Fora da memoria");
         }
@@ -56,7 +58,6 @@ class Riscv32 {
                 case OpCodeSet::LOAD:
                 case OpCodeSet::ULAI:
                 case OpCodeSet::JALR:
-                    // case OpCodeSet::FENCE:                   // FIXME: tipo diferente depois separa
                     pipeline = new InstructionTypeI(opcode, i, x); // Instrucoes tipo I *
                     break;
                 case OpCodeSet::AUIPC:
@@ -72,41 +73,10 @@ class Riscv32 {
                 case OpCodeSet::JAL:
                     pipeline = new InstructionTypeJ(opcode, i); // Instrucoes tipo J *
                     break;
+                // case OpCodeSet::FENCE: // TODO: ler doc
+                //     break;
                 case OpCodeSet::SYSTEM:
-                    // this->imm32 = iImm;
-                    // if (this->funct3 == 0) {
-
-                    //     switch (this->imm32) {
-                    //         case 0x0:
-                    //             this->opcodeSys = OpCodeSetSystem::ECALL;
-                    //             break;
-
-                    //         case 0x1:
-                    //             this->opcodeSys = OpCodeSetSystem::EBREAK;
-                    //             break;
-
-                    //         case 0x102:
-                    //             this->opcodeSys = OpCodeSetSystem::SRET;
-                    //             break;
-
-                    //         case 0x302:
-                    //             this->opcodeSys = OpCodeSetSystem::MRET;
-                    //             break;
-
-                    //         case 0x105:
-                    //             this->opcodeSys = OpCodeSetSystem::WFI;
-                    //             break;
-
-                    //         default:
-                    //             throw std::string("Opcode desconhecido");
-                    //             break;
-                    //     }
-
-                    // } else {
-                    //     this->opcodeSys = static_cast<OpCodeSetSystem>(this->funct3); // CSR's
-                    // }
-                    break;
-
+                    pipeline = new InstructionTypeSys(opcode, i);
                 default:
                     throw std::string("Opcode desconhecido");
                     break;
