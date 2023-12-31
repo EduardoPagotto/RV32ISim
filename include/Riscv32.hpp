@@ -43,6 +43,8 @@ class Riscv32 {
             }
         }
 
+        debug.newline();
+
         delete pipeline;
         pipeline = nullptr;
 

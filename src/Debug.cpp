@@ -94,6 +94,8 @@ void Debug::printAsHex(const uint32_t& addr, const uint32_t& instr) {
     std::cout << "    ";
 }
 
+void Debug::newline() { std::cout << '\n'; };
+
 // std::string Debug::debugCommandRegs(const DecodeData& d) {
 //     std::stringstream ss;
 

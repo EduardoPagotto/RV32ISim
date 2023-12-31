@@ -17,6 +17,12 @@ class Controller {
     const uint32_t getPC() const { return this->pc; }
     const uint32_t getPcplus4() const { return this->pcPlus4; }
     const bool getResetSignal() const { return this->resetSignal; }
+    const bool getBranchAddressValid() { return branchAddressValid; }
+
+    const uint32_t getBranchAddress() {
+        branchAddressValid = false;
+        return branchAddress;
+    }
 
     void reset() {
         this->branchAddressValid = true;
@@ -29,7 +35,7 @@ class Controller {
     }
 
     void step() {
-        this->pc = this->branchAddressValid ? this->branchAddress : this->pcPlus4;
+        this->pc = this->getBranchAddressValid() ? this->getBranchAddress() : this->pcPlus4;
         this->pcPlus4 = this->pc + 4;
     }
 };

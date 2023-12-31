@@ -19,6 +19,7 @@ class Debug {
     void printAddress(const uint32_t& addr);
     void printRegisters(uint32_t* regs);
     bool writeToFile(uint32_t* regs, const char* filepath);
+    void newline();
 
   private:
     std::vector<std::string> alias;
