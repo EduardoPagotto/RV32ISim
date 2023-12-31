@@ -23,8 +23,23 @@ class Riscv32 {
 
     bool step() {
 
-        uint32_t instruction = this->fetch();
-        this->decode(instruction);
+        InstructionType* pipeline = this->decode(this->fetch());
+
+        pipeline->execute(controller);
+        WriteBackData w = pipeline->memoryAccess(bus, controller);
+
+        // WriteBack
+        if (w.isValid) {
+            if (w.rd != 0) {
+                x[w.rd] = w.value;
+                // csr->prt.printRegVal(m.execute.decode.rd, m.value); // TODO: Melhorar o print
+            } else {
+                x[0] = 0;
+            }
+        }
+
+        delete pipeline;
+        pipeline = nullptr;
 
         return true;
     }
@@ -42,59 +57,38 @@ class Riscv32 {
         }
     }
 
-    void decode(const uint32_t& i) {
+    InstructionType* decode(const uint32_t& i) {
+
         if (controller.getResetSignal()) {
             // TODO: implementar
         } else {
 
             OpCodeSet opcode = static_cast<OpCodeSet>(i & 0x7f);
-
-            InstructionType* pipeline = nullptr;
-
             switch (opcode) {
                 case OpCodeSet::ULA:
-                    pipeline = new InstructionTypeR(opcode, i, x); // Instrucoes tipo R *
-                    break;
+                    return new InstructionTypeR(opcode, i, x); // Instrucoes tipo R *
                 case OpCodeSet::LOAD:
                 case OpCodeSet::ULAI:
                 case OpCodeSet::JALR:
-                    pipeline = new InstructionTypeI(opcode, i, x); // Instrucoes tipo I *
-                    break;
+                    return new InstructionTypeI(opcode, i, x); // Instrucoes tipo I *
                 case OpCodeSet::AUIPC:
                 case OpCodeSet::LUI:
-                    pipeline = new InstructionTypeU(opcode, i); // Instrucoes tipo U *
-                    break;
+                    return new InstructionTypeU(opcode, i); // Instrucoes tipo U *
                 case OpCodeSet::SAVE:
-                    pipeline = new InstructionTypeS(opcode, i, x); // Instrucoes tipo S *
-                    break;
+                    return new InstructionTypeS(opcode, i, x); // Instrucoes tipo S *
                 case OpCodeSet::BRANCH:
-                    pipeline = new InstructionTypeB(opcode, i, x); // Instrucoes tipo B *
-                    break;
+                    return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B *
                 case OpCodeSet::JAL:
-                    pipeline = new InstructionTypeJ(opcode, i); // Instrucoes tipo J *
-                    break;
+                    return new InstructionTypeJ(opcode, i); // Instrucoes tipo J *
                 // case OpCodeSet::FENCE: // TODO: ler doc
                 //     break;
                 case OpCodeSet::SYSTEM:
-                    pipeline = new InstructionTypeSys(opcode, i);
+                    return new InstructionTypeSys(opcode, i);
                 default:
                     throw std::string("Opcode desconhecido");
                     break;
             }
-
-            pipeline->execute(controller);
-            WriteBackData w = pipeline->memoryAccess(bus, controller);
-            if (w.isValid) {
-                if (w.rd != 0) {
-                    x[w.rd] = w.value;
-                    // csr->prt.printRegVal(m.execute.decode.rd, m.value); // TODO: Melhorar o print
-                } else {
-                    x[0] = 0;
-                }
-            }
-
-            delete pipeline;
-            pipeline = nullptr;
         }
+        return nullptr;
     }
 };
