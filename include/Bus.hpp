@@ -30,7 +30,8 @@ class Bus {
         return false;
     }
 
-    const std::optional<uint32_t> load(const uint32_t& address, const MemoryAccessWidth& width, const bool& u) {
+    const std::optional<uint32_t> load(const uint32_t& address, const MemoryAccessWidth& width,
+                                       const bool& signedVal = false) {
 
         for (auto& v : banks) {
 
@@ -38,7 +39,7 @@ class Bus {
 
             if (v->validRange(address, size)) {
 
-                auto oValue = v->read(address, size);
+                auto oValue = v->read(address, size, signedVal);
                 if (oValue.has_value()) {
                     return oValue;
                 }

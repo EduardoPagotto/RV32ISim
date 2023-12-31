@@ -3,9 +3,16 @@
 #include <optional>
 #include <vector>
 
+// Device access
 #define DEV_OPENED 0x01  // status bitwise 0b00000001
 #define DEV_CHANGED 0x02 // status bitwise 0b00000010
 #define DEV_RW 0x04      // status bitwise 0b00000100
+
+// PRIVILEGES
+#define PRIV_USER0 0x00
+#define PRIV_SUPER 0x04
+#define PRIV_HYPER 0x80
+#define PRIV_MACHI 0xC0
 
 class Memory {
   private:

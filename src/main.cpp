@@ -4,7 +4,6 @@
  * RV32I simulator program
  */
 
-#include "include/Bus.hpp"
 #include "include/Riscv32.hpp"
 #include <fstream>
 #include <iostream>
@@ -36,11 +35,15 @@ int main(int argc, char** argv) {
 
     loadFile(filepath, rom.getBank());
 
-    Bus bus;
-    bus.add(&rom);
-    bus.add(&ram);
+    Riscv32 processor(0);
+    processor.getBus().add(&rom);
+    processor.getBus().add(&ram);
+    processor.reset();
 
-    Riscv32 processor;
+    while (true) {
+        if (!processor.step())
+            break;
+    }
 
     // // Construct simulator object
     // RV32ISim simulate(&bus);

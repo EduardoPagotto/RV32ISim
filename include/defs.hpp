@@ -40,7 +40,7 @@
 // // not existe in doc
 // #define SYS_INVALID 0xff
 
-enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
+// enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
 
 enum class OpCodeSet : __uint8_t {
     LOAD = 0x03,
@@ -57,73 +57,73 @@ enum class OpCodeSet : __uint8_t {
     INVALID = 0xFF
 };
 
-enum class OpCodeSetSystem : __uint8_t {
-    // syscall
-    ECALL = 0x00,
-    EBREAK = 0x08,
-    // trap return
-    SRET = 0x10,
-    MRET = 0x11,
-    // interrupt managent instrucion
-    WFI = 0x18,
-    // CSR in funct3
-    CSRRW = 0x01,
-    CSRRS = 0x02,
-    CSRRC = 0x03,
-    CSRRWI = 0x05,
-    CSRRSI = 0x06,
-    CSRRCI = 0x07,
-    // not existe in doc
-    INVALID = 0xff
-};
+// enum class OpCodeSetSystem : __uint8_t {
+//     // syscall
+//     ECALL = 0x00,
+//     EBREAK = 0x08,
+//     // trap return
+//     SRET = 0x10,
+//     MRET = 0x11,
+//     // interrupt managent instrucion
+//     WFI = 0x18,
+//     // CSR in funct3
+//     CSRRW = 0x01,
+//     CSRRS = 0x02,
+//     CSRRC = 0x03,
+//     CSRRWI = 0x05,
+//     CSRRSI = 0x06,
+//     CSRRCI = 0x07,
+//     // not existe in doc
+//     INVALID = 0xff
+// };
 
-enum class CPUState : __uint8_t { Pipeline, Trap };
+// enum class CPUState : __uint8_t { Pipeline, Trap };
 
-struct FetchData {
-    FetchData() = default;
-    FetchData(const FetchData& o) = default;
-    ~FetchData() = default;
-    uint32_t pc = 0;
-    uint32_t pcPlus4 = 0;
-    uint32_t instr = 0;
-};
+// struct FetchData {
+//     FetchData() = default;
+//     FetchData(const FetchData& o) = default;
+//     ~FetchData() = default;
+//     uint32_t pc = 0;
+//     uint32_t pcPlus4 = 0;
+//     uint32_t instr = 0;
+// };
 
-struct DecodeData {
-    DecodeData() = default;
-    DecodeData(const DecodeData& o) = default;
-    DecodeData(const FetchData& f) { fetch = f; }
-    ~DecodeData() = default;
-    FetchData fetch;
-    uint8_t funct3 = 0;
-    uint8_t funct7 = 0;
-    uint8_t rd = 0;
-    uint8_t rs1 = 0;
-    uint8_t rs2 = 0;
-    int32_t imm32 = 0;
-    OpCodeSet opcode = OpCodeSet::INVALID;
-    OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
-};
+// struct DecodeData {
+//     DecodeData() = default;
+//     DecodeData(const DecodeData& o) = default;
+//     DecodeData(const FetchData& f) { fetch = f; }
+//     ~DecodeData() = default;
+//     FetchData fetch;
+//     uint8_t funct3 = 0;
+//     uint8_t funct7 = 0;
+//     uint8_t rd = 0;
+//     uint8_t rs1 = 0;
+//     uint8_t rs2 = 0;
+//     int32_t imm32 = 0;
+//     OpCodeSet opcode = OpCodeSet::INVALID;
+//     OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
+// };
 
-struct ExecuteData {
-    ExecuteData() = default;
-    ExecuteData(const ExecuteData& o) = default;
-    ExecuteData(const DecodeData& d) { decode = d; };
-    ~ExecuteData() = default;
-    DecodeData decode;
-    MemoryAccessWidth width;
-    bool valSigned;
-    uint32_t address;
-    uint32_t valueRS1;
-    uint32_t valueRS2;
-    uint32_t valueRD;
-};
+// struct ExecuteData {
+//     ExecuteData() = default;
+//     ExecuteData(const ExecuteData& o) = default;
+//     ExecuteData(const DecodeData& d) { decode = d; };
+//     ~ExecuteData() = default;
+//     DecodeData decode;
+//     MemoryAccessWidth width;
+//     bool valSigned;
+//     uint32_t address;
+//     uint32_t valueRS1;
+//     uint32_t valueRS2;
+//     uint32_t valueRD;
+// };
 
-struct MemoryAccessData {
-    MemoryAccessData() = default;
-    MemoryAccessData(const MemoryAccessData& o) = default;
-    MemoryAccessData(const ExecuteData& e) { execute = e; };
-    ~MemoryAccessData() = default;
-    ExecuteData execute;
-    uint32_t value;
-    bool isValid;
-};
+// struct MemoryAccessData {
+//     MemoryAccessData() = default;
+//     MemoryAccessData(const MemoryAccessData& o) = default;
+//     MemoryAccessData(const ExecuteData& e) { execute = e; };
+//     ~MemoryAccessData() = default;
+//     ExecuteData execute;
+//     uint32_t value;
+//     bool isValid;
+// };
