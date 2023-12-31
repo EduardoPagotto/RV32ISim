@@ -9,26 +9,17 @@
 
 class Riscv32 {
   private:
-    uint32_t x[32] = {0};    // CPU
-    uint32_t startupAddr{0}; // CPU
-
-    bool branchAddressValid{false}; // CSR
-    bool resetSignal{false};        // CSR
-    uint32_t branchAddress{0};      // CSR
-
-    uint32_t pc{0};      // fetch
-    uint32_t pcPlus4{0}; // fetch
-
+    uint32_t x[32] = {0}; // CPU
     Bus bus;
+    Controller controller;
 
   public:
-    Riscv32(const uint32_t& startupAddr) : startupAddr(startupAddr) {}
+    Riscv32(const uint32_t& startupAddr) { controller.setStartUpAddr(startupAddr); }
+
     virtual ~Riscv32() {}
     Bus& getBus() { return bus; }
-    void reset() {
-        this->branchAddressValid = true;
-        this->branchAddress = startupAddr;
-    }
+    void reset() { controller.reset(); }
+
     bool step() {
 
         this->fetch();
@@ -39,10 +30,9 @@ class Riscv32 {
   private:
     void fetch() {
 
-        this->pc = this->branchAddressValid ? this->branchAddress : this->pcPlus4;
-        this->pcPlus4 = this->pc + 4;
+        controller.step();
 
-        auto v = bus.load(this->pc, MemoryAccessWidth::Word);
+        auto v = bus.load(controller.getPC(), MemoryAccessWidth::Word);
         if (v.has_value()) {
             this->decode(v.value());
         } else {
@@ -51,36 +41,36 @@ class Riscv32 {
     }
 
     void decode(const uint32_t& i) {
-        if (resetSignal) {
+        if (controller.getResetSignal()) {
             // TODO: implementar
         } else {
 
             OpCodeSet opcode = static_cast<OpCodeSet>(i & 0x7f);
 
-            InstructionType* executer = nullptr;
+            InstructionType* pipeline = nullptr;
 
             switch (opcode) {
                 case OpCodeSet::ULA:
-                    executer = new InstructionTypeR(opcode, i); // Instrucoes tipo R
+                    pipeline = new InstructionTypeR(opcode, i, x); // Instrucoes tipo R *
                     break;
                 case OpCodeSet::LOAD:
                 case OpCodeSet::ULAI:
                 case OpCodeSet::JALR:
-                case OpCodeSet::FENCE:                          // FIXME: tipo diferente depois separa
-                    executer = new InstructionTypeI(opcode, i); // Instrucoes tipo I
+                    // case OpCodeSet::FENCE:                   // FIXME: tipo diferente depois separa
+                    pipeline = new InstructionTypeI(opcode, i, x); // Instrucoes tipo I *
                     break;
                 case OpCodeSet::AUIPC:
                 case OpCodeSet::LUI:
-                    executer = new InstructionTypeU(opcode, i, pc); // Instrucoes tipo U
+                    pipeline = new InstructionTypeU(opcode, i); // Instrucoes tipo U *
                     break;
                 case OpCodeSet::SAVE:
-                    executer = new InstructionTypeS(opcode, i, x); // Instrucoes tipo S
+                    pipeline = new InstructionTypeS(opcode, i, x); // Instrucoes tipo S *
                     break;
                 case OpCodeSet::BRANCH:
-                    executer = new InstructionTypeB(opcode, i); // Instrucoes tipo B
+                    pipeline = new InstructionTypeB(opcode, i, x); // Instrucoes tipo B *
                     break;
                 case OpCodeSet::JAL:
-                    executer = new InstructionTypeJ(opcode, i); // Instrucoes tipo J
+                    pipeline = new InstructionTypeJ(opcode, i); // Instrucoes tipo J *
                     break;
                 case OpCodeSet::SYSTEM:
                     // this->imm32 = iImm;
@@ -122,7 +112,19 @@ class Riscv32 {
                     break;
             }
 
-            executer->step();
+            pipeline->execute(controller);
+            WriteBackData w = pipeline->memoryAccess(bus, controller);
+            if (w.isValid) {
+                if (w.rd != 0) {
+                    x[w.rd] = w.value;
+                    // csr->prt.printRegVal(m.execute.decode.rd, m.value); // TODO: Melhorar o print
+                } else {
+                    x[0] = 0;
+                }
+            }
+
+            delete pipeline;
+            pipeline = nullptr;
         }
     }
 };

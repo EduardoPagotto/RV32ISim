@@ -1,5 +1,13 @@
 #pragma once
+#include "Bus.hpp"
+#include "Controller.hpp"
 #include "defs.hpp"
+
+struct WriteBackData {
+    uint8_t rd;
+    uint32_t value;
+    bool isValid;
+};
 
 class InstructionType {
   protected:
@@ -8,8 +16,8 @@ class InstructionType {
   public:
     InstructionType(const OpCodeSet& o) : opcode(o) {}
     virtual ~InstructionType() = default;
-    virtual void step() = 0;
-    // virtual void memoryAccess(Bus& bus);
+    virtual void execute(Controller& controller) = 0;
+    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) = 0;
 
   protected:
     static inline uint8_t calcRd(const uint32_t& i) { return ((i >> 7) & 0x1f); }

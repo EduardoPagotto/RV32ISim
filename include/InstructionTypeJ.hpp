@@ -7,6 +7,8 @@ class InstructionTypeJ : public InstructionType {
     uint8_t rd{0};
     int32_t imm{0};
 
+    uint32_t address{0};
+
   public:
     InstructionTypeJ(const OpCodeSet& o, const uint32_t& i) : InstructionType(o) {
         rd = calcRd(i);
@@ -16,5 +18,16 @@ class InstructionTypeJ : public InstructionType {
               (((i >> 21) & 0x3ff) << 1);  //  instr[10:1]
     }
 
-    virtual void step() override {}
+    virtual void execute(Controller& controller) override {
+
+        // JAL
+        address = controller.getPcplus4();
+        controller.setBranchAddress(controller.getPC() + imm);
+
+        // TODO: manda dados para memory com addres como valor no RD
+    }
+
+    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
+        return WriteBackData{rd, address, true};
+    }
 };

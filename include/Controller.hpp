@@ -1,0 +1,35 @@
+#pragma once
+#include <stdint.h>
+
+class Controller {
+    bool branchAddressValid{false}; // CSR
+    bool resetSignal{false};        // CSR
+    uint32_t branchAddress{0};      // CSR
+    uint32_t startupAddr{0};        // CPU
+    uint32_t pc{0};                 // fetch
+    uint32_t pcPlus4{0};            // fetch
+
+  public:
+    Controller() {}
+    virtual ~Controller() = default;
+    void setStartUpAddr(const uint32_t addr) { this->startupAddr = addr; }
+
+    const uint32_t getPC() const { return this->pc; }
+    const uint32_t getPcplus4() const { return this->pcPlus4; }
+    const bool getResetSignal() const { return this->resetSignal; }
+
+    void reset() {
+        this->branchAddressValid = true;
+        this->branchAddress = startupAddr;
+    }
+
+    void setBranchAddress(const uint32_t& addr) {
+        branchAddress = addr;
+        branchAddressValid = true;
+    }
+
+    void step() {
+        this->pc = this->branchAddressValid ? this->branchAddress : this->pcPlus4;
+        this->pcPlus4 = this->pc + 4;
+    }
+};
