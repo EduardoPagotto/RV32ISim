@@ -14,7 +14,6 @@ class Riscv32 {
     uint32_t x[32] = {0}; // CPU
     Bus bus;
     Controller controller;
-    static inline Debug debug;
 
   public:
     Riscv32(const uint32_t& startupAddr) { controller.setStartUpAddr(startupAddr); }
@@ -26,7 +25,7 @@ class Riscv32 {
     bool step() {
 
         uint32_t instr = this->fetch();
-        debug.printAsHex(controller.getPC(), instr);
+        Debug::printAsHex(controller.getPC(), instr);
 
         InstructionType* pipeline = this->decode(instr);
 
@@ -43,7 +42,7 @@ class Riscv32 {
             }
         }
 
-        debug.newline();
+        Debug::newline();
 
         delete pipeline;
         pipeline = nullptr;
@@ -81,7 +80,7 @@ class Riscv32 {
                 case OpCodeSet::LUI:
                     return new InstructionTypeU(opcode, i); // Instrucoes tipo U *
                 case OpCodeSet::SAVE:
-                    return new InstructionTypeS(opcode, i, x); // Instrucoes tipo S *
+                    return new InstructionTypeS(opcode, i, x); // Instrucoes tipo S
                 case OpCodeSet::BRANCH:
                     return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B *
                 case OpCodeSet::JAL:
@@ -89,7 +88,7 @@ class Riscv32 {
                 // case OpCodeSet::FENCE: // TODO: ler doc
                 //     break;
                 case OpCodeSet::SYSTEM:
-                    return new InstructionTypeSys(opcode, i);
+                    return new InstructionTypeSys(opcode, i, x);
                 default:
                     throw std::string("Opcode desconhecido");
                     break;

@@ -16,12 +16,14 @@ void loadFile(const std::string& file, std::vector<uint8_t>* buffer) {
     std::ifstream instream(file, std::ios::in | std::ios::binary);
     std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
-    for (uint32_t i; i < data.size(); i++) {
+    for (uint32_t i{0}; i < data.size(); i++) {
         (*buffer)[i] = data[i];
     }
 }
 
 int main(int argc, char** argv) {
+
+    Debug::init();
 
     // Check for input
     if (argc < 2) {

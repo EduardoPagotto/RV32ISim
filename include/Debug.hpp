@@ -4,23 +4,34 @@
 #include <string>
 #include <vector>
 
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+
 class Debug {
   public:
-    Debug();
-    virtual ~Debug() = default;
+    // Debug();
+    // virtual ~Debug() = default;
 
-    void printAsHex(const uint32_t& addr, const uint32_t& instr);
-    std::string printValue(const uint32_t& indice, const uint32_t value);
+    template <typename T>
+    static inline std::string int_to_hex(T val, size_t width = sizeof(T) * 2) {
+        std::stringstream ss;
+        ss << std::setfill('0') << std::setw(width) << std::hex << (val | 0);
+        return ss.str();
+    }
+
+    static void init();
+    static void printAsHex(const uint32_t& addr, const uint32_t& instr);
+    static std::string printValue(const uint32_t& indice, const uint32_t value);
     // std::string debugCommandRegs(const DecodeData& d);
 
-    void printPC(const uint32_t& val);
-    void printRegtoMemory(const uint8_t& index, const uint32_t& valRS, const uint32_t& address);
-    void printRegVal(const uint8_t& index, const uint32_t& value);
-    void printAddress(const uint32_t& addr);
-    void printRegisters(uint32_t* regs);
-    bool writeToFile(uint32_t* regs, const char* filepath);
-    void newline();
+    static void printPC(const uint32_t& val);
+    static void printRegtoMemory(const uint8_t& index, const uint32_t& valRS, const uint32_t& address);
+    static void printRegVal(const uint8_t& index, const uint32_t& value);
+    static void printAddress(const uint32_t& addr);
+    static void printRegisters(uint32_t* regs);
+    static bool writeToFile(uint32_t* regs, const char* filepath);
+    static void newline();
 
-  private:
-    std::vector<std::string> alias;
+    inline static std::vector<std::string> alias;
 };

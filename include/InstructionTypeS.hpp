@@ -29,17 +29,22 @@ class InstructionTypeS : public InstructionType {
         address = val_rs1 + imm;
         switch (funct3) {
             case 0x0: // SB
+                std::cout << "sb    ";
                 width = MemoryAccessWidth::Byte;
                 break;
 
             case 0x1: // SH
+                std::cout << "sh    ";
                 width = MemoryAccessWidth::HalfWord;
                 break;
 
             case 0x2: // SW
+                std::cout << "sw    ";
                 width = MemoryAccessWidth::Word;
                 break;
         };
+
+        std::cout << Debug::alias[rs2] << ", " << imm << "(" << Debug::alias[rs1] << ")";
 
         // TODO: implementar a chamada para accesMemory
     }

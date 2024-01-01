@@ -29,37 +29,57 @@ class InstructionTypeR : public InstructionType {
 
         switch (funct3) {
             case 0x0: // ADD / SUB
-                address = flagAdd ? val_rs1 + val_rs2 : val_rs1 - val_rs2;
+                if (flagAdd) {
+                    address = val_rs1 + val_rs2;
+                    std::cout << "add   ";
+                } else {
+                    address = val_rs1 - val_rs2;
+                    std::cout << "sub   ";
+                }
+                // address = flagAdd ? val_rs1 + val_rs2 : val_rs1 - val_rs2;
                 break;
 
             case 0x1: // SLL
+                std::cout << "sll   ";
                 address = val_rs1 << (val_rs2 & 0x1f);
                 break;
 
             case 0x2: // SLT
+                std::cout << "slt   ";
                 address = (val_rs1 < val_rs2) ? 1 : 0;
                 break;
 
             case 0x3: // SLTU
+                std::cout << "sltu  ";
                 address = (val_rs1 < (unsigned int)val_rs2) ? 1 : 0;
                 break;
 
             case 0x4: // XOR
+                std::cout << "xor   ";
                 address = val_rs1 ^ val_rs2;
                 break;
 
             case 0x5: // SRL / SRA
-                address = flagAdd ? ((unsigned int)val_rs1) >> (val_rs2 & 0x1f) : val_rs1 >> (val_rs2 & 0x1f);
+                if (flagAdd) {
+                    address = ((unsigned int)val_rs1) >> (val_rs2 & 0x1f);
+                } else {
+                    address = val_rs1 >> (val_rs2 & 0x1f);
+                }
+                // address = flagAdd ? ((unsigned int)val_rs1) >> (val_rs2 & 0x1f) : val_rs1 >> (val_rs2 & 0x1f);
                 break;
 
             case 0x6: // OR
+                std::cout << "OR    ";
                 address = val_rs1 | val_rs2;
                 break;
 
             case 0x7: // AND
+                std::cout << "and   ";
                 address = val_rs1 & val_rs2;
                 break;
         }
+
+        std::cout << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << Debug::alias[rs2 & 0x1f];
 
         // TODO: implementar a chamada a memory
     }

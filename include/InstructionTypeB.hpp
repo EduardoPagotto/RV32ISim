@@ -26,35 +26,42 @@ class InstructionTypeB : public InstructionType {
 
         switch (funct3) {
             case 0x0: // BEQ
+                std::cout << "beq   ";
                 if (val_rs1 == val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x1: // BNE
+                std::cout << "bne   ";
                 if (val_rs1 != val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x4: // BLT
+                std::cout << "blt   ";
                 if (val_rs1 < val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x5: // BGE
+                std::cout << "bge   ";
                 if (val_rs1 >= val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x6: // BLTU
+                std::cout << "bltu  ";
                 if (val_rs1 < (unsigned)val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x7: // BGEU
+                std::cout << "bgeu  ";
                 if (val_rs1 >= (unsigned)val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
         }
+        std::cout << Debug::alias[rs1] << ", " << Debug::alias[rs2] << ", " << imm;
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {

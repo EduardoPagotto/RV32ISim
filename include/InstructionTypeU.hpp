@@ -1,6 +1,8 @@
 #pragma once
+#include "Debug.hpp"
 #include "InstructionType.hpp"
 #include "defs.hpp"
+#include <iostream>
 
 class InstructionTypeU : public InstructionType {
   private:
@@ -18,9 +20,11 @@ class InstructionTypeU : public InstructionType {
 
         switch (opcode) {
             case OpCodeSet::AUIPC: // AUIPC
+                std::cout << "auipc " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
                 address = controller.getPC() + static_cast<uint32_t>(imm);
                 break;
             case OpCodeSet::LUI: // LUI
+                std::cout << "lui   " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
                 address = imm;
                 break;
             default:
