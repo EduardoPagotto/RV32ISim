@@ -48,26 +48,6 @@ int main(int argc, char** argv) {
             break;
     }
 
-    // // Construct simulator object
-    // RV32ISim simulate(&bus);
-
-    // // Run the program
-    // try {
-    //     simulate.play();
-    // } catch (std::string& v) { std::cout << v << '\n'; }
-
-    // // Perhaps get name of output file
-    // const char* outFile;
-    // if (argc != 2) {
-    //     outFile = argv[2];
-    // } else {
-    //     outFile = "out.res";
-    // }
-
-    // Dump the register content to file
-    // simulate.writeToFile(outFile);
-
-    // std::cout << '\n' << "Register content dumped in file: " << outFile << '\n';
-
+    std::cout << '\n' << "Register content dumped in file: " << '\n';
     return 0;
 }

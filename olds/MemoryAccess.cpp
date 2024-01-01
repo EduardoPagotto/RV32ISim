@@ -17,7 +17,7 @@ void MemoryAccess::step() {
                                   (d.width == MemoryAccessWidth::HalfWord && d.address & 0b01));
 
         switch (d.decode.opcode) {
-            case OpCodeSet::LOAD:
+            case OpCode::LOAD:
 
                 if (isUnaligned) {
                     csr->trapException(Trap(d.address, MCause::LoadAddressMisaligned, d.decode.fetch.instr));
@@ -29,7 +29,7 @@ void MemoryAccess::step() {
                 csr->prt.printAddress(d.address); // TODO: Melhorar o print
                 break;
 
-            case OpCodeSet::SAVE:
+            case OpCode::SAVE:
 
                 if (isUnaligned) {
                     csr->trapException(Trap(d.address, MCause::StoreAMOAddressMisaligned, d.decode.fetch.instr));
@@ -40,60 +40,60 @@ void MemoryAccess::step() {
                 csr->prt.printRegtoMemory(d.decode.rs2, d.valueRS2, d.address); // TODO: Melhorar o print
                 break;
 
-            case OpCodeSet::BRANCH:
+            case OpCode::BRANCH:
                 // branchCase();
                 break;
 
-            case OpCodeSet::ULA:
-            case OpCodeSet::ULAI:
-            case OpCodeSet::AUIPC:
-            case OpCodeSet::LUI:
-            case OpCodeSet::JALR:
-            case OpCodeSet::JAL:
+            case OpCode::ULA:
+            case OpCode::ULAI:
+            case OpCode::AUIPC:
+            case OpCode::LUI:
+            case OpCode::JALR:
+            case OpCode::JAL:
                 data.isValid = true;
                 data.value = d.address;
                 break;
 
-            case OpCodeSet::FENCE:
+            case OpCode::FENCE:
                 // TODO: implementar
                 break;
 
-            case OpCodeSet::SYSTEM:
+            case OpCode::SYSTEM:
                 data.isValid = true;
                 switch (d.decode.opcodeSys) {
-                    case OpCodeSetSystem::INVALID:
+                    case OpCodeSystem::INVALID:
                         break;
 
-                    case OpCodeSetSystem::CSRRC:
+                    case OpCodeSystem::CSRRC:
                         data.value = this->csr->read(d.address);
                         if (d.decode.rs1 != 0)
                             this->csr->write(d.address, (data.value & (~d.valueRS1)));
                         break;
 
-                    case OpCodeSetSystem::CSRRCI:
+                    case OpCodeSystem::CSRRCI:
                         data.value = this->csr->read(d.address);
                         if (d.decode.rs1 != 0)
                             this->csr->write(d.address, (data.value & (~d.decode.rs1)));
                         break;
 
-                    case OpCodeSetSystem::CSRRS:
+                    case OpCodeSystem::CSRRS:
                         data.value = this->csr->read(d.address);
                         if (d.decode.rs1 != 0)
                             this->csr->write(d.address, data.value | d.valueRS1);
                         break;
 
-                    case OpCodeSetSystem::CSRRSI:
+                    case OpCodeSystem::CSRRSI:
                         data.value = this->csr->read(d.address);
                         if (d.decode.rs1 != 0)
                             this->csr->write(d.address, data.value | d.decode.rs1);
                         break;
 
-                    case OpCodeSetSystem::CSRRW:
+                    case OpCodeSystem::CSRRW:
                         data.value = (d.valueRD != 0) ? this->csr->read(d.address) : 0;
                         this->csr->write(d.address, d.valueRS1);
                         break;
 
-                    case OpCodeSetSystem::CSRRWI:
+                    case OpCodeSystem::CSRRWI:
                         data.value = (d.valueRD != 0) ? this->csr->read(d.address) : 0;
                         this->csr->write(d.address, d.decode.rs1);
                         break;

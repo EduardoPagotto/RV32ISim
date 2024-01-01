@@ -12,7 +12,7 @@ class InstructionTypeR : public InstructionType {
     uint32_t address{0};
 
   public:
-    InstructionTypeR(const OpCodeSet& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructionTypeR(const OpCode& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
         rd = calcRd(i);
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);

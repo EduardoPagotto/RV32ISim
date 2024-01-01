@@ -2,11 +2,12 @@
 #include "Bus.hpp"
 #include "Debug.hpp"
 #include "InstructionTypeB.hpp"
+#include "InstructionTypeCSR.hpp"
 #include "InstructionTypeI.hpp"
+#include "InstructionTypeInt.hpp"
 #include "InstructionTypeJ.hpp"
 #include "InstructionTypeR.hpp"
 #include "InstructionTypeS.hpp"
-#include "InstructionTypeSys.hpp"
 #include "InstructionTypeU.hpp"
 
 class Riscv32 {
@@ -68,27 +69,33 @@ class Riscv32 {
         if (controller.getResetSignal()) {
             // TODO: implementar
         } else {
-            OpCodeSet opcode = static_cast<OpCodeSet>(i & 0x7f);
+            OpCode opcode = static_cast<OpCode>(i & 0x7f);
             switch (opcode) {
-                case OpCodeSet::ULA:
+                case OpCode::ULA:
                     return new InstructionTypeR(opcode, i, x); // Instrucoes tipo R *
-                case OpCodeSet::LOAD:
-                case OpCodeSet::ULAI:
-                case OpCodeSet::JALR:
+                case OpCode::LOAD:
+                case OpCode::ULAI:
+                case OpCode::JALR:
                     return new InstructionTypeI(opcode, i, x); // Instrucoes tipo I *
-                case OpCodeSet::AUIPC:
-                case OpCodeSet::LUI:
+                case OpCode::AUIPC:
+                case OpCode::LUI:
                     return new InstructionTypeU(opcode, i); // Instrucoes tipo U *
-                case OpCodeSet::SAVE:
+                case OpCode::SAVE:
                     return new InstructionTypeS(opcode, i, x); // Instrucoes tipo S
-                case OpCodeSet::BRANCH:
+                case OpCode::BRANCH:
                     return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B *
-                case OpCodeSet::JAL:
+                case OpCode::JAL:
                     return new InstructionTypeJ(opcode, i); // Instrucoes tipo J *
-                // case OpCodeSet::FENCE: // TODO: ler doc
+                // case OpCode::FENCE: // TODO: ler doc
                 //     break;
-                case OpCodeSet::SYSTEM:
-                    return new InstructionTypeSys(opcode, i, x);
+                case OpCode::SYSTEM:
+                    if (InstructionType::calcFunct3(i) == 0) {
+                        return new InstructionTypeInt(opcode, i, x);
+                    } else {
+                        return new InstructionTypeCSR(opcode, i, x);
+                    }
+
+                    break;
                 default:
                     throw std::string("Opcode desconhecido");
                     break;

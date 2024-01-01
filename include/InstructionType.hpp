@@ -11,15 +11,14 @@ struct WriteBackData {
 
 class InstructionType {
   protected:
-    OpCodeSet opcode{OpCodeSet::INVALID};
+    OpCode opcode{OpCode::INVALID};
 
   public:
-    InstructionType(const OpCodeSet& o) : opcode(o) {}
+    InstructionType(const OpCode& o) : opcode(o) {}
     virtual ~InstructionType() = default;
     virtual void execute(Controller& controller) = 0;
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) = 0;
 
-  protected:
     static inline uint8_t calcRd(const uint32_t& i) { return ((i >> 7) & 0x1f); }
     static inline uint8_t calcFunct3(const uint32_t& i) { return (i >> 12) & 0x7; }
     static inline uint8_t calcRs1(const uint32_t& i) { return (i >> 15) & 0x1f; }

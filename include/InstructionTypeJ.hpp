@@ -10,7 +10,7 @@ class InstructionTypeJ : public InstructionType {
     uint32_t address{0};
 
   public:
-    InstructionTypeJ(const OpCodeSet& o, const uint32_t& i) : InstructionType(o) {
+    InstructionTypeJ(const OpCode& o, const uint32_t& i) : InstructionType(o) {
         rd = calcRd(i);
         imm = ((i >> 30) << 20) |          //  instr[20]
               (((i >> 12) & 0xff) << 12) | //  instr[19:12]

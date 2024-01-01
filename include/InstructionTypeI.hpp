@@ -17,7 +17,7 @@ class InstructionTypeI : public InstructionType {
     bool valSigned{false};
 
   public:
-    InstructionTypeI(const OpCodeSet& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructionTypeI(const OpCode& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
 
         rd = calcRd(i);
         funct3 = calcFunct3(i);
@@ -29,13 +29,13 @@ class InstructionTypeI : public InstructionType {
 
     virtual void execute(Controller& controller) override {
         switch (opcode) {
-            case OpCodeSet::LOAD:
+            case OpCode::LOAD:
                 load();
                 break;
-            case OpCodeSet::ULAI:
+            case OpCode::ULAI:
                 ulai();
                 break;
-            case OpCodeSet::JALR:
+            case OpCode::JALR:
                 jalr(controller);
                 break;
             default:

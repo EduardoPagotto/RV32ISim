@@ -11,7 +11,7 @@ class InstructionTypeU : public InstructionType {
     uint32_t address{0};
 
   public:
-    InstructionTypeU(const OpCodeSet& o, const uint32_t& i) : InstructionType(o) {
+    InstructionTypeU(const OpCode& o, const uint32_t& i) : InstructionType(o) {
         rd = calcRd(i);
         imm = ((i >> 12) & 0xfffff) << 12;
     }
@@ -19,11 +19,11 @@ class InstructionTypeU : public InstructionType {
     virtual void execute(Controller& controller) override {
 
         switch (opcode) {
-            case OpCodeSet::AUIPC: // AUIPC
+            case OpCode::AUIPC: // AUIPC
                 std::cout << "auipc " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
                 address = controller.getPC() + static_cast<uint32_t>(imm);
                 break;
-            case OpCodeSet::LUI: // LUI
+            case OpCode::LUI: // LUI
                 std::cout << "lui   " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
                 address = imm;
                 break;

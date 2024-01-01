@@ -42,7 +42,7 @@
 
 // enum class PipelineState { Fetch, Decode, Execute, MemoryAccess, WriteBack };
 
-enum class OpCodeSet : __uint8_t {
+enum class OpCode : __uint8_t {
     LOAD = 0x03,
     ULAI = 0x13,
     AUIPC = 0x17,
@@ -57,15 +57,14 @@ enum class OpCodeSet : __uint8_t {
     INVALID = 0xFF
 };
 
-enum class OpCodeSetSystem : __uint8_t {
-    // syscall
-    ECALL = 0x00,
-    EBREAK = 0x08,
-    // trap return
-    SRET = 0x10,
-    MRET = 0x11,
-    // interrupt managent instrucion
-    WFI = 0x18,
+enum class OpCodeInt : __uint16_t {
+
+    ECALL = 0x00,  // syscall
+    EBREAK = 0x08, // syscall
+    //
+    SRET = 0x102, // 0b000100000010, // trap return
+    MRET = 0x302, // 0b001100000010, // trap return
+    WFI = 0x105,  // 0b000100000101, // Wait for Interruption
     // CSR in funct3
     CSRRW = 0x01,
     CSRRS = 0x02,
@@ -75,6 +74,15 @@ enum class OpCodeSetSystem : __uint8_t {
     CSRRCI = 0x07,
     // not existe in doc
     INVALID = 0xff
+};
+
+enum class OpCodeCSR : __uint8_t {
+    CSRRW = 0x01, // in func3
+    CSRRS = 0x02,
+    CSRRC = 0x03,
+    CSRRWI = 0x05,
+    CSRRSI = 0x06,
+    CSRRCI = 0x07
 };
 
 // enum class CPUState : __uint8_t { Pipeline, Trap };
@@ -100,8 +108,8 @@ enum class OpCodeSetSystem : __uint8_t {
 //     uint8_t rs1 = 0;
 //     uint8_t rs2 = 0;
 //     int32_t imm32 = 0;
-//     OpCodeSet opcode = OpCodeSet::INVALID;
-//     OpCodeSetSystem opcodeSys = OpCodeSetSystem::INVALID;
+//     OpCode opcode = OpCode::INVALID;
+//     OpCodeSystem opcodeSys = OpCodeSystem::INVALID;
 // };
 
 // struct ExecuteData {

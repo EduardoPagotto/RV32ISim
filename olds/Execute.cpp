@@ -17,7 +17,7 @@ void Execute::step() {
         data.valueRD = regs[data.decode.rd];
 
         switch (data.decode.opcode) {
-            case OpCodeSet::LOAD:
+            case OpCode::LOAD:
                 data.address = data.valueRS1 + data.decode.imm32;
                 switch (data.decode.funct3) {
                     case 0x0: // lb
@@ -47,7 +47,7 @@ void Execute::step() {
                 }
                 break;
 
-            case OpCodeSet::ULAI:
+            case OpCode::ULAI:
                 switch (data.decode.funct3) {
                     case 0x0: // ADDI
                         data.address = data.valueRS1 + data.decode.imm32;
@@ -84,11 +84,11 @@ void Execute::step() {
                 }
                 break;
 
-            case OpCodeSet::AUIPC:
+            case OpCode::AUIPC:
                 data.address = data.decode.fetch.pc + static_cast<uint32_t>(data.decode.imm32);
                 break;
 
-            case OpCodeSet::SAVE:
+            case OpCode::SAVE:
                 data.address = data.valueRS1 + data.decode.imm32;
                 switch (data.decode.funct3) {
                     case 0x0:
@@ -105,7 +105,7 @@ void Execute::step() {
                 }
                 break;
 
-            case OpCodeSet::ULA:
+            case OpCode::ULA:
                 switch (data.decode.funct3) {
                     case 0x0:
                         data.address = ((data.decode.fetch.instr >> 25) == 0) ? data.valueRS1 + data.valueRS2
@@ -144,11 +144,11 @@ void Execute::step() {
                 }
                 break;
 
-            case OpCodeSet::LUI:
+            case OpCode::LUI:
                 data.address = data.decode.imm32;
                 break;
 
-            case OpCodeSet::BRANCH: {
+            case OpCode::BRANCH: {
                 switch (data.decode.funct3) {
                     case 0x0:
                         if (data.valueRS1 == data.valueRS2)
@@ -182,47 +182,47 @@ void Execute::step() {
                 }
             } break;
 
-            case OpCodeSet::JALR:
+            case OpCode::JALR:
                 data.address = data.decode.fetch.pcPlus4;
                 csr->setBranchAddress(data.valueRS1 + data.decode.imm32);
                 break;
 
-            case OpCodeSet::JAL:
+            case OpCode::JAL:
                 data.address = data.decode.fetch.pcPlus4;
                 csr->setBranchAddress(data.decode.fetch.pc + data.decode.imm32);
                 break;
 
-            case OpCodeSet::FENCE:
+            case OpCode::FENCE:
                 // TODO: implementar
                 break;
 
-            case OpCodeSet::SYSTEM:
+            case OpCode::SYSTEM:
                 // returnFromTrap = data.decode.imm32 == 0x302;
                 switch (data.decode.opcodeSys) {
-                    case OpCodeSetSystem::EBREAK:
+                    case OpCodeSystem::EBREAK:
                         csr->trapException(Trap(data.decode.fetch.pc, MCause::Breakpoint, 0));
                         break;
 
-                    case OpCodeSetSystem::ECALL:
+                    case OpCodeSystem::ECALL:
                         csr->trapException(Trap(data.decode.fetch.pc, MCause::EnvironmentCallFromMMode, 0));
                         break;
 
-                    case OpCodeSetSystem::SRET:
-                    case OpCodeSetSystem::MRET:
+                    case OpCodeSystem::SRET:
+                    case OpCodeSystem::MRET:
                         csr->trapReturn();
                         break;
-                    case OpCodeSetSystem::WFI:
+                    case OpCodeSystem::WFI:
                         throw std::string("WFI!!!!!");
                         break;
-                    case OpCodeSetSystem::CSRRC:
-                    case OpCodeSetSystem::CSRRCI:
-                    case OpCodeSetSystem::CSRRS:
-                    case OpCodeSetSystem::CSRRSI:
-                    case OpCodeSetSystem::CSRRW:
-                    case OpCodeSetSystem::CSRRWI:
+                    case OpCodeSystem::CSRRC:
+                    case OpCodeSystem::CSRRCI:
+                    case OpCodeSystem::CSRRS:
+                    case OpCodeSystem::CSRRSI:
+                    case OpCodeSystem::CSRRW:
+                    case OpCodeSystem::CSRRWI:
                         data.address = data.decode.imm32;
                         break;
-                    case OpCodeSetSystem::INVALID:
+                    case OpCodeSystem::INVALID:
                         throw std::string("System Opcode desconhecido");
                         break;
                 }

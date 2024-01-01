@@ -9,7 +9,7 @@ class InstructionTypeB : public InstructionType {
     uint32_t val_rs1{0}, val_rs2{0};
 
   public:
-    InstructionTypeB(const OpCodeSet& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructionTypeB(const OpCode& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);
