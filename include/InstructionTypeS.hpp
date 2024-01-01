@@ -1,6 +1,5 @@
 #pragma once
 #include "InstructionType.hpp"
-#include "defs.hpp"
 
 class InstructionTypeS : public InstructionType {
   private:
@@ -14,7 +13,7 @@ class InstructionTypeS : public InstructionType {
     MemoryAccessWidth width;
 
   public:
-    InstructionTypeS(const OpCode& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructionTypeS(const uint32_t& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);

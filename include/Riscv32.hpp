@@ -69,33 +69,31 @@ class Riscv32 {
         if (controller.getResetSignal()) {
             // TODO: implementar
         } else {
-            OpCode opcode = static_cast<OpCode>(i & 0x7f);
+            uint32_t opcode = (i & 0x7f);
             switch (opcode) {
-                case OpCode::ULA:
-                    return new InstructionTypeR(opcode, i, x); // Instrucoes tipo R *
-                case OpCode::LOAD:
-                case OpCode::ULAI:
-                case OpCode::JALR:
-                    return new InstructionTypeI(opcode, i, x); // Instrucoes tipo I *
-                case OpCode::AUIPC:
-                case OpCode::LUI:
-                    return new InstructionTypeU(opcode, i); // Instrucoes tipo U *
-                case OpCode::SAVE:
+                case OPC_ULA:
+                    return new InstructionTypeR(opcode, i, x); // Instrucoes tipo R
+                case OPC_LOAD:
+                case OPC_ULAI:
+                case OPC_JALR:
+                    return new InstructionTypeI(opcode, i, x); // Instrucoes tipo I
+                case OPC_AUIPC:
+                case OPC_LUI:
+                    return new InstructionTypeU(opcode, i); // Instrucoes tipo U
+                case OPC_SAVE:
                     return new InstructionTypeS(opcode, i, x); // Instrucoes tipo S
-                case OpCode::BRANCH:
-                    return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B *
-                case OpCode::JAL:
-                    return new InstructionTypeJ(opcode, i); // Instrucoes tipo J *
-                // case OpCode::FENCE: // TODO: ler doc
+                case OPC_BRANCH:
+                    return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B
+                case OPC_JAL:
+                    return new InstructionTypeJ(opcode, i); // Instrucoes tipo J
+                // case OPC_FENCE: // TODO: ler doc
                 //     break;
-                case OpCode::SYSTEM:
-                    if (InstructionType::calcFunct3(i) == 0) {
-                        return new InstructionTypeInt(opcode, i, x);
+                case OPC_SYSTEM:
+                    if (InstructionType::calcFunct3(InstructionType::calcFunct3(i)) == 0) {
+                        return new InstructionTypeInt(i, x);
                     } else {
-                        return new InstructionTypeCSR(opcode, i, x);
+                        return new InstructionTypeCSR(i, x);
                     }
-
-                    break;
                 default:
                     throw std::string("Opcode desconhecido");
                     break;

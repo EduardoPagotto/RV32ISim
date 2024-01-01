@@ -1,8 +1,6 @@
 #pragma once
 #include "Debug.hpp"
 #include "InstructionType.hpp"
-#include "defs.hpp"
-#include <iostream>
 
 class InstructionTypeI : public InstructionType {
   private:
@@ -17,7 +15,7 @@ class InstructionTypeI : public InstructionType {
     bool valSigned{false};
 
   public:
-    InstructionTypeI(const OpCode& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructionTypeI(const uint32_t& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
 
         rd = calcRd(i);
         funct3 = calcFunct3(i);
@@ -29,13 +27,13 @@ class InstructionTypeI : public InstructionType {
 
     virtual void execute(Controller& controller) override {
         switch (opcode) {
-            case OpCode::LOAD:
+            case OPC_LOAD:
                 load();
                 break;
-            case OpCode::ULAI:
+            case OPC_ULAI:
                 ulai();
                 break;
-            case OpCode::JALR:
+            case OPC_JALR:
                 jalr(controller);
                 break;
             default:

@@ -11,10 +11,10 @@ struct WriteBackData {
 
 class InstructionType {
   protected:
-    OpCode opcode{OpCode::INVALID};
+    uint32_t opcode;
 
   public:
-    InstructionType(const OpCode& o) : opcode(o) {}
+    InstructionType(const uint32_t& o) : opcode(o) {}
     virtual ~InstructionType() = default;
     virtual void execute(Controller& controller) = 0;
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) = 0;
