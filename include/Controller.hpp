@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include "CSR.hpp"
 
 class Controller {
     bool branchAddressValid{false}; // CSR
@@ -8,6 +8,7 @@ class Controller {
     uint32_t startupAddr{0};        // CPU
     uint32_t pc{0};                 // fetch
     uint32_t pcPlus4{0};            // fetch
+    CSR csr;
 
   public:
     Controller() {}
@@ -18,6 +19,7 @@ class Controller {
     const uint32_t getPcplus4() const { return this->pcPlus4; }
     const bool getResetSignal() const { return this->resetSignal; }
     const bool getBranchAddressValid() { return branchAddressValid; }
+    CSR& getCSR() { return csr; }
 
     const uint32_t getBranchAddress() {
         branchAddressValid = false;
