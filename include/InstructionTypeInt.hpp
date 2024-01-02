@@ -31,13 +31,15 @@ class InstructionTypeInt : public InstructionType {
 
             case OPC_SRET:
                 std::cout << "SRET  ";
+                controller.trapReturn(); // FIXME: so pelo root
                 break;
             case OPC_MRET:
                 std::cout << "MRET  ";
-                // csr->trapReturn();
+                controller.trapReturn();
                 break;
             case OPC_WFI:
                 std::cout << "WFI   ";
+                // TODO: implementar loop infinito com processador em halt
                 // throw std::string("WFI!!!!!");
                 break;
             default:

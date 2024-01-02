@@ -25,28 +25,29 @@ class Riscv32 {
 
     bool step() {
 
-        uint32_t instr = this->fetch();
-        Debug::printAsHex(controller.getPC(), instr);
+        if (controller.noWaitTrap()) {
+            controller.step();
 
-        InstructionType* pipeline = this->decode(instr);
+            uint32_t instr = this->fetch();
+            Debug::printAsHex(controller.getPC(), instr);
 
-        pipeline->execute(controller);
-        WriteBackData w = pipeline->memoryAccess(bus, controller);
-        pipeline->writeBack(w, x);
+            InstructionType* pipeline = this->decode(instr);
 
-        Debug::newline();
+            pipeline->execute(controller);
+            WriteBackData w = pipeline->memoryAccess(bus, controller);
+            pipeline->writeBack(w, x);
 
-        delete pipeline;
-        pipeline = nullptr;
+            Debug::newline();
+
+            delete pipeline;
+            pipeline = nullptr;
+        }
 
         return true;
     }
 
   private:
     uint32_t fetch() {
-
-        controller.step();
-
         auto v = bus.load(controller.getPC(), MemoryAccessWidth::Word);
         if (v.has_value()) {
             return v.value();
