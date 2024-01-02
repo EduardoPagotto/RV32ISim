@@ -61,8 +61,10 @@ class InstructionTypeR : public InstructionType {
 
             case 0x5: // SRL / SRA
                 if (flagAdd) {
+                    std::cout << "srl   ";
                     address = ((unsigned int)val_rs1) >> (val_rs2 & 0x1f);
                 } else {
+                    std::cout << "sra   ";
                     address = val_rs1 >> (val_rs2 & 0x1f);
                 }
                 // address = flagAdd ? ((unsigned int)val_rs1) >> (val_rs2 & 0x1f) : val_rs1 >> (val_rs2 & 0x1f);

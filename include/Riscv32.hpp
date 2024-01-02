@@ -32,16 +32,7 @@ class Riscv32 {
 
         pipeline->execute(controller);
         WriteBackData w = pipeline->memoryAccess(bus, controller);
-
-        // WriteBack
-        if (w.isValid) {
-            if (w.rd != 0) {
-                x[w.rd] = w.value;
-                // csr->prt.printRegVal(m.execute.decode.rd, m.value); // TODO: Melhorar o print
-            } else {
-                x[0] = 0;
-            }
-        }
+        pipeline->writeBack(w, x);
 
         Debug::newline();
 
