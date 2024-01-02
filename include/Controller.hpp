@@ -47,11 +47,10 @@ class Controller {
         // csr.increment64(CSR_INSTRET, CSR_INSTRETH);
 
         // switch (trap.trapState) {
-        //     case TrapState::Idle: {
-        //         return;
-        //     }
-
-        //     case TrapState::SetCSRJump: {
+        //     case TrapState::Idle: { // 3 - depois de 2 entra em iddle (este e o trap inicial)
+        //         // return;
+        //     } break;
+        //     case TrapState::SetCSRJump: { // 1 - disparado o trap de algum lugar
 
         //         csr.write(CSR_MEPC, trap.mepc);
         //         csr.write(CSR_MCAUSE, static_cast<uint32_t>(trap.mcause));
@@ -70,19 +69,20 @@ class Controller {
 
         //         this->setOriginalPC(csr.read(CSR_MTVEC));
 
-        //         return;
-        //     }
+        //         // return;
+        //     } break;
 
-        //     case TrapState::SetPc: {
+        //     case TrapState::SetPc: { // 2 - executar carga de novo PC e vai a idlle
+        //                              // 5 - retorna PC antigo e volta a idle
         //         this->setBranchAddress(trap.pcToSet);
         //         // std::cout << '\n';
         //         // this->cpuState = CPUState::Pipeline;
         //         // this->pipelineState = PipelineState::WriteBack; // PipelineState::Fetch;
         //         this->trap.trapState = TrapState::Idle;
-        //         return;
-        //     }
+        //         // return;
+        //     } break;
 
-        //     case TrapState::ReturnFromTrap: {
+        //     case TrapState::ReturnFromTrap: { // 4 sinalizado retorno do trap
 
         //         // TODO
         //         trap.pcToSet = csr.read(CSR_MEPC) + 4;
@@ -99,8 +99,8 @@ class Controller {
 
         //         csr.write(CSR_MSTATUS, mstatus);
 
-        //         return;
-        //     }
+        //         // return;
+        //     } break;
         // }
 
         this->pc = this->getBranchAddressValid() ? this->getBranchAddress() : this->pcPlus4;
