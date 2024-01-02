@@ -1,6 +1,5 @@
 #pragma once
-#include "Bus.hpp"
-// #include "Trap.hpp"
+#include <map>
 //   const MSTATUS_MASK = (1 << 3) | (1 << 7);
 
 // // PRIVILEGES
@@ -47,58 +46,63 @@
 
 class CSR {
   private:
-    Bus bus;
+    std::map<std::string, uint32_t> bank;
 
   public:
     CSR() {
 
-        bus.setMultipyAddressBy(2);
+        // 0x300  PRIV_MACHI
+        // 0xC00  PRIV_USER0
+        // 0xF00  PRIV_MACHI
 
-        bus.add(new Memory(0x300 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0300 << 2
-        bus.add(new Memory(0xC00 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_USER0), 0)); // 0x0300 << 2
-        bus.add(new Memory(0xF00 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0F00 << 2
-
-        bus.store(0x40000100, MemoryAccessWidth::Word, CSR_MISA);
-        bus.store(0x10000004 | 1, MemoryAccessWidth::Word, CSR_MTVEC);
-        bus.store(0x00000888, MemoryAccessWidth::Word, CSR_MIE);
-        bus.store(0x00000008, MemoryAccessWidth::Word, CSR_MSTATUS);
+        // Default values
+        write(CSR_MISA, 0x40000100);
+        write(CSR_MTVEC, 0x10000004 | 1);
+        write(CSR_MIE, 0x00000888);
+        write(CSR_MSTATUS, 0x00000008);
     }
 
-    virtual ~CSR() = default;
+    virtual ~CSR() { bank.clear(); };
 
     uint32_t read(const uint32_t& address) {
 
-        auto retVal = bus.load(address, MemoryAccessWidth::Word);
-        if (!retVal.has_value())
-            throw std::string("Registro invalido");
+        const std::string key = Debug::int_to_hex(address, 4);
 
-        return retVal.value();
+        auto it = bank.find(key);
+        if (it == bank.end()) {
+            bank[key] = 0;
+            return 0;
+        } else {
+            return bank[key];
+        }
     }
 
-    void write(const uint32_t& address, const uint32_t& value) {
+    void write(const uint32_t& address, const uint32_t& value, const bool& isRoot = false) {
+
+        const std::string key = Debug::int_to_hex(address, 4);
 
         const uint32_t isReadOnly = address >> 10;
         const uint32_t permission = (address >> 8) & 0b11;
 
-        if (isReadOnly != 0) {
-            throw std::string("CSR Write: Attempt to write a read-only register");
+        if (!isRoot) {
+            if (isReadOnly != 0) {
+                throw std::string("CSR Write: Attempt to write a read-only register");
+            }
         }
 
-        if (!bus.store(address, MemoryAccessWidth::Word, value))
-            throw std::string("Registro invalido");
-
+        // TODO: validar range e privilegios atuais
+        bank[key] = value;
         // mem.mstatus = value & (1 << 3) | (1 << 7);
     }
 
-    void increment64(const uint32_t& add, const uint32_t& add2) {
-
-        uint32_t low = bus.load(add, MemoryAccessWidth::Word).value();
+    void increment64(const uint32_t& addl, const uint32_t& addh, const bool& isRoot = false) {
+        uint32_t low = this->read(addl);
         low++;
-        bus.store(add, MemoryAccessWidth::Word, low);
+        this->write(addl, low, isRoot);
         if (low == 0) {
-            uint32_t hight = bus.load(add2, MemoryAccessWidth::Word).value();
-            hight++;
-            bus.store(add2, MemoryAccessWidth::Word, hight);
+            uint32_t hi = this->read(addh);
+            hi++;
+            this->write(addh, hi, isRoot);
         }
     }
 };

@@ -52,7 +52,7 @@ class Riscv32 {
         if (v.has_value()) {
             return v.value();
         } else {
-            throw std::string("Fora da memoria");
+            throw std::string("Fora da memoria: " + Debug::int_to_hex(controller.getPC()));
         }
     }
 

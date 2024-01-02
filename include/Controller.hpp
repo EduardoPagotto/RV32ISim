@@ -41,7 +41,7 @@ class Controller {
     void step() {
 
         // FIXME: entender!!! // After las Writeback
-        // csr.increment64(CSR_INSTRET, CSR_INSTRETH);
+        csr.increment64(CSR_INSTRET, CSR_INSTRETH, true);
 
         this->pc = this->getBranchAddressValid() ? this->getBranchAddress() : this->pcPlus4;
         this->pcPlus4 = this->pc + 4;
@@ -50,7 +50,7 @@ class Controller {
     bool noWaitTrap() {
 
         // FIXME: entender!!!
-        // csr.increment64(CSR_CYCLE, CSR_CYCLEH);
+        csr.increment64(CSR_CYCLE, CSR_CYCLEH, true);
 
         switch (trap.trapState) {
             case TrapState::Idle: // 3 - depois de 2 entra em iddle (este e o trap inicial)
