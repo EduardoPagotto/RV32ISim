@@ -45,41 +45,60 @@
 #define CSR_MHARTID 0xf14    // MRO
 #define CSR_MCONFIGPTR 0xf15 // MRO
 
-// #define MSTATUS_MIE_BIT 3
-// #define MSTATUS_MIE_MASK (1 << MSTATUS_MIE_BIT)
-// #define MSTATUS_MPIE_BIT 7
-// #define MSTATUS_MPIE_MASK (1 << MSTATUS_MPIE_BIT)
-
 class CSR {
   private:
-    void increment64(const uint32_t add, const uint32_t add2);
-
-    // Trap trap;
     Bus bus;
 
-    // controller
-    // CPUState cpuState = CPUState::Pipeline;
-    // PipelineState pipelineState = PipelineState::Fetch;
-    // uint32_t branchAddress = 0;
-    // bool branchAddressValid = false;
-
   public:
-    CSR();
+    CSR() {
+
+        bus.setMultipyAddressBy(2);
+
+        bus.add(new Memory(0x300 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0300 << 2
+        bus.add(new Memory(0xC00 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_USER0), 0)); // 0x0300 << 2
+        bus.add(new Memory(0xF00 << 2, (256 * 4), (DEV_OPENED | DEV_RW | PRIV_MACHI), 0)); // 0x0F00 << 2
+
+        bus.store(0x40000100, MemoryAccessWidth::Word, CSR_MISA);
+        bus.store(0x10000004 | 1, MemoryAccessWidth::Word, CSR_MTVEC);
+        bus.store(0x00000888, MemoryAccessWidth::Word, CSR_MIE);
+        bus.store(0x00000008, MemoryAccessWidth::Word, CSR_MSTATUS);
+    }
+
     virtual ~CSR() = default;
 
-    void step();
-    // void commit() { this->nextState(); }
+    uint32_t read(const uint32_t& address) {
 
-    uint32_t read(uint32_t address);
-    void write(uint32_t address, uint32_t value);
+        auto retVal = bus.load(address, MemoryAccessWidth::Word);
+        if (!retVal.has_value())
+            throw std::string("Registro invalido");
 
-    // void trapException(const Trap& t) {
-    //     trap = t;
-    //     this->cpuState = CPUState::Trap;
-    // }
+        return retVal.value();
+    }
 
-    // void trapReturn() { trap.trapState = TrapState::ReturnFromTrap; }
-    //  bool beginTrapReturn() { return false; }
+    void write(const uint32_t& address, const uint32_t& value) {
 
-    void nextState();
+        const uint32_t isReadOnly = address >> 10;
+        const uint32_t permission = (address >> 8) & 0b11;
+
+        if (isReadOnly != 0) {
+            throw std::string("CSR Write: Attempt to write a read-only register");
+        }
+
+        if (!bus.store(address, MemoryAccessWidth::Word, value))
+            throw std::string("Registro invalido");
+
+        // mem.mstatus = value & (1 << 3) | (1 << 7);
+    }
+
+    void increment64(const uint32_t& add, const uint32_t& add2) {
+
+        uint32_t low = bus.load(add, MemoryAccessWidth::Word).value();
+        low++;
+        bus.store(add, MemoryAccessWidth::Word, low);
+        if (low == 0) {
+            uint32_t hight = bus.load(add2, MemoryAccessWidth::Word).value();
+            hight++;
+            bus.store(add2, MemoryAccessWidth::Word, hight);
+        }
+    }
 };

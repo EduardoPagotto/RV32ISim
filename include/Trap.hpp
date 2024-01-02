@@ -1,6 +1,11 @@
 #pragma once
 #include <stdint.h>
 
+#define MSTATUS_MIE_BIT 3
+#define MSTATUS_MIE_MASK (1 << MSTATUS_MIE_BIT)
+#define MSTATUS_MPIE_BIT 7
+#define MSTATUS_MPIE_MASK (1 << MSTATUS_MPIE_BIT)
+
 enum class MCause : uint32_t {
     // Interrupts
     UserSoftwareInterrupt = 0x80000000,
@@ -41,38 +46,16 @@ enum class TrapState {
     SetPc,
 };
 
-class Trap {
-  private:
+struct Trap {
+
     uint32_t mepc{0}, mtval{0}, pcToSet{0};
     TrapState trapState{TrapState::Idle};
     MCause mcause{MCause::IllegalInstruction};
 
-  public:
+    Trap() = default;
+    Trap(const Trap& t) = default;
     Trap(const uint32_t& mepc, MCause cause, uint32_t mtval)
         : trapState(TrapState::SetCSRJump), mepc(mepc), mcause(cause), mtval(mtval), pcToSet(0) {}
 
     ~Trap() = default;
-
-    Trap() = delete;
-    Trap(const Trap& t) = delete;
-
-    void setPC(const uint32_t& mtvec) {
-
-        const uint32_t mc = static_cast<uint32_t>(mcause);
-
-        const uint32_t index = mc & 0x7fffffff;
-
-        const bool isInterrupt = mc & 0x80000000;
-
-        const uint32_t offset = isInterrupt ? 0 : 48;
-
-        if ((mtvec & 01) == 01) {
-            pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
-        } else {
-            pcToSet = (mtvec & 0xfffffffc);
-        }
-
-        // pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
-        trapState = TrapState::SetPc;
-    }
 };

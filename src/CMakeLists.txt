@@ -9,7 +9,6 @@ set (LibsSim -lpthread)
 set (IncludesSim ${CMAKE_SOURCE_DIR})
 
 add_executable (sim Debug.cpp
-                    CSR.cpp
                     main.cpp)
 
 target_link_libraries(sim ${LibsSim})

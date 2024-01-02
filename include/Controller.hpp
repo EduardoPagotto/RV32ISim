@@ -1,5 +1,8 @@
 #pragma once
 #include "CSR.hpp"
+#include "Trap.hpp"
+
+enum class CPUState : __uint8_t { Pipeline, Trap };
 
 class Controller {
     bool branchAddressValid{false}; // CSR
@@ -9,6 +12,8 @@ class Controller {
     uint32_t pc{0};                 // fetch
     uint32_t pcPlus4{0};            // fetch
     CSR csr;
+    // Traps
+    Trap trap;
 
   public:
     Controller() {}
@@ -37,7 +42,101 @@ class Controller {
     }
 
     void step() {
+
+        // FIXME: entender!!!
+        // csr.increment64(CSR_CYCLE, CSR_CYCLEH);
+
+        // FIXME: entender!!! // After las Writeback
+        // csr.increment64(CSR_INSTRET, CSR_INSTRETH);
+
+        switch (trap.trapState) {
+            case TrapState::Idle: {
+                return;
+            }
+
+            case TrapState::SetCSRJump: {
+
+                csr.write(CSR_MEPC, trap.mepc);
+                csr.write(CSR_MCAUSE, static_cast<uint32_t>(trap.mcause));
+                csr.write(CSR_MTVAL, trap.mtval);
+
+                uint32_t mstatus = csr.read(CSR_MSTATUS);
+                const uint32_t mie = (mstatus & MSTATUS_MIE_MASK) >> MSTATUS_MIE_BIT;
+                // Unset MPIE bit
+                mstatus = (mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+                // Save MIE to MPIE
+                mstatus = (mstatus | (mie << MSTATUS_MPIE_BIT)) >> 0; // >>>
+                // Unset mie
+                mstatus = (mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+
+                csr.write(CSR_MSTATUS, mstatus);
+
+                this->setOriginalPC(csr.read(CSR_MTVEC));
+
+                return;
+            }
+
+            case TrapState::SetPc: {
+                this->setBranchAddress(trap.pcToSet);
+                // std::cout << '\n';
+                // this->cpuState = CPUState::Pipeline;
+                // this->pipelineState = PipelineState::WriteBack; // PipelineState::Fetch;
+                this->trap.trapState = TrapState::Idle;
+                return;
+            }
+
+            case TrapState::ReturnFromTrap: {
+
+                // TODO
+                trap.pcToSet = csr.read(CSR_MEPC) + 4;
+                trap.trapState = TrapState::SetPc;
+
+                uint32_t mstatus = csr.read(CSR_MSTATUS);
+                const uint32_t mpie = (mstatus & MSTATUS_MPIE_MASK) >> MSTATUS_MPIE_BIT;
+                // Unset MIE bit
+                mstatus = (mstatus & ~MSTATUS_MIE_MASK) >> 0; // >>>
+                // Save MPIE to MIE
+                mstatus = (mstatus | (mpie << MSTATUS_MIE_BIT)) >> 0; // >>>
+                // Unset mpie
+                mstatus = (mstatus & ~MSTATUS_MPIE_MASK) >> 0; // >>>
+
+                csr.write(CSR_MSTATUS, mstatus);
+
+                return;
+            }
+        }
+
         this->pc = this->getBranchAddressValid() ? this->getBranchAddress() : this->pcPlus4;
         this->pcPlus4 = this->pc + 4;
+    }
+
+    // trap
+    void trapException(const Trap& t) {
+        trap = t;
+        // this->cpuState = CPUState::Trap;
+    }
+
+  private:
+    void trapReturn() { trap.trapState = TrapState::ReturnFromTrap; }
+    //  bool beginTrapReturn() { return false; }
+
+    void setOriginalPC(const uint32_t& mtvec) {
+
+        const uint32_t mc = static_cast<uint32_t>(trap.mcause);
+
+        const uint32_t index = mc & 0x7fffffff;
+
+        const bool isInterrupt = mc & 0x80000000;
+
+        const uint32_t offset = isInterrupt ? 0 : 48;
+
+        if ((mtvec & 01) == 01) {
+            trap.pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
+        } else {
+            trap.pcToSet = (mtvec & 0xfffffffc);
+        }
+
+        // pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
+        trap.trapState = TrapState::SetPc;
     }
 };

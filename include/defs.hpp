@@ -28,8 +28,6 @@
 #define OPC_CSRRSI 0x06
 #define OPC_CSRRCI 0x07
 
-// enum class CPUState : __uint8_t { Pipeline, Trap };
-
 // struct FetchData {
 //     FetchData() = default;
 //     FetchData(const FetchData& o) = default;

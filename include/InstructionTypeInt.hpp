@@ -21,12 +21,12 @@ class InstructionTypeInt : public InstructionType {
         switch (opcode) {
             case OPC_EBREAK:
                 std::cout << "Ebreak";
-                // csr->trapException(Trap(controller.getPC(), MCause::Breakpoint, 0));
+                controller.trapException(Trap(controller.getPC(), MCause::Breakpoint, 0));
                 break;
 
             case OPC_ECALL:
                 std::cout << "Ecall\t";
-                // csr->trapException(Trap(controller.getPC(), MCause::EnvironmentCallFromMMode, 0));
+                controller.trapException(Trap(controller.getPC(), MCause::EnvironmentCallFromMMode, 0));
                 break;
 
             case OPC_SRET:
