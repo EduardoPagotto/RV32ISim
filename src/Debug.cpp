@@ -99,7 +99,7 @@ void Debug::printRegVal(const uint8_t& index, const uint32_t& value) {
     std::cout << "\t# " << alias[index] << " <- " << int_to_hex(value);
 }
 
-void Debug::printAddress(const uint32_t& addr) { std::cout << "(0x" << int_to_hex(addr) << ") > "; }
+void Debug::printAddress(const uint32_t& addr) { std::cout << "\t (0x" << int_to_hex(addr) << ") > "; }
 
 void Debug::printRegisters(uint32_t* regs) {
     std::cout << "Value of registers: \n" << std::endl;

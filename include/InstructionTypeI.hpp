@@ -48,8 +48,8 @@ class InstructionTypeI : public InstructionType {
                                   (width == MemoryAccessWidth::HalfWord && address & 0b01));
 
         if (isUnaligned) {
-            // csr->trapException(Trap(d.address, MCause::LoadAddressMisaligned, d.decode.fetch.instr));
-            // return;
+            controller.trapException(Trap(address, MCause::LoadAddressMisaligned, opcode));
+            return WriteBackData{0, 0, false};
         }
 
         if (isLoadOpp) {
@@ -57,11 +57,12 @@ class InstructionTypeI : public InstructionType {
             if (retVal.has_value()) {
                 address = retVal.value();
             } else {
-                // TODO: trap!!!
+                controller.trapException(Trap(address, MCause::LoadAccessFault, opcode));
+                return WriteBackData{0, 0, false};
             }
         }
 
-        // csr->prt.printAddress(d.address); // TODO: Melhorar o print
+        // Debug::printAddress(address); // TODO: Melhorar o print
 
         return WriteBackData{rd, address, true};
     }
@@ -72,38 +73,41 @@ class InstructionTypeI : public InstructionType {
         address = val_rs1 + imm;
         switch (funct3) {
             case 0x0: // LB
-                std::cout << "lb    ";
+                std::cout << "LB    ";
                 width = MemoryAccessWidth::Byte;
                 valSigned = false;
                 isLoadOpp = true;
                 break;
 
             case 0x1: // LH
-                std::cout << "lh    ";
+                std::cout << "LH    ";
                 width = MemoryAccessWidth::HalfWord;
                 valSigned = false;
                 isLoadOpp = true;
                 break;
 
             case 0x2: // LW
-                std::cout << "lw    ";
+                std::cout << "LW    ";
                 width = MemoryAccessWidth::Word;
                 valSigned = false;
                 isLoadOpp = true;
                 break;
 
             case 0x4: // LBU
-                std::cout << "lbu   ";
+                std::cout << "LBU   ";
                 width = MemoryAccessWidth::Byte;
                 valSigned = true;
                 isLoadOpp = true;
                 break;
 
             case 0x5: // LHU
-                std::cout << "lhu   ";
+                std::cout << "LHU   ";
                 width = MemoryAccessWidth::Byte;
                 valSigned = true;
                 isLoadOpp = true;
+                break;
+            default:
+                throw std::string("Acesso desconhecido");
                 break;
         }
         std::cout << Debug::alias[rd] << ", " << imm << "(" << Debug::alias[rs1] << ")";
@@ -113,50 +117,54 @@ class InstructionTypeI : public InstructionType {
 
         switch (funct3) {
             case 0x0: // ADDI
-                std::cout << "addi  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                std::cout << "ADDI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                 address = val_rs1 + imm;
                 break;
 
             case 0x1: // SLLI
-                std::cout << "slli  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                std::cout << "SLLI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                 address = val_rs1 << imm;
                 break;
 
             case 0x2: // SLTI
-                std::cout << "slti  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                std::cout << "SLTI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                 address = (val_rs1 < imm) ? 1 : 0;
                 break;
 
             case 0x3: // SLTIU
-                std::cout << "sltiu " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", "
+                std::cout << "SLTIU " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", "
                           << (unsigned int)(imm & 0xfff);
                 address = (val_rs1 < ((unsigned int)(imm & 0xfff))) ? 1 : 0;
                 break;
 
             case 0x4: // XORI
-                std::cout << "xori  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                std::cout << "XORI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                 address = val_rs1 ^ imm;
                 break;
 
             case 0x5: // SLRI / SRAI
                 if ((imm & 0xf00) == 0) {
-                    std::cout << "slri  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                    std::cout << "SLRI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                     address = val_rs1 >> imm;
                 } else {
-                    std::cout << "srai  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << (imm & 0x1f);
+                    std::cout << "SRAI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << (imm & 0x1f);
                     address = val_rs1 >> (imm & 0x1f);
                 }
                 // address = ((imm & 0xf00) == 0) ? val_rs1 >> imm : val_rs1 >> (imm & 0x1f);
                 break;
 
             case 0x6: // ORI
-                std::cout << "ori   " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                std::cout << "ORI   " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                 address = val_rs1 | imm;
                 break;
 
             case 0x7: // ANDI
-                std::cout << "andi  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
+                std::cout << "ANDI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
                 address = val_rs1 & imm;
+                break;
+
+            default:
+                throw std::string("Opp desconhecido");
                 break;
         }
     }

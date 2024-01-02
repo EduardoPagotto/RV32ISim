@@ -20,31 +20,32 @@ class InstructionTypeInt : public InstructionType {
         // returnFromTrap = data.decode.imm32 == 0x302;
         switch (opcode) {
             case OPC_EBREAK:
-                std::cout << "Ebreak";
+                std::cout << "EBREAK";
                 controller.trapException(Trap(controller.getPC(), MCause::Breakpoint, 0));
                 break;
 
             case OPC_ECALL:
-                std::cout << "Ecall\t";
+                std::cout << "ECALL ";
                 controller.trapException(Trap(controller.getPC(), MCause::EnvironmentCallFromMMode, 0));
                 break;
 
             case OPC_SRET:
-                std::cout << "sret  ";
+                std::cout << "SRET  ";
                 break;
             case OPC_MRET:
-                std::cout << "mret  \t";
+                std::cout << "MRET  ";
                 // csr->trapReturn();
                 break;
             case OPC_WFI:
-                std::cout << "wfi   ";
+                std::cout << "WFI   ";
                 // throw std::string("WFI!!!!!");
                 break;
             default:
+                throw std::string("Opp System desconhecido");
                 break;
         }
         std::cout << "\t\t# ";
-        std::cout << '\n';
+        // std::cout << '\n';
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {

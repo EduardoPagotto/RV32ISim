@@ -31,40 +31,40 @@ class InstructionTypeR : public InstructionType {
             case 0x0: // ADD / SUB
                 if (flagAdd) {
                     address = val_rs1 + val_rs2;
-                    std::cout << "add   ";
+                    std::cout << "ADD   ";
                 } else {
                     address = val_rs1 - val_rs2;
-                    std::cout << "sub   ";
+                    std::cout << "SUB   ";
                 }
                 // address = flagAdd ? val_rs1 + val_rs2 : val_rs1 - val_rs2;
                 break;
 
             case 0x1: // SLL
-                std::cout << "sll   ";
+                std::cout << "SLL   ";
                 address = val_rs1 << (val_rs2 & 0x1f);
                 break;
 
             case 0x2: // SLT
-                std::cout << "slt   ";
+                std::cout << "SLT   ";
                 address = (val_rs1 < val_rs2) ? 1 : 0;
                 break;
 
             case 0x3: // SLTU
-                std::cout << "sltu  ";
+                std::cout << "SLTU  ";
                 address = (val_rs1 < (unsigned int)val_rs2) ? 1 : 0;
                 break;
 
             case 0x4: // XOR
-                std::cout << "xor   ";
+                std::cout << "XOR   ";
                 address = val_rs1 ^ val_rs2;
                 break;
 
             case 0x5: // SRL / SRA
                 if (flagAdd) {
-                    std::cout << "srl   ";
+                    std::cout << "SRL   ";
                     address = ((unsigned int)val_rs1) >> (val_rs2 & 0x1f);
                 } else {
-                    std::cout << "sra   ";
+                    std::cout << "SRA   ";
                     address = val_rs1 >> (val_rs2 & 0x1f);
                 }
                 // address = flagAdd ? ((unsigned int)val_rs1) >> (val_rs2 & 0x1f) : val_rs1 >> (val_rs2 & 0x1f);
@@ -76,8 +76,11 @@ class InstructionTypeR : public InstructionType {
                 break;
 
             case 0x7: // AND
-                std::cout << "and   ";
+                std::cout << "AND   ";
                 address = val_rs1 & val_rs2;
+                break;
+            default:
+                throw std::string("Opp desconhecida");
                 break;
         }
 

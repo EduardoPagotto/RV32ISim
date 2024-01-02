@@ -27,35 +27,35 @@ class InstructionTypeCSR : public InstructionType {
         uint32_t value{0};
         switch (opcode) {
             case OPC_CSRRC:
-                std::cout << "csrrc ";
+                std::cout << "CSRRC ";
                 value = controller.getCSR().read(imm);
                 if (rs1 != 0)
                     controller.getCSR().write(imm, (value & (~val_rs1)));
                 break;
 
             case OPC_CSRRCI:
-                std::cout << "csrrci";
+                std::cout << "CSRRCI";
                 value = controller.getCSR().read(imm);
                 if (rs1 != 0)
                     controller.getCSR().write(imm, (value & (~rs1))); // val_rs1 ??
                 break;
 
             case OPC_CSRRS:
-                std::cout << "csrrs ";
+                std::cout << "CSRRS ";
                 value = controller.getCSR().read(imm);
                 if (rs1 != 0)
                     controller.getCSR().write(imm, value | val_rs1);
                 break;
 
             case OPC_CSRRSI:
-                std::cout << "csrrsi";
+                std::cout << "CSRRSI";
                 value = controller.getCSR().read(imm);
                 if (rs1 != 0)
                     controller.getCSR().write(imm, value | rs1); // val_rs1 ??
                 break;
 
             case OPC_CSRRW:
-                std::cout << "csrrw " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm) << ", "
+                std::cout << "CSRRW " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm) << ", "
                           << Debug::alias[rs1];
 
                 value = (val_rd != 0) ? controller.getCSR().read(imm) : 0;
@@ -63,13 +63,13 @@ class InstructionTypeCSR : public InstructionType {
                 break;
 
             case OPC_CSRRWI:
-                std::cout << "csrrwi";
+                std::cout << "CSRRWI";
                 value = (val_rd != 0) ? controller.getCSR().read(imm) : 0;
                 controller.getCSR().write(imm, rs1); // val_rs1 ??
                 break;
 
             default:
-                throw std::string("System Opcode desconhecido");
+                throw std::string("CSR desconhecido");
                 break;
         }
 

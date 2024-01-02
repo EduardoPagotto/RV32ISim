@@ -28,18 +28,22 @@ class InstructionTypeS : public InstructionType {
         address = val_rs1 + imm;
         switch (funct3) {
             case 0x0: // SB
-                std::cout << "sb    ";
+                std::cout << "SB    ";
                 width = MemoryAccessWidth::Byte;
                 break;
 
             case 0x1: // SH
-                std::cout << "sh    ";
+                std::cout << "SH    ";
                 width = MemoryAccessWidth::HalfWord;
                 break;
 
             case 0x2: // SW
-                std::cout << "sw    ";
+                std::cout << "SW    ";
                 width = MemoryAccessWidth::Word;
+                break;
+
+            default:
+                throw std::string("Acesso desconhecido");
                 break;
         };
 

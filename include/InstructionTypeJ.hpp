@@ -20,7 +20,7 @@ class InstructionTypeJ : public InstructionType {
     virtual void execute(Controller& controller) override {
 
         // JAL
-        std::cout << "jal " << Debug::alias[rd] << ", " << imm;
+        std::cout << "JAL   " << Debug::alias[rd] << ", " << imm;
         address = controller.getPcplus4();
         controller.setBranchAddress(controller.getPC() + imm);
 

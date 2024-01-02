@@ -43,11 +43,12 @@ int main(int argc, char** argv) {
     processor.getBus().add(&ram);
     processor.reset();
 
-    while (true) {
-        if (!processor.step())
-            break;
-    }
+    try {
+        while (true) {
+            if (!processor.step())
+                break;
+        }
+    } catch (std::string e) { std::cout << '\n' << "Erro: " << e << '\n'; }
 
-    std::cout << '\n' << "Register content dumped in file: " << '\n';
     return 0;
 }

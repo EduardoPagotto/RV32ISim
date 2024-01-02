@@ -25,39 +25,42 @@ class InstructionTypeB : public InstructionType {
 
         switch (funct3) {
             case 0x0: // BEQ
-                std::cout << "beq   ";
+                std::cout << "BEQ   ";
                 if (val_rs1 == val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x1: // BNE
-                std::cout << "bne   ";
+                std::cout << "BNE   ";
                 if (val_rs1 != val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x4: // BLT
-                std::cout << "blt   ";
+                std::cout << "BLT   ";
                 if (val_rs1 < val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x5: // BGE
-                std::cout << "bge   ";
+                std::cout << "BGE   ";
                 if (val_rs1 >= val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x6: // BLTU
-                std::cout << "bltu  ";
+                std::cout << "BLTU  ";
                 if (val_rs1 < (unsigned)val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
 
             case 0x7: // BGEU
-                std::cout << "bgeu  ";
+                std::cout << "BGEU  ";
                 if (val_rs1 >= (unsigned)val_rs2)
                     controller.setBranchAddress(controller.getPC() + imm);
+                break;
+            default:
+                throw std::string("Branch desconhecido");
                 break;
         }
         std::cout << Debug::alias[rs1] << ", " << Debug::alias[rs2] << ", " << imm;

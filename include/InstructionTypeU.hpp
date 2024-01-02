@@ -18,14 +18,15 @@ class InstructionTypeU : public InstructionType {
 
         switch (opcode) {
             case OPC_AUIPC: // AUIPC
-                std::cout << "auipc " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
+                std::cout << "AUIPC " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
                 address = controller.getPC() + static_cast<uint32_t>(imm);
                 break;
             case OPC_LUI: // LUI
-                std::cout << "lui   " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
+                std::cout << "LUI   " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm);
                 address = imm;
                 break;
             default:
+                throw std::string("Opp desconhecido");
                 break;
         }
 
