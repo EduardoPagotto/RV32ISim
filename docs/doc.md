@@ -251,6 +251,179 @@ MTVEC
      | XX  | MODE 0 endereco direto, 1 endereco somado com 4x o valor da causa 
 
 
+# controle de fluxo
+## IF-THEN
+```c
+if (x>=10) {
+    y = x;
+}
+```
+```s
+    ...
+    #x em a3 e y em a4
+    LI      t1, 10
+    BLT     a3, t1, pula # pula se a3 < 10
+    mv      a4, a3
+pula:
+    ...
+```
+## IF-THEN-ELSE
+```c
+if (x>=10) {
+    y = y +1;
+} else {
+    y = x;
+}
+```
+```s
+    ...
+    # x em a1 e y em a2
+    LI      t3, 10
+    BLT     a1, t3, else
+    ADDI    a2, a2, 1
+    J cont
+else:
+    MV a2, a1
+cont:
+    ...
+```
+## IF com AND
+```c
+    ...
+    if ((x >= 10)&&(y < 20)) {
+        x = y;
+    }
+    ...
+```
+```s
+    # x em a1 e y em a2
+    LI      t1, 10
+    BLT     a1, t1, pula
+    LI      t1, 20
+    BGE     a2, t1, pula
+    MV      a1, a2
+pula:
+    ....
+```
+## WHILE
+```c
+    i = 0;
+    while(i < 20) {
+        y = y + 3;
+        i = i + 1;
+    }
+```
+```s
+    #i em a1 e y em a2
+    LI a1, 0
+enquanto:
+    LI t1, 20
+    BGE a1, t1, cont
+    ADDI a2, a2, 3
+    ADDI a1, a1, 1
+    J enquanto
+cont:
+    ....
+```
+
+## FOR
+```c
+    for (i = 0; i < 10; i++) {
+        y = y + 2;
+    }
+```
+```s
+    # i em a1 e y em a2
+    LI a1, 0
+for:
+    LI t1, 10
+    BGE a1, t1, cont
+    ADDI a2, a2, 2
+    ADDI a1, a1, 1
+    J for
+cont:
+    ...
+
+```
+## DO_WHILE
+```c
+    ...
+    i=0;
+    do {
+
+    } while (i < 10);
+    ...
+```
+```s
+    # i em a1 e y em a2
+    LI a1, 0
+    LI t1, 10
+do:
+    ADDI a2, a2, 2;
+    ADDI a1, a1, 1;
+    BLT a1, t1, do
+cont:
+    ...
+
+```
+## chamada de funcao
+```c
+int soma(int a, int b){
+    return a + b;
+}
+
+    ...
+    i = soma(2, 3);
+    ...
+```
+```s
+    # i em a3
+    # parametros em a0 e a1
+    # retorno em a0
+    LI  a0, 2
+    LI  a1, 3
+    JAL soma
+    mv a3, a0
+    ...
+    ...
+    # parametros em a0, e a1
+    # retorno em a0
+    ...
+soma:
+    ADD a0, a0, 1
+    RET
+```
+
+## Salcom com JAL - RET
+```s
+    ...
+    LI  a0, 127
+    JAL hash
+    addi a1, a2, 1
+    ...
+
+    # Retorna o valor da funcao hash em a0
+hash:
+    ANDI a1, a0, 63 # a1 = a0 & 0x3F
+    SRLI a0, a0, 6  # a0 = a0 >> 6
+    AND a0, a1, a0  # a0 = a1 & a0
+    ret             # JALR x0, ra, 0
+```
+
+# Memoria exemplo 
+
+Address|Main Memory|ussed
+:-----:|:---------:|:--------------:
+ 0xfff |Stack      |Grow Top-down    
+  ...  |free space |  
+  ...  |Free space |    
+ 0x200 |Heap       |Grow botton-up
+ 0x130 |.bss       |Statica data
+ 0x120 |.data      |Statica data
+ 0x100 |.rodata    |Statica data
+ 0x000 |.text      |Code
+
+
 
 refs:
 - https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html

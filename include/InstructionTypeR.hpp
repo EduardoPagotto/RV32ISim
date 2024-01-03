@@ -4,7 +4,7 @@
 
 class InstructionTypeR : public InstructionType {
   private:
-    uint8_t rd{0}, funct3{0}, rs1{0}, rs2{0}, funct7{0};
+    uint8_t rd{0}, funct3{0}, rs1{0}, rs2{0};
     uint32_t val_rs1{0}, val_rs2{0};
     bool flagAdd{false};
 
@@ -17,7 +17,6 @@ class InstructionTypeR : public InstructionType {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);
-        funct7 = calcFunct7(i);
 
         val_rs1 = x[rs1];
         val_rs2 = x[rs2];
