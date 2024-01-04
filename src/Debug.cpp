@@ -4,14 +4,14 @@
 #include <iostream>
 
 void Debug::init() {
-    alias.push_back("r0"); // 0  -> zero
-    alias.push_back("ra"); // 1  -> return address
-    alias.push_back("sp"); // 2  -> stackp pointer
-    alias.push_back("gp"); // 3  -> global pointer
-    alias.push_back("tp"); // 4  -> thread pointer
-    alias.push_back("t0"); // 5  -> temporary / alternative link
-    alias.push_back("t1"); // 6  -> temporary
-    alias.push_back("t2"); // 7  -> temporary
+    alias.push_back("zero"); // 0  -> zero
+    alias.push_back("ra");   // 1  -> return address
+    alias.push_back("sp");   // 2  -> stackp pointer
+    alias.push_back("gp");   // 3  -> global pointer
+    alias.push_back("tp");   // 4  -> thread pointer
+    alias.push_back("t0");   // 5  -> temporary / alternative link
+    alias.push_back("t1");   // 6  -> temporary
+    alias.push_back("t2");   // 7  -> temporary
 
     alias.push_back("s0"); // 8  -> saved / frame pointer
     alias.push_back("s1"); // 9  -> saved

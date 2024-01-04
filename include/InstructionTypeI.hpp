@@ -175,7 +175,7 @@ class InstructionTypeI : public InstructionType {
     }
 
     void jalr(Controller& controller) {
-        std::cout << "JALR   " << Debug::alias[rd] << "," << Debug::alias[rs1] << "," << imm;
+        std::cout << "JALR  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << imm;
         address = controller.getPcplus4();
         controller.setBranchAddress(val_rs1 + imm);
     }
