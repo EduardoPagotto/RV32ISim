@@ -42,7 +42,8 @@ class InstructionTypeI : public InstructionType {
                 jalr(controller);
                 break;
             default:
-                // TODO: implementar erro
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
     }
@@ -67,8 +68,6 @@ class InstructionTypeI : public InstructionType {
                 return WriteBackData{0, 0, false};
             }
         }
-
-        // Debug::printAddress(address); // TODO: Melhorar o print
 
         return WriteBackData{rd, address, true};
     }
@@ -157,7 +156,6 @@ class InstructionTypeI : public InstructionType {
                     std::cout << "SRAI  " << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << (imm & 0x1f);
                     address = val_rs1 >> (imm & 0x1f);
                 }
-                // address = ((imm & 0xf00) == 0) ? val_rs1 >> imm : val_rs1 >> (imm & 0x1f);
                 break;
 
             case 0x6: // ORI

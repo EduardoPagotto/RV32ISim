@@ -11,7 +11,7 @@ class InstructionTypeU : public InstructionType {
   public:
     InstructionTypeU(const uint32_t& o, const uint32_t& i) : InstructionType(o) {
         rd = calcRd(i);
-        imm = ((i >> 12) & 0xfffff) << 12; // TODO: testar se negativo aqui!!!
+        imm = ((i >> 12) & 0xfffff) << 12;
     }
 
     virtual void execute(Controller& controller) override {
@@ -30,8 +30,6 @@ class InstructionTypeU : public InstructionType {
                 controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
-
-        // TODO: implementar a chamada do writeback carregando o address no apontado por rd
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {

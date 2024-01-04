@@ -35,7 +35,6 @@ class InstructionTypeR : public InstructionType {
                     address = val_rs1 - val_rs2;
                     std::cout << "SUB   ";
                 }
-                // address = flagAdd ? val_rs1 + val_rs2 : val_rs1 - val_rs2;
                 break;
 
             case 0x1: // SLL
@@ -66,7 +65,6 @@ class InstructionTypeR : public InstructionType {
                     std::cout << "SRA   ";
                     address = val_rs1 >> (val_rs2 & 0x1f);
                 }
-                // address = flagAdd ? ((unsigned int)val_rs1) >> (val_rs2 & 0x1f) : val_rs1 >> (val_rs2 & 0x1f);
                 break;
 
             case 0x6: // OR
@@ -85,8 +83,6 @@ class InstructionTypeR : public InstructionType {
         }
 
         std::cout << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << Debug::alias[rs2 & 0x1f];
-
-        // TODO: implementar a chamada a memory
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {

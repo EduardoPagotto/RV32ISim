@@ -17,7 +17,7 @@ class InstructionTypeS : public InstructionType {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);
-        imm = ((i >> 25) << 5) | ((i >> 7) & 0x1f); // TODO: testar se imediato tem negativo
+        imm = ((i >> 25) << 5) | ((i >> 7) & 0x1f);
 
         val_rs1 = x[rs1];
         val_rs2 = x[rs2];
@@ -49,29 +49,19 @@ class InstructionTypeS : public InstructionType {
         };
 
         std::cout << Debug::alias[rs2] << ", " << imm << "(" << Debug::alias[rs1] << ")";
-
-        // TODO: implementar a chamada para accesMemory
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
 
-        // const ExecuteData& d = execute->get();
-
-        // data = d;
-        // data.isValid = false;
-        // data.value = 0;
-
         const bool isUnaligned = ((width == MemoryAccessWidth::Word && address & 0b11) ||
                                   (width == MemoryAccessWidth::HalfWord && address & 0b01));
 
-        // TODO: implementar trap
         if (isUnaligned) {
             controller.trapException(Trap(address, MCause::StoreAMOAddressMisaligned, opcode));
             return WriteBackData{0, 0, false};
         }
 
         bus.store(address, width, val_rs2);
-        // csr->prt.printRegtoMemory(d.decode.rs2, d.valueRS2, d.address); // TODO: Melhorar o print
         return WriteBackData{0, 0, false};
     }
 };

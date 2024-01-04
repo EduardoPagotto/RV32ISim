@@ -23,15 +23,11 @@ class InstructionTypeJ : public InstructionType {
     }
 
     virtual void execute(Controller& controller) override {
-
         // JAL
         uint32_t temp = controller.getPC() + imm;
-
         std::cout << "JAL   " << Debug::alias[rd] << ", " << Debug::int_to_hex(temp);
         address = controller.getPcplus4();
         controller.setBranchAddress(temp);
-
-        // TODO: manda dados para memory com addres como valor no RD
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
