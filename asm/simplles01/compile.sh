@@ -1,8 +1,4 @@
-
-## Compile llvm
-```bash
-
-# clean
+#!/bin/bash
 mkdir -p ./build
 
 # Compile
@@ -18,4 +14,3 @@ llvm-objdump -D ./build/app01  > ./build/app01_dump.s # dissasembler
 llvm-objcopy -O binary ./build/app01  ./build/app01.bin # binary final !!!!!
 
 llvm-objdump -t -r ./build/app01  # show type exec
-```

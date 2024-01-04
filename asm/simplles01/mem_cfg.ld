@@ -17,42 +17,39 @@ MEMORY
 
 SECTIONS
 {
-    .text : 
-    { 
+    .text : { 
+        . = ALIGN(4);
         *(.text) 
         . = ALIGN(4);
     } > ROM
 
-    .rodata : 
-    { 
+    .rodata : { 
         . = ALIGN(4);
-        * (.rodata)
+        *(.rodata)
         . = ALIGN(4);
     } > ROM
 
-    .data : 
-    { 
+    .data (NOLOAD): { 
         . = ALIGN(4);
         *(.data) 
         . = ALIGN(4);
     } > RAM
 
-    .bss : 
-    { 
+    .bss (NOLOAD): { 
         . = ALIGN(4);
-        *(.bss) 
+        *(.bss)
         *(.comment)
         . = ALIGN(4);
-    } > RAM
+    } > RAM 
+
+    _free_ram = .;
 
    .stack (NOLOAD):
    {
-      /*. = ALIGN(4);*/
-      /* . = . + (__start_memory_ram + __size_memory_ram)  - SIZEOF(.data) - SIZEOF(.bss) - 0x32); */
-      /* . = . + (__start_memory_ram + __size_memory_ram); */
-      /*. = ALIGN(4);*/
-       _estack = .;
+     /* _edata =  ABSOLUTE(.) ; */
+      . = ALIGN(4);
+      . = . + (__size_memory_ram - SIZEOF(.data) - SIZEOF(.bss));
+      . = ALIGN(4);
+       _stack_top = .;
    } > RAM
-
-    _end = .;
 }
