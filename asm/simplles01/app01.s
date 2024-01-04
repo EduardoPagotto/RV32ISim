@@ -4,10 +4,40 @@
 _start:
     la sp,_stack_top
     ;
+    nop
+    nop
+    jal teste1
+    addi t0, zero, 0
+    addi t1, zero, 1
+    j salto
+    nop
+    nop
+salto2:
+    li   t0, 2
+    nop
+    j salto3
+    nop
+    nop
+    addi t2, zero, 2
+    addi t3, zero, 3
+salto:
+    li   t0, 1
+    li   t5, -100;
+    j salto2
+salto3:
+     li   t4, 3
+    nop
+    nop
+    addi t6, t0, -1
+    wfi
+
+
+teste1:
     // Limpa memoria
     // t0 endereco indice base
     // t1 meta
     // t2 dado
+    li t0, 0
     la t0,_free_ram
     addi t1, t0, 10
 loop1:
@@ -16,18 +46,8 @@ loop1:
     sb t2, 0(t0)
     addi t0, t0, 1
     blt t0, t1, loop1
-    wfi
-    ;
-    nop
-    nop
-    addi t0, zero, 0
-    addi t1, zero, 1
-    addi t2, zero, 2
-    addi t3, zero, 3
-    li   t4, 4
-    li   t5, -100;
-    addi t6, t0, -1
-    wfi
+    ret
+
 
 // Global Vals
 .section .rodata // Constants

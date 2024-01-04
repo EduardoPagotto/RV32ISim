@@ -15,12 +15,17 @@ class InstructionTypeJ : public InstructionType {
               (((i >> 12) & 0xff) << 12) | //  instr[19:12]
               (((i >> 20) & 0x1) << 11) |  //  instr[11]
               (((i >> 21) & 0x3ff) << 1);  //  instr[10:1]
+
+        // Negativar
+        if (i & 0x10000000) {
+            imm |= 0xFFFFF000;
+        }
     }
 
     virtual void execute(Controller& controller) override {
 
         // JAL
-        std::cout << "JAL   " << Debug::alias[rd] << ", " << imm;
+        std::cout << "JAL   " << Debug::alias[rd] << ", " << controller.getPC() + imm;
         address = controller.getPcplus4();
         controller.setBranchAddress(controller.getPC() + imm);
 
