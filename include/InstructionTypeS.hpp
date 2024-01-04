@@ -64,10 +64,10 @@ class InstructionTypeS : public InstructionType {
                                   (width == MemoryAccessWidth::HalfWord && address & 0b01));
 
         // TODO: implementar trap
-        // if (isUnaligned) {
-        //     csr->trapException(Trap(d.address, MCause::StoreAMOAddressMisaligned, d.decode.fetch.instr));
-        //     return;
-        // }
+        if (isUnaligned) {
+            controller.trapException(Trap(address, MCause::StoreAMOAddressMisaligned, opcode));
+            return WriteBackData{0, 0, false};
+        }
 
         bus.store(address, width, val_rs2);
         // csr->prt.printRegtoMemory(d.decode.rs2, d.valueRS2, d.address); // TODO: Melhorar o print

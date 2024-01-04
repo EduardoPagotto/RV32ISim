@@ -49,15 +49,16 @@ class InstructionTypeI : public InstructionType {
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
 
-        const bool isUnaligned = ((width == MemoryAccessWidth::Word && address & 0b11) ||
-                                  (width == MemoryAccessWidth::HalfWord && address & 0b01));
-
-        if (isUnaligned) {
-            controller.trapException(Trap(address, MCause::LoadAddressMisaligned, opcode));
-            return WriteBackData{0, 0, false};
-        }
-
         if (isLoadOpp) {
+
+            const bool isUnaligned = ((width == MemoryAccessWidth::Word && address & 0b11) ||
+                                      (width == MemoryAccessWidth::HalfWord && address & 0b01));
+
+            if (isUnaligned) {
+                controller.trapException(Trap(address, MCause::LoadAddressMisaligned, opcode));
+                return WriteBackData{0, 0, false};
+            }
+
             auto retVal = bus.load(address, width, valSigned);
             if (retVal.has_value()) {
                 address = retVal.value();
@@ -80,14 +81,14 @@ class InstructionTypeI : public InstructionType {
             case 0x0: // LB
                 std::cout << "LB    ";
                 width = MemoryAccessWidth::Byte;
-                valSigned = false;
+                valSigned = true;
                 isLoadOpp = true;
                 break;
 
             case 0x1: // LH
                 std::cout << "LH    ";
                 width = MemoryAccessWidth::HalfWord;
-                valSigned = false;
+                valSigned = true;
                 isLoadOpp = true;
                 break;
 
@@ -101,14 +102,14 @@ class InstructionTypeI : public InstructionType {
             case 0x4: // LBU
                 std::cout << "LBU   ";
                 width = MemoryAccessWidth::Byte;
-                valSigned = true;
+                valSigned = false;
                 isLoadOpp = true;
                 break;
 
             case 0x5: // LHU
                 std::cout << "LHU   ";
-                width = MemoryAccessWidth::Byte;
-                valSigned = true;
+                width = MemoryAccessWidth::HalfWord;
+                valSigned = false;
                 isLoadOpp = true;
                 break;
             default:

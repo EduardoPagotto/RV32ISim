@@ -3,50 +3,92 @@
 
 _start:
     la sp,_stack_top
+
+    # teste de carga
+    la t0, data01
+    lb t1, 0(t0)
+    lh t2, 0(t0)
+    lbu t3, 0(t0)
+    lhu t4, 0(t0)
+    lw t5, 0(t0)
+    li t5, 0x01234567
+    sw t5, 0(t0)
     ;
-    nop
-    nop
+    la t0, data02
+    lh t1, 0(t0)
+    li t1, 0xabcd
+    sh t1, 0(t0)
+    ;
+    la t0, data03
+    lb t1, 0(t0)
+    li t1, 0x34
+    sb t1, 0(t0)    
+    #
+    # Salva registro no stack
+    #
+    li t0, 1024   # valor de teste
+    addi sp, sp, -4     # Reserva espaco na pilha
+    sw t0, 0(sp)        # Salva registro na pilha
+    #
+    # Teste chamada de subrotina para frente
+    #
     jal teste1
     addi t0, zero, 0
-    addi t1, zero, 1
+    #
+    # Recupera registro do Stack
+    #
+    lw t0, 0(sp)    # Recupera valor
+    addi sp, sp, 4  # Desaloca espaco na pilha
     j salto
-    nop
-    nop
+    #
+    # entrada de salto para traz
+    #
 salto2:
-    li   t0, 2
-    nop
+    li   t0, -200
     j salto3
+    #
+    # subrotina 2 com ra salva automaticamente
+    #
+sub2:
+    lw t3, -4(sp)
     nop
-    nop
-    addi t2, zero, 2
-    addi t3, zero, 3
+    ret
 salto:
     li   t0, 1
     li   t5, -100;
     j salto2
 salto3:
      li   t4, 3
-    nop
-    nop
     addi t6, t0, -1
     wfi
-
-
-teste1:
-    // Limpa memoria
-    // t0 endereco indice base
-    // t1 meta
-    // t2 dado
-    li t0, 0
-    la t0,_free_ram
-    addi t1, t0, 10
+    #
+    # Sub Rotina de loop
+    # "for(t0=_free_ram; t0 < (_free_ram + 5); t0++)" 
+    #   t2 = mem[t0] ; t2 = 0; mem[t0] = 0;
+    # t0 endereco indice base
+    # t1 meta
+    # t2 dado
+teste1: 
+    la t0,_free_ram  # carrega inicio da memoria livre
+    addi t1, t0, 5  # tamanho do loop
 loop1:
-    lb t2, 0(t0)
-    mv t2, zero
-    sb t2, 0(t0)
-    addi t0, t0, 1
-    blt t0, t1, loop1
-    ret
+    lb t2, 0(t0)     # carga do byte armazenado na memoria 
+    mv t2, zero      # zera dado
+    sb t2, 0(t0)     # armazena o zero na memoria
+    addi t0, t0, 1   # incrementa proximo endereco   
+    blt t0, t1, loop1# continua loop se nao terminou
+    #
+    # Salva endereco de retorno na pilha ante do proximo salto
+    #
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    # Chama subrotina que reecreve ra
+    jal sub2
+    # carrega ra anterior do stack
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    # retora ao chamador
+    ret              
 
 
 // Global Vals
