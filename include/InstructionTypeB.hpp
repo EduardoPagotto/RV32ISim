@@ -13,9 +13,15 @@ class InstructionTypeB : public InstructionType {
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);
         imm = ((i >> 25) << 5) + ((i >> 7) & 0x1f) - 1;
-        if (imm > 0) {
-            imm++;
+
+        // testar
+        if (i & 0x10000000) {
+            imm |= 0xFFFFF000;
         }
+
+        // if (imm > 0) { // 12 bits!!
+        //     imm++;
+        // }
 
         val_rs1 = x[rs1];
         val_rs2 = x[rs2];
@@ -63,7 +69,8 @@ class InstructionTypeB : public InstructionType {
                 throw std::string("Branch desconhecido");
                 break;
         }
-        std::cout << Debug::alias[rs1] << ", " << Debug::alias[rs2] << ", " << imm;
+        std::cout << Debug::alias[rs1] << ", " << Debug::alias[rs2] << ", "
+                  << Debug::int_to_hex(controller.getPC() + imm);
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {

@@ -4,15 +4,14 @@
 _start:
     la sp,_stack_top
     nop
-
     la t0,_free_ram
     mv t2, t0
     addi t2, t2, 10
 loop1:
-    lb t1,0(t0)
+    lb t1, 0(t0)
     mv t1, zero
-    sb t1,0(t0)
-    addi t1, t1, 1
+    sb t1, 0(t0)
+    addi t0, t0, 1
     blt t1, t2, loop1
     nop
     nop

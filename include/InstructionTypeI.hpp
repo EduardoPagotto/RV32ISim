@@ -20,7 +20,12 @@ class InstructionTypeI : public InstructionType {
         rd = calcRd(i);
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
-        imm = i >> 20; // FIXME: ver se precisa negativar!!!!
+        imm = i >> 20;
+
+        // Negativar
+        if (i & 0x10000000) {
+            imm |= 0xFFFFF000;
+        }
 
         val_rs1 = x[rs1];
     }

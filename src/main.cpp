@@ -33,8 +33,8 @@ int main(int argc, char** argv) {
 
     const char* filepath = argv[1];
 
-    Memory rom(0x0000, 0x100, DEV_OPENED);
-    Memory ram(0x100, 0x100, DEV_OPENED | DEV_RW);
+    Memory rom(0x000, 0x200, DEV_OPENED);
+    Memory ram(0x200, 0x200, DEV_OPENED | DEV_RW);
 
     loadFile(filepath, rom.getBank());
 
