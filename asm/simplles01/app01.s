@@ -3,16 +3,21 @@
 
 _start:
     la sp,_stack_top
-    nop
+    ;
+    // Limpa memoria
+    // t0 endereco indice base
+    // t1 meta
+    // t2 dado
     la t0,_free_ram
-    mv t2, t0
-    addi t2, t2, 10
+    addi t1, t0, 10
 loop1:
-    lb t1, 0(t0)
-    mv t1, zero
-    sb t1, 0(t0)
+    lb t2, 0(t0)
+    mv t2, zero
+    sb t2, 0(t0)
     addi t0, t0, 1
-    blt t1, t2, loop1
+    blt t0, t1, loop1
+    wfi
+    ;
     nop
     nop
     addi t0, zero, 0
