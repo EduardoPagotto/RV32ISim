@@ -15,7 +15,7 @@ class InstructionTypeB : public InstructionType {
         imm = ((i >> 25) << 5) + ((i >> 7) & 0x1f) - 1;
 
         // testar
-        if (i & 0x10000000) {
+        if (i & 0x80000000) {
             imm |= 0xFFFFF000;
         }
 

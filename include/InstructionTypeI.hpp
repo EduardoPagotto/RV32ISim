@@ -22,10 +22,10 @@ class InstructionTypeI : public InstructionType {
         rs1 = calcRs1(i);
         imm = i >> 20;
 
-        // // Negativar
-        // if (i & 0x10000000) {
-        //     imm |= 0xFFFFF000;
-        // }
+        // Negativar
+        if (i & 0x80000000) {
+            imm |= 0xFFFFF000;
+        }
 
         val_rs1 = x[rs1];
     }

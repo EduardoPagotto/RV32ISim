@@ -17,7 +17,7 @@ class InstructionTypeJ : public InstructionType {
               (((i >> 21) & 0x3ff) << 1);  //  instr[10:1]
 
         // Negativar
-        if (i & 0x10000000) {
+        if (i & 0x80000000) {
             imm |= 0xFFFFF000;
         }
     }
