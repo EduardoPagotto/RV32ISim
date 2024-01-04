@@ -17,7 +17,7 @@ class InstructionTypeS : public InstructionType {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);
-        imm = ((i >> 25) << 5) | ((i >> 7) & 0x1f);
+        imm = ((i >> 25) << 5) | ((i >> 7) & 0x1f); // TODO: testar se imediato tem negativo
 
         val_rs1 = x[rs1];
         val_rs2 = x[rs2];

@@ -19,7 +19,7 @@ class InstructionTypeB : public InstructionType {
             imm |= 0xFFFFF000;
         }
 
-        // if (imm > 0) { // 12 bits!!
+        // if (imm > 0) { // 12 bits!! // TODO: testar branch saltando para frente
         //     imm++;
         // }
 

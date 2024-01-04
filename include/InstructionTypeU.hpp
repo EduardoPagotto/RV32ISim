@@ -11,7 +11,7 @@ class InstructionTypeU : public InstructionType {
   public:
     InstructionTypeU(const uint32_t& o, const uint32_t& i) : InstructionType(o) {
         rd = calcRd(i);
-        imm = ((i >> 12) & 0xfffff) << 12;
+        imm = ((i >> 12) & 0xfffff) << 12; // TODO: testar se negativo aqui!!!
     }
 
     virtual void execute(Controller& controller) override {
