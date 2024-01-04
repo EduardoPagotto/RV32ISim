@@ -19,9 +19,8 @@ class InstructionTypeB : public InstructionType {
             imm |= 0xFFFFF000;
         }
 
-        // if (imm > 0) { // 12 bits!! // TODO: testar branch saltando para frente
-        //     imm++;
-        // }
+        if (imm > 0)
+            imm++;
 
         val_rs1 = x[rs1];
         val_rs2 = x[rs2];

@@ -56,11 +56,11 @@ class Memory {
     inline std::vector<uint8_t>* getBank() { return &this->buffer; }
 
     inline const bool validRange(const uint32_t& address, const uint32_t& size) const {
-        return isOpen() && (address >= start) && ((address + size) < top);
+        return isOpen() && (address >= start) && ((address + size) <= top);
     }
 
     inline const bool validWrite(const uint32_t& address, const uint32_t& size) const {
-        return (isWritetable() && (address >= start) && ((address + size) < top));
+        return (isWritetable() && (address >= start) && ((address + size) <= top));
     }
 
     const std::optional<uint32_t> read(const uint32_t& address, const uint32_t& size, const bool& signedVal = false) {

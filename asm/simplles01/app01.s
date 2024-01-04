@@ -4,6 +4,21 @@
 _start:
     la sp,_stack_top
 
+    la t0, data01
+    lw t1, 4(t0)
+    lw t2, -4(t0)
+    # teste branch frente
+    li t0, 10
+    li t1, 5
+l1:
+    bne t0, t1, frente
+    j cont1
+    nop
+    nop
+frente:
+    addi t1, t1, 1
+    j l1
+cont1:
     # teste de carga
     la t0, data01
     lb t1, 0(t0)
