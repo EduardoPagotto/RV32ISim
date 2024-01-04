@@ -32,8 +32,11 @@ class Riscv32 {
             Debug::printAsHex(controller.getPC(), instr);
 
             InstructionType* pipeline = this->decode(instr);
+            if (pipeline == nullptr)
+                return true; // TRAP
 
             pipeline->execute(controller);
+
             WriteBackData w = pipeline->memoryAccess(bus, controller);
             pipeline->writeBack(w, x);
 
@@ -87,7 +90,7 @@ class Riscv32 {
                         return new InstructionTypeCSR(i, x);
                     }
                 default:
-                    throw std::string("Opcode desconhecido");
+                    controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                     break;
             }
         }

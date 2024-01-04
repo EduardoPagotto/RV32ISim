@@ -69,7 +69,8 @@ class InstructionTypeCSR : public InstructionType {
                 break;
 
             default:
-                throw std::string("CSR desconhecido");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
 

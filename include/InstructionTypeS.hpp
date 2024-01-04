@@ -43,7 +43,8 @@ class InstructionTypeS : public InstructionType {
                 break;
 
             default:
-                throw std::string("Acesso desconhecido");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         };
 

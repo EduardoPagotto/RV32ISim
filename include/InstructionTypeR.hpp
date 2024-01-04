@@ -79,7 +79,8 @@ class InstructionTypeR : public InstructionType {
                 address = val_rs1 & val_rs2;
                 break;
             default:
-                throw std::string("Opp desconhecida");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
 

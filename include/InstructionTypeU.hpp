@@ -26,7 +26,8 @@ class InstructionTypeU : public InstructionType {
                 address = imm;
                 break;
             default:
-                throw std::string("Opp desconhecido");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
 

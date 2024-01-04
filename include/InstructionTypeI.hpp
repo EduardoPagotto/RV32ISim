@@ -33,10 +33,10 @@ class InstructionTypeI : public InstructionType {
     virtual void execute(Controller& controller) override {
         switch (opcode) {
             case OPC_LOAD:
-                load();
+                load(controller);
                 break;
             case OPC_ULAI:
-                ulai();
+                ulai(controller);
                 break;
             case OPC_JALR:
                 jalr(controller);
@@ -74,7 +74,7 @@ class InstructionTypeI : public InstructionType {
     }
 
   private:
-    void load() {
+    void load(Controller& controller) {
 
         address = val_rs1 + imm;
         switch (funct3) {
@@ -113,13 +113,14 @@ class InstructionTypeI : public InstructionType {
                 isLoadOpp = true;
                 break;
             default:
-                throw std::string("Acesso desconhecido");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
         std::cout << Debug::alias[rd] << ", " << imm << "(" << Debug::alias[rs1] << ")";
     }
 
-    void ulai() {
+    void ulai(Controller& controller) {
 
         switch (funct3) {
             case 0x0: // ADDI
@@ -170,7 +171,8 @@ class InstructionTypeI : public InstructionType {
                 break;
 
             default:
-                throw std::string("Opp desconhecido");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
     }

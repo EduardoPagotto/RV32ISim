@@ -65,7 +65,8 @@ class InstructionTypeB : public InstructionType {
                     controller.setBranchAddress(controller.getPC() + imm);
                 break;
             default:
-                throw std::string("Branch desconhecido");
+                // TODO: opcode ou i ?
+                controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
         std::cout << Debug::alias[rs1] << ", " << Debug::alias[rs2] << ", "
