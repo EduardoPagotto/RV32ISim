@@ -61,7 +61,9 @@ class InstructionTypeS : public InstructionType {
             return WriteBackData{0, 0, false};
         }
 
-        bus.store(address, width, val_rs2);
+        if (bus.store(address, width, val_rs2) == false) {
+            controller.trapException(Trap(controller.getPC(), MCause::StoreAMOAccessFault, opcode));
+        }
         return WriteBackData{0, 0, false};
     }
 };

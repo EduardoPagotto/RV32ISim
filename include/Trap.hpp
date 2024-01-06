@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <stdint.h>
 
 #define MSTATUS_MIE_BIT 3
@@ -55,7 +56,9 @@ struct Trap {
     Trap() = default;
     Trap(const Trap& t) = default;
     Trap(const uint32_t& mepc, MCause cause, uint32_t mtval)
-        : trapState(TrapState::SetCSRJump), mepc(mepc), mcause(cause), mtval(mtval), pcToSet(0) {}
+        : trapState(TrapState::SetCSRJump), mepc(mepc), mcause(cause), mtval(mtval), pcToSet(0) {
+        std::cout << "\t# <<< TRAP >>>!!! ";
+    }
 
     ~Trap() = default;
 };
