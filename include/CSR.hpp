@@ -49,18 +49,7 @@ class CSR {
     std::map<std::string, uint32_t> bank;
 
   public:
-    CSR() {
-
-        // 0x300  PRIV_MACHI
-        // 0xC00  PRIV_USER0
-        // 0xF00  PRIV_MACHI
-
-        // Default values
-        write(CSR_MISA, 0x40000100);
-        write(CSR_MTVEC, 0x10000004 | 1);
-        write(CSR_MIE, 0x00000888);
-        write(CSR_MSTATUS, 0x00000008);
-    }
+    CSR() {}
 
     virtual ~CSR() { bank.clear(); };
 

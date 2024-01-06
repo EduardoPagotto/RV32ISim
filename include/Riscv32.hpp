@@ -84,7 +84,7 @@ class Riscv32 {
                 // case OPC_FENCE: // TODO: ler doc
                 //     break;
                 case OPC_SYSTEM:
-                    if (InstructionType::calcFunct3(InstructionType::calcFunct3(i)) == 0) {
+                    if (InstructionType::calcFunct3(i) == 0) {
                         return new InstructionTypeInt(i, x);
                     } else {
                         return new InstructionTypeCSR(i, x);

@@ -80,7 +80,8 @@
 				"name": "sim_test",
 				"program": "${workspaceFolder}/bin/sim",
 				"args": [
-					"./asm/simplles01/build/app01.bin",
+					"./asm/init01/build/app01.bin",
+					// "./asm/simplles01/build/app01.bin",
 					//"./tests/t1.bin",
 					//"./asm/bootZ.bin",
 					"registers.res"

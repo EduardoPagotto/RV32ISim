@@ -4,7 +4,7 @@
 
 class InstructionTypeCSR : public InstructionType {
   private:
-    uint8_t rd{0}, rs1{0}; // FIXME ver se zimm ??
+    uint8_t rd{0}, rs1{0}, funct3{0}; // FIXME ver se zimm ??
     int32_t imm;
     uint32_t val_rs1{0};
     uint32_t val_rd{0};
@@ -15,6 +15,7 @@ class InstructionTypeCSR : public InstructionType {
         rs1 = calcRs1(o);
         val_rs1 = x[rs1];
         val_rd = x[rd];
+        funct3 = calcFunct3(o);
         imm = o >> 20;
     }
 
@@ -25,7 +26,7 @@ class InstructionTypeCSR : public InstructionType {
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
 
         uint32_t value{0};
-        switch (opcode) {
+        switch (funct3) {
             case OPC_CSRRC:
                 std::cout << "CSRRC ";
                 value = controller.getCSR().read(imm);
@@ -55,8 +56,8 @@ class InstructionTypeCSR : public InstructionType {
                 break;
 
             case OPC_CSRRW:
-                std::cout << "CSRRW " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm) << ", "
-                          << Debug::alias[rs1];
+                std::cout << "CSRRW " << Debug::alias[rd] << ", " << Debug::int_to_hex(imm) << ", " << Debug::alias[rs1]
+                          << " (" << Debug::int_to_hex(val_rs1) << ")";
 
                 value = (val_rd != 0) ? controller.getCSR().read(imm) : 0;
                 controller.getCSR().write(imm, val_rs1);
@@ -73,9 +74,6 @@ class InstructionTypeCSR : public InstructionType {
                 controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
-
-        std::cout << "\t\t# ";
-        std::cout << '\n';
 
         return WriteBackData{rd, value, true};
     }
