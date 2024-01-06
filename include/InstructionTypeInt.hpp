@@ -36,7 +36,6 @@ class InstructionTypeInt : public InstructionType {
                 controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                 break;
         }
-        std::cout << "\t\t# ";
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {

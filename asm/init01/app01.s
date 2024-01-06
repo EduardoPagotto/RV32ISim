@@ -1,6 +1,3 @@
-
-
-
 .section .text # Code area
 .globl _start # entry point 
 
@@ -8,7 +5,6 @@
 .equ CSR_MSTATUS, 0x00000008
 .equ CSR_MISA, 0x40000100
 .equ CSR_MIE, 0x00000888
-//.equ CSR_MTVEC, init_interrupt_vect//0x10000004 | 1
 
 _start:
     # initialize sp
@@ -20,15 +16,18 @@ _start:
     csrrw zero, misa, t0
     li t0, CSR_MIE
     csrrw zero, mie, t0
-    la t0, init_interrupt_vect
+    la t0, exceptions_vector
     csrrw zero, mtvec, t0
     nop
     addi t0, zero, 0
     ecall
     nop
+    nop
+    ebreak
+    nop
     wfi
 
-init_interrupt_vect:
+exceptions_vector:
     j InstructionAddressMisaligned
     j InstructionAccessFault
     j IllegalInstruction
@@ -45,7 +44,22 @@ init_interrupt_vect:
     j LoadPageFault
     j Reserved4
     j StoreAMOPageFault
-
+    ;
+    j UserSoftwareInterrupt
+    j SupervisorSoftwareInterrupt
+    j Reserved0
+    j MachineSoftwareInterrupt
+    j UserTimerInterrupt
+    j SupervisorTimerInterrupt
+    j Reserved1
+    j MachineTimerInterrupt
+    j UserExternalInterrupt
+    j SupervisorExternalInterrupt
+    j Reserved2
+    j MachineExternalInterrupt
+    #
+    # Exceptions
+    #
 InstructionAddressMisaligned:
     mret
 InstructionAccessFault:
@@ -53,6 +67,7 @@ InstructionAccessFault:
 IllegalInstruction:
     mret
 Breakpoint:
+    nop
     mret
 LoadAddressMisaligned:
     mret
@@ -69,6 +84,7 @@ EnvironmentCallFromSMode:
 Reserved3:
     mret
 EnvironmentCallFromMMode:
+    nop
     mret
 InstructionPageFault:
     mret
@@ -78,6 +94,34 @@ Reserved4:
     mret
 StoreAMOPageFault:
     mret
+#
+# Interruption
+#
+UserSoftwareInterrupt:
+    mret
+SupervisorSoftwareInterrupt:
+    mret
+Reserved0:
+    mret
+MachineSoftwareInterrupt:
+    mret
+UserTimerInterrupt:
+    mret
+SupervisorTimerInterrupt:
+    mret
+Reserved1:
+    mret
+MachineTimerInterrupt:
+    mret
+UserExternalInterrupt:
+    mret
+SupervisorExternalInterrupt:
+    mret
+Reserved2:
+    mret
+MachineExternalInterrupt:
+    mret
+
 
 // Global Vals
 .section .rodata // Constants

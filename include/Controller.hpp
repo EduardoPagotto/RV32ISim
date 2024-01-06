@@ -70,7 +70,7 @@ class Controller {
 
                 csr.write(CSR_MSTATUS, mstatus);
 
-                this->setOriginalPC(csr.read(CSR_MTVEC));
+                this->setIntVector(csr.read(CSR_MTVEC));
 
                 return false;
             }
@@ -117,23 +117,15 @@ class Controller {
     }
 
   private:
-    void setOriginalPC(const uint32_t& mtvec) {
+    void setIntVector(const uint32_t& mtvec) {
 
         const uint32_t mc = static_cast<uint32_t>(trap.mcause);
-
         const uint32_t index = mc & 0x7fffffff;
-
         const bool isInterrupt = mc & 0x80000000;
+        const uint32_t offset = isInterrupt ? 48 : 0;
 
-        const uint32_t offset = isInterrupt ? 0 : 48;
-
-        if ((mtvec & 01) == 01) {
-            trap.pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
-        } else {
-            trap.pcToSet = (mtvec & 0xfffffffc);
-        }
-
-        // pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
+        // if ((mtvec & 01) == 01) {} // TODO: precisa alinhar memo ??
+        trap.pcToSet = (mtvec & 0xfffffffc) + offset + (index << 2);
         trap.trapState = TrapState::SetPc;
     }
 };
