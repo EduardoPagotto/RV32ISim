@@ -1,4 +1,5 @@
 #pragma once
+#include "MMU.hpp"
 #include "Memory.hpp"
 #include <map>
 #include <string>
