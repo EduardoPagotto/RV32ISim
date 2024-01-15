@@ -6,11 +6,26 @@
 #define MAX_PTE 16  // Total de paginas
 #define PGSIZE 4096
 
+// Page Table Entry (PTE) 12 bits inferiores
+#define MEM_EXECUTE 0x001 // Permissão executar
+#define MEM_WRITE 0x002   // Permissão escrita
+#define MEM_READ 0x004    // permissão leitura
+#define MEM_VALID 0x008   // Memoria valida
+#define MEM_USER 0x010    // Permissão usuario
+#define MEM_CHANGED 0x020 // Memoria alterada
+#define MEM_REF 0x040     // Memoria referenciada
+
+//
+#define TLB_RO 0x01
+#define TLB_CHANGED 0x02
+#define TLB_VALID 0x04
+
+#define MEM_USERMODE
+
 struct TLB {
     TLB() = default;
-    uint8_t status = 0;       // readyOnly, changed, valid -> 0000 0000
-    uint32_t virtualPage = 0; // 20 bits superiores do Virtual Page Address
-    uint32_t framePage = 0;   // indice do Page Table Entry (PTE)
+    uint32_t pte = 0;       // 20 bits superiores do Virtual Page Address
+    uint32_t framePage = 0; // indice do Page Table Entry (PTE)
 };
 
 struct TablePage {
@@ -37,12 +52,13 @@ class MMU {
     const uint32_t getVirtualAddress(const uint32_t& address, const uint32_t& pid, const uint8_t& opp) { // opp RWX
 
         // Virtual Page Number (VPN)
-        const uint32_t virtualAddressHi = address & 0xfffff000;
+        const uint32_t virtualAddressHi = address & 0xFFFFF000;
         const uint32_t offset = 0xfff & address;
 
         // Confere o Translation Lookaside Buffer (TLB)
         for (uint8_t i; i < MAX_TLB; i++) {
-            if (tlb[i].virtualPage == virtualAddressHi) {
+            const uint32_t virtualPage = tlb[i].pte & 0xFFFFF000;
+            if (virtualPage == virtualAddressHi) {
                 // TODO: testar se bit's de status RO, changed, valid estao validos
 
                 // TLB hit (encontrou no TLB)
@@ -92,4 +108,31 @@ class MMU {
 
         return 0;
     }
+
+    // const bool write(const uint32_t& address, const MemoryAccessWidth& width, const uint32_t& reg) {
+
+    //     // const uint32_t size = static_cast<uint32_t>(width);
+    //     // for (auto& v : banks) {
+    //     //     if (v->validRange(address, size))
+    //     //         return v->write(address, size, reg);
+    //     // }
+
+    //     return false;
+    // }
+
+    // const std::optional<uint32_t> read(const uint32_t& address, const MemoryAccessWidth& width,
+    //                                    const bool& signedVal = false) {
+
+    //     // const uint32_t size = static_cast<uint32_t>(width);
+    //     // for (auto& v : banks) {
+    //     //     if (v->validRange(address, size)) {
+    //     //         auto oValue = v->read(address, size, signedVal);
+    //     //         if (oValue.has_value()) {
+    //     //             return oValue;
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     return {};
+    // }
 };
