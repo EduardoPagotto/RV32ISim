@@ -2,19 +2,19 @@
 #include "Memory2.hpp"
 #include <stdint.h>
 
-#define MAX_TLB 10     // Maximo de entradas no Table lookup
-#define MAX_PROC 10    // Maximo de processos
-#define MAX_PTE 16     // Total de paginas
-#define MAX_PAGES 1024 // total de pages em tablePages
-#define PGSIZE 4096
+#define MAX_TLB 10     // Max inputs in TLB
+#define MAX_PROC 10    // Max process
+#define MAX_PTE 16     // Total pages
+#define MAX_PAGES 1024 // Total pages in levels
+#define PGSIZE 4096    // Size os page
 
-// Page Table Entry (PTE) 12 bits inferiores
-#define MMU_ACC_EXECUTE 0x001 // Permissão executar
-#define MMU_ACC_WRITE 0x002   // Permissão escrita
-#define MMU_ACC_READ 0x004    // permissão leitura
-#define MMU_ACC_SUPER 0x008   // Permissão usuario
+// Access
+#define MMU_ACC_EXECUTE 0x001 // grant execute
+#define MMU_ACC_WRITE 0x002   // grant write
+#define MMU_ACC_READ 0x004    // grant read
+#define MMU_ACC_SUPER 0x008   // grant root
 
-// Erros
+// Errors
 #define MMU_OK 0
 #define MMU_PAGE_FAULT -1
 #define MMU_FORBIDEN_ACCESS -2
@@ -29,18 +29,63 @@
 #define MMU_GET_LV0_INDEX(page) (page & 0x000003FF)
 #define MMU_GET_MEM_ADDRESS(framePage, vAddress) ((framePage << 12) | (vAddress & 0x00000FFF))
 
-struct TLB {
-    TLB() = default;
-    bool valid{false}, changed{false}; // entrada no TLB valida
-    uint8_t protection{0};             // URWX
-    uint32_t page{0}, framePage{0};
-};
+/**
+ * @brief Check permission
+ *
+ * @param current permission from page
+ * @param access  local permission
+ * @return int32_t  MMU_OK | MMU_FORBIDEN_*
+ */
+int32_t checkPermission(const uint8_t& current, const uint8_t& access) {
+
+    const uint8_t res = current ^ access;
+    if (res == 0)
+        return MMU_OK;
+
+    if (((res & MMU_ACC_SUPER) == MMU_ACC_SUPER) && ((access & MMU_ACC_SUPER) == 0))
+        return MMU_FORBIDEN_ACCESS;
+
+    if (((res & MMU_ACC_READ) == MMU_ACC_READ) && ((current & MMU_ACC_READ) == 0))
+        return MMU_FORBIDEN_READ;
+
+    if (((res & MMU_ACC_WRITE) == MMU_ACC_WRITE) && ((current & MMU_ACC_WRITE) == 0))
+        return MMU_FORBIDEN_WRITE;
+
+    if (((res & MMU_ACC_EXECUTE) == MMU_ACC_EXECUTE) && ((current & MMU_ACC_EXECUTE) == 0))
+        return MMU_FORBIDEN_EXECUTE;
+
+    return MMU_OK;
+}
 
 struct TablePageEntry { // (PTE)
     TablePageEntry() = default;
     bool valid{false}, changed{false}, refed{false};
     uint8_t protection{0};
     uint32_t framePage{0};
+};
+
+struct TLB {
+    TLB() = default;
+    bool valid{false}, changed{false}; // entrada no TLB valida
+    uint8_t protection{0};             // URWX
+    uint32_t page{0}, framePage{0};
+
+    void flush() {
+        this->valid = false;
+        this->changed = false;
+        this->protection = 0;
+        this->page = 0;
+        this->framePage = 0;
+    }
+
+    void load(const TablePageEntry& pte, const uint32_t& page) {
+        this->valid = true;
+        this->changed = pte.changed;
+        // this->refed = pte.refed;
+        this->protection = pte.protection;
+        this->page = page;
+        this->framePage = pte.framePage;
+    }
 };
 
 struct VirtualPageLv0 {
@@ -59,7 +104,8 @@ class MMU {
     TLB tlb[MAX_TLB];
     bool memPages[MAX_PTE] = {false};
 
-    uint32_t tlb_hit{0}, tlb_miss{0};
+    uint32_t last_pid{0};
+    uint32_t tlb_hit{0}, tlb_miss{0}, page_fault{0};
 
   public:
     MMU() = default;
@@ -79,6 +125,10 @@ class MMU {
         const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
         const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
 
+        if (pid != last_pid) {
+            flushTLB();
+        }
+
         ProcessData* proc = &procs[pid];
         VirtualPageLv0* ptrVirtualPageLv0 = proc->virtualPageLv1[lv1];
         if (ptrVirtualPageLv0 == nullptr) {
@@ -94,7 +144,7 @@ class MMU {
             tablePage.refed = true;
             tablePage.protection = access;
 
-            for (uint32_t j{0}; j < MAX_PAGES; j++) {
+            for (uint32_t j{0}; j < MAX_PTE; j++) {
                 if (memPages[j] == false) {
 
                     memPages[j] = true;
@@ -108,6 +158,7 @@ class MMU {
         }
 
         // FIXME:
+        page_fault++;
         return std::make_tuple(MMU_PAGE_FAULT, 0);
     }
 
@@ -135,10 +186,6 @@ class MMU {
     }
 
   private:
-    // Page fault -> frame memory sem mapeamento, verificar swap
-    // Page hit -> frame memory encontrado
-    // Access fail -> tentativa de acesso nao autorizado ou nao existente
-
     /**
      * @brief Get physical address from TLB array
      * TLB hit -> encontrado no TLB
@@ -154,7 +201,7 @@ class MMU {
         for (uint8_t i{0}; i < MAX_TLB; i++) {
 
             if ((tlb[i].valid) && (MMU_GET_PAGE(vAddress) == tlb[i].page)) { // entrada existe e é valida
-                int32_t v = this->validaAcesso(tlb[i].protection, access);   // verifica se acesso e permitido
+                int32_t v = checkPermission(tlb[i].protection, access);      // verifica se acesso e permitido
                 if (v == 0) {
                     // TLB hit (encontrou no TLB)
                     tlb_hit++;
@@ -168,13 +215,17 @@ class MMU {
         return std::make_tuple(MMU_TLB_MISS, 0); // TLB miss
     }
 
+    // Page fault -> frame memory sem mapeamento, verificar swap
+    // Page hit -> frame memory encontrado
+    // Access fail -> tentativa de acesso nao autorizado ou nao existente
+
     /**
      * @brief Get physical address from Tables
      *
      * @param vAddress Virtual Address
      * @param pid PID do processo
      * @param access bits protection URWX
-     * @return const std::tuple<int32_t, uint32_t>  (MMU_OK, physic addr) | (MMU_FORBIDEN_*, 0)
+     * @return const std::tuple<int32_t, uint32_t>  (MMU_OK, physic addr) | MMU_PAGE_FAULT,0 |(MMU_FORBIDEN_*, 0)
      */
     const std::tuple<int32_t, uint32_t> getFromTables(const uint32_t& vAddress, const uint32_t& pid,
                                                       const uint8_t& access) { // access URWX
@@ -190,15 +241,18 @@ class MMU {
         }
 
         TablePageEntry& tablePage = ptrVirtualPageLv0->ptes[lv0];
-        if (!tablePage.valid)
+        if (!tablePage.valid) {
+            page_fault++;
             return std::make_tuple(MMU_PAGE_FAULT, 0);
+        }
 
-        uint8_t v = this->validaAcesso(tablePage.protection, access);
+        uint8_t v = checkPermission(tablePage.protection, access);
         if (v == 0) {
             tablePage.refed = true;
             this->insertTLB(tablePage, MMU_GET_PAGE(vAddress));
 
-            return std::make_tuple(0, MMU_GET_MEM_ADDRESS(tablePage.framePage, vAddress)); // physical memory address
+            // physical memory address
+            return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(tablePage.framePage, vAddress));
         }
 
         return std::make_tuple(v, 0); // Forbiden Access
@@ -210,11 +264,7 @@ class MMU {
      */
     void flushTLB() {
         for (uint8_t i; i < MAX_TLB; i++) {
-            tlb[i].valid = false;
-            tlb[i].changed = false;
-            tlb[i].protection = 0;
-            tlb[i].page = 0;
-            tlb[i].framePage = 0;
+            tlb[i].flush();
         }
     }
 
@@ -229,12 +279,7 @@ class MMU {
         // Carrega no Translation Lookaside Buffer (TLB)
         for (uint8_t i; i < MAX_TLB; i++) {
             if (!tlb[i].valid) {
-                tlb[i].valid = true;
-                tlb[i].changed = pte.changed;
-                // tlb[i].refed = pte.refed;
-                tlb[i].protection = pte.protection;
-                tlb[i].page = page;
-                tlb[i].framePage = pte.framePage;
+                tlb[i].load(pte, page);
                 return;
             }
         }
@@ -250,34 +295,6 @@ class MMU {
         //         return;
         //     }
         // }
-    }
-
-    /**
-     * @brief Testa se acesso e permitido
-     *
-     * @param current valor do page
-     * @param access  valor da nova operacao
-     * @return int32_t  MMU_OK | MMU_FORBIDEN_*
-     */
-    int32_t validaAcesso(const uint8_t& current, const uint8_t& access) {
-
-        const uint8_t res = current ^ access;
-        if (res == 0)
-            return MMU_OK;
-
-        if (((res & MMU_ACC_SUPER) == MMU_ACC_SUPER) && ((access & MMU_ACC_SUPER) == 0))
-            return MMU_FORBIDEN_ACCESS;
-
-        if (((res & MMU_ACC_READ) == MMU_ACC_READ) && ((current & MMU_ACC_READ) == 0))
-            return MMU_FORBIDEN_READ;
-
-        if (((res & MMU_ACC_WRITE) == MMU_ACC_WRITE) && ((current & MMU_ACC_WRITE) == 0))
-            return MMU_FORBIDEN_WRITE;
-
-        if (((res & MMU_ACC_EXECUTE) == MMU_ACC_EXECUTE) && ((current & MMU_ACC_EXECUTE) == 0))
-            return MMU_FORBIDEN_EXECUTE;
-
-        return MMU_OK;
     }
 
     // const bool write(const uint32_t& vAddress, const MemoryAccessWidth& width, const uint32_t& reg) {
