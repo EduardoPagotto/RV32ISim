@@ -14,6 +14,7 @@ enum class MemoryAccessWidth : __int8_t {
 class Bus {
   private:
     std::vector<Memory*> banks;
+    MMU mmu;
 
   public:
     Bus() = default;
@@ -34,6 +35,28 @@ class Bus {
 
     const std::optional<uint32_t> load(const uint32_t& address, const MemoryAccessWidth& width,
                                        const bool& signedVal = false) {
+
+        uint32_t aaa = address;
+        uint32_t virtualAdd = 0;
+    GGGG: // just test please
+        const auto retValTLB = mmu.getTLB(aaa, MMU_ACC_EXECUTE);
+        if (std::get<0>(retValTLB) == MMU_TLB_MISS) {
+
+            auto [codeErro, vpn] = mmu.getTables(aaa, 0, MMU_ACC_EXECUTE);
+
+            if (codeErro == MMU_PAGE_FAULT) {
+                mmu.createEntry(aaa, 0, MMU_ACC_EXECUTE);
+            }
+
+            goto GGGG;
+
+        } else {
+
+            virtualAdd = std::get<1>(retValTLB);
+        }
+
+        aaa = 0x2000;
+        goto GGGG;
 
         const uint32_t size = static_cast<uint32_t>(width);
         for (auto& v : banks) {
