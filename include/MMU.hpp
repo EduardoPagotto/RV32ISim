@@ -12,63 +12,202 @@
 #define MMU_ACC_EXECUTE 0x001 // Permissão executar
 #define MMU_ACC_WRITE 0x002   // Permissão escrita
 #define MMU_ACC_READ 0x004    // permissão leitura
-#define MMU_ACC_USER 0x008    // Permissão usuario
-
-#define MMU_VALID 0x010 // Memoria valida
-
-#define MMU_CHANGED 0x020 // Memoria alterada, obs: validado somente no TLB
-#define MMU_REF 0x040     // Memoria referenciada, obs: validado somente no TLB
+#define MMU_ACC_SUPER 0x008   // Permissão usuario
 
 // Erros
-#define MMU_PAGE_FAULT 1
-#define MMU_FORBIDEN_ACCESS -1
-#define MMU_FORBIDEN_READ -2
-#define MMU_FORBIDEN_WRITE -3
-#define MMU_FORBIDEN_EXECUTE -4
-#define MMU_TLB_MISS -5
-#define MMU_SWAPOUT -6
-// #define MMU_FORBIDEN_READ
-// #define MMU_FORBIDEN_READ
+#define MMU_OK 0
+#define MMU_PAGE_FAULT -1
+#define MMU_FORBIDEN_ACCESS -2
+#define MMU_FORBIDEN_READ -3
+#define MMU_FORBIDEN_WRITE -4
+#define MMU_FORBIDEN_EXECUTE -5
+#define MMU_TLB_MISS -6
+#define MMU_SWAPOUT -7
+
+#define MMU_GET_PAGE(vAddr) (vAddr >> 12)
+#define MMU_GET_LV1_INDEX(page) ((page >> 10) & 0x000003FF)
+#define MMU_GET_LV0_INDEX(page) (page & 0x000003FF)
+#define MMU_GET_MEM_ADDRESS(framePage, vAddress) ((framePage << 12) | (vAddress & 0x00000FFF))
 
 struct TLB {
     TLB() = default;
-    bool valid = false;     // entrada no TLB valida
-    bool changed = false;   // memoria foi alterada
-    uint8_t protection = 0; // URWX
-    uint32_t page = 0;      // 20 bits superiores do Virtual Page Address + 12 inferiores de acesso
-    uint32_t framePage = 0; // Frame Page (numero da moldura da pagina)
+    bool valid{false}, changed{false}; // entrada no TLB valida
+    uint8_t protection{0};             // URWX
+    uint32_t page{0}, framePage{0};
 };
 
-// physical table entry (PTE)
-struct TablePage {
-    TablePage() = default;
-    bool valid = false;
-    bool changed = false;
-    bool refed = false;
-    uint8_t protection = 0;
-    uint32_t framePage = 0;
+struct TablePageEntry { // (PTE)
+    TablePageEntry() = default;
+    bool valid{false}, changed{false}, refed{false};
+    uint8_t protection{0};
+    uint32_t framePage{0};
 };
 
 struct VirtualPageLv0 {
-    TablePage entrys[MAX_PAGES];
+    VirtualPageLv0() = default;
+    TablePageEntry ptes[MAX_PAGES] = {0};
 };
 
-struct ProcPage {
-    ProcPage() = default;
+struct ProcessData {
+    ProcessData() = default;
     VirtualPageLv0* virtualPageLv1[MAX_PAGES] = {nullptr};
 };
 
 class MMU {
   private:
-    ProcPage pages[MAX_PROC];
+    ProcessData procs[MAX_PROC];
     TLB tlb[MAX_TLB];
-
     bool memPages[MAX_PTE] = {false};
+
+    uint32_t tlb_hit{0}, tlb_miss{0};
 
   public:
     MMU() = default;
     virtual ~MMU() = default;
 
+    /**
+     * @brief Create a TablePageEntry in Pages table
+     *
+     * @param vAddress Virtual Address
+     * @param pid PID do processo
+     * @param access bits protection URWX
+     * @return std::tuple<int32_t, uint32_t> (MMU_OK, physic addr) | (MMU_FORBIDEN_*, 0) | (MMU_PAGE_FAULT, 0)
+     */
+    std::tuple<int32_t, uint32_t> createEntry(const uint32_t& vAddress, const uint32_t& pid, const uint32_t& access) {
+
+        const uint32_t page{MMU_GET_PAGE(vAddress)};
+        const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
+        const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
+
+        ProcessData* proc = &procs[pid];
+        VirtualPageLv0* ptrVirtualPageLv0 = proc->virtualPageLv1[lv1];
+        if (ptrVirtualPageLv0 == nullptr) {
+            ptrVirtualPageLv0 = new VirtualPageLv0;
+            proc->virtualPageLv1[lv1] = ptrVirtualPageLv0;
+        }
+
+        TablePageEntry& tablePage = ptrVirtualPageLv0->ptes[lv0];
+
+        if (!tablePage.valid) {
+
+            tablePage.valid = true;
+            tablePage.refed = true;
+            tablePage.protection = access;
+
+            for (uint32_t j{0}; j < MAX_PAGES; j++) {
+                if (memPages[j] == false) {
+
+                    memPages[j] = true;
+                    tablePage.framePage = j;
+
+                    this->insertTLB(tablePage, page);
+
+                    return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(j, vAddress));
+                }
+            }
+        }
+
+        // FIXME:
+        return std::make_tuple(MMU_PAGE_FAULT, 0);
+    }
+
+    const std::tuple<int32_t, uint32_t> getPhysicalAddress(const uint32_t& vAddress, const uint32_t& pid,
+                                                           const uint8_t& access) { // access URWX
+
+        // verifica o TLB
+        auto result = this->getFromTLB(vAddress, access);
+        if (std::get<0>(result) == MMU_TLB_MISS) {
+
+            // Procura nos pages disponiveis
+            auto result2 = this->getFromTables(vAddress, pid, access);
+            if (std::get<0>(result2) == MMU_PAGE_FAULT) {
+
+                // cria nova entrada
+                auto result3 = this->createEntry(vAddress, pid, access);
+                return result3;
+            }
+
+            return result2;
+        }
+
+        // TLB_hit ou Forbiden
+        return result;
+    }
+
+  private:
+    // Page fault -> frame memory sem mapeamento, verificar swap
+    // Page hit -> frame memory encontrado
+    // Access fail -> tentativa de acesso nao autorizado ou nao existente
+
+    /**
+     * @brief Get physical address from TLB array
+     * TLB hit -> encontrado no TLB
+     * TLB miss -> nao esta na TLB
+     *
+     * @param vAddress Virtual Address
+     * @param access bits protection URWX
+     * @return const std::tuple<int32_t, uint32_t> (MMU_OK, physic addr) | (MMU_TLB_MISS, 0) | (MMU_FORBIDEN_*, 0)
+     */
+    const std::tuple<int32_t, uint32_t> getFromTLB(const uint32_t& vAddress, const uint8_t& access) {
+
+        // Confere o Translation Lookaside Buffer (TLB)
+        for (uint8_t i{0}; i < MAX_TLB; i++) {
+
+            if ((tlb[i].valid) && (MMU_GET_PAGE(vAddress) == tlb[i].page)) { // entrada existe e é valida
+                int32_t v = this->validaAcesso(tlb[i].protection, access);   // verifica se acesso e permitido
+                if (v == 0) {
+                    // TLB hit (encontrou no TLB)
+                    tlb_hit++;
+                    return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(tlb[i].framePage, vAddress));
+                }
+
+                return std::make_tuple(v, 0); // Forbiden
+            }
+        }
+        tlb_miss++;
+        return std::make_tuple(MMU_TLB_MISS, 0); // TLB miss
+    }
+
+    /**
+     * @brief Get physical address from Tables
+     *
+     * @param vAddress Virtual Address
+     * @param pid PID do processo
+     * @param access bits protection URWX
+     * @return const std::tuple<int32_t, uint32_t>  (MMU_OK, physic addr) | (MMU_FORBIDEN_*, 0)
+     */
+    const std::tuple<int32_t, uint32_t> getFromTables(const uint32_t& vAddress, const uint32_t& pid,
+                                                      const uint8_t& access) { // access URWX
+        const uint32_t page{MMU_GET_PAGE(vAddress)};
+        const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
+        const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
+
+        ProcessData* proc = &procs[pid];
+        VirtualPageLv0* ptrVirtualPageLv0 = proc->virtualPageLv1[lv1];
+        if (ptrVirtualPageLv0 == nullptr) {
+            ptrVirtualPageLv0 = new VirtualPageLv0;
+            proc->virtualPageLv1[lv1] = ptrVirtualPageLv0;
+        }
+
+        TablePageEntry& tablePage = ptrVirtualPageLv0->ptes[lv0];
+        if (!tablePage.valid)
+            return std::make_tuple(MMU_PAGE_FAULT, 0);
+
+        uint8_t v = this->validaAcesso(tablePage.protection, access);
+        if (v == 0) {
+            tablePage.refed = true;
+            this->insertTLB(tablePage, MMU_GET_PAGE(vAddress));
+
+            return std::make_tuple(0, MMU_GET_MEM_ADDRESS(tablePage.framePage, vAddress)); // physical memory address
+        }
+
+        return std::make_tuple(v, 0); // Forbiden Access
+    }
+
+    /**
+     * @brief Limpa o TLB do processo
+     *
+     */
     void flushTLB() {
         for (uint8_t i; i < MAX_TLB; i++) {
             tlb[i].valid = false;
@@ -79,134 +218,13 @@ class MMU {
         }
     }
 
-    // TLB hit -> encontrado no TLB
-    // TLB miss -> nao esta na TLB
-    // Page fault -> frame memory sem mapeamento, verificar swap
-    // Page hit -> frame memory encontrado
-    // Access fail -> tentativa de acesso nao autorizado ou nao existente
-
-    const std::tuple<int32_t, uint32_t> getTLB(const uint32_t& vAddress, const uint8_t& opp) { // opp URWX
-
-        // Virtual Page Number (VPN)
-        const uint32_t page = vAddress & 0xFFFFF000 >> 12;
-        const uint32_t offset = 0xfff & vAddress;
-
-        // Confere o Translation Lookaside Buffer (TLB)
-        for (uint8_t i{0}; i < MAX_TLB; i++) {
-
-            // entrada existe e é valida
-            if ((tlb[i].valid) && (page == tlb[i].page)) {
-
-                int32_t v = this->validaAcesso(tlb[i].protection, opp);
-                if (v == 0) {
-                    // Grant
-                    // se escrita modificar flag do tlb
-                    if ((opp & MMU_ACC_WRITE) == MMU_ACC_WRITE)
-                        tlb[i].changed = true;
-
-                    // TLB hit (encontrou no TLB)
-                    return std::make_tuple(0, tlb[i].framePage);
-
-                } else {
-                    // Forbiden
-                    return std::make_tuple(v, 0);
-                }
-            }
-        }
-        return std::make_tuple(MMU_TLB_MISS, 0);
-    }
-
-    const std::tuple<int32_t, uint32_t> getTables(const uint32_t& vAddress, const uint32_t& pid,
-                                                  const uint8_t& opp) { // opp URWX
-
-        // Virtual Page Number (VPN)
-        const uint32_t vAddressHi = vAddress & 0xFFFFF000;
-        const uint32_t offset = 0xfff & vAddress;
-        // const uint32_t oppMMU = (opp | MMU_VALID) & 0x0000001F;
-
-        const uint32_t lv1 = (vAddressHi >> 22) & 0x3FF;
-        const uint32_t lv0 = (vAddressHi >> 12) & 0x3FF;
-
-        ProcPage* page = &pages[pid];
-
-        VirtualPageLv0* ptrVirtualPageLv0 = page->virtualPageLv1[lv1];
-        if (ptrVirtualPageLv0 == nullptr) {
-
-            ptrVirtualPageLv0 = new VirtualPageLv0;
-            page->virtualPageLv1[lv1] = ptrVirtualPageLv0;
-
-            return std::make_tuple(MMU_PAGE_FAULT, 0);
-        }
-
-        TablePage& tablePage = ptrVirtualPageLv0->entrys[lv0];
-        if (!tablePage.valid)
-            return std::make_tuple(MMU_PAGE_FAULT, 0);
-
-        uint8_t v = this->validaAcesso(tablePage.protection, opp);
-        if (v == 0) {
-
-            // tablePage.valid = true;
-            if ((opp & MMU_ACC_WRITE) == MMU_ACC_WRITE)
-                tablePage.changed = true;
-
-            tablePage.refed = true;
-
-            // TODO: adicionar entrada a TLB!
-            this->insertTLB(tablePage, vAddress >> 12);
-
-            // PTE
-            // physical page number mask 0xfffff000 (20 upper bits)
-            return std::make_tuple(0, ((tablePage.framePage << 12) | offset));
-        }
-
-        return std::make_tuple(v, 0);
-    }
-
-    std::tuple<int32_t, uint32_t> createEntry(const uint32_t& vAddress, const uint32_t& pid, const uint32_t& opp) {
-
-        const uint32_t vAddressHi = vAddress & 0xFFFFF000;
-        const uint32_t offset = 0xfff & vAddress;
-
-        // TLB Miss (procura nas tables)
-        const uint32_t lv1 = (vAddressHi >> 22) & 0x3FF;
-        const uint32_t lv0 = (vAddressHi >> 12) & 0x3FF;
-
-        ProcPage* page = &pages[pid];
-
-        VirtualPageLv0* ptrVirtualPageLv0 = page->virtualPageLv1[lv1];
-
-        for (uint32_t i = 0; i < MAX_PAGES; i++) {
-            TablePage& pte = ptrVirtualPageLv0->entrys[i];
-
-            if (!pte.valid) {
-
-                pte.valid = true;
-
-                if ((opp & MMU_ACC_WRITE) == MMU_ACC_WRITE)
-                    pte.changed = true;
-
-                pte.protection = opp;
-
-                for (uint32_t j = 0; j < MAX_PAGES; j++) {
-                    if (memPages[j] == false) {
-                        memPages[j] = true;
-
-                        pte.framePage = j;
-
-                        this->insertTLB(pte, vAddress >> 12);
-
-                        return std::make_tuple(0, (j | offset));
-                    }
-                }
-            }
-        }
-
-        // FIXME:
-        return std::make_tuple(MMU_PAGE_FAULT, 0);
-    }
-
-  private:
-    void insertTLB(const TablePage& pte, const uint32_t& page) {
+    /**
+     * @brief Insere nova entrada no TLB
+     *
+     * @param pte
+     * @param page
+     */
+    void insertTLB(const TablePageEntry& pte, const uint32_t& page) {
 
         // Carrega no Translation Lookaside Buffer (TLB)
         for (uint8_t i; i < MAX_TLB; i++) {
@@ -234,83 +252,33 @@ class MMU {
         // }
     }
 
-    int32_t validaAcesso(const uint32_t& current, const uint8_t& opp) {
+    /**
+     * @brief Testa se acesso e permitido
+     *
+     * @param current valor do page
+     * @param access  valor da nova operacao
+     * @return int32_t  MMU_OK | MMU_FORBIDEN_*
+     */
+    int32_t validaAcesso(const uint8_t& current, const uint8_t& access) {
 
-        const uint32_t res = current ^ opp;
-        if (((res & MMU_ACC_USER) != 0) && ((current & MMU_ACC_USER) == 0))
+        const uint8_t res = current ^ access;
+        if (res == 0)
+            return MMU_OK;
+
+        if (((res & MMU_ACC_SUPER) == MMU_ACC_SUPER) && ((access & MMU_ACC_SUPER) == 0))
             return MMU_FORBIDEN_ACCESS;
 
-        if (((res & MMU_ACC_READ) != 0) && ((current & MMU_ACC_READ) == 0))
+        if (((res & MMU_ACC_READ) == MMU_ACC_READ) && ((current & MMU_ACC_READ) == 0))
             return MMU_FORBIDEN_READ;
 
-        if (((res & MMU_ACC_WRITE) != 0) && ((current & MMU_ACC_WRITE) == 0))
+        if (((res & MMU_ACC_WRITE) == MMU_ACC_WRITE) && ((current & MMU_ACC_WRITE) == 0))
             return MMU_FORBIDEN_WRITE;
 
-        if (((res & MMU_ACC_EXECUTE) != 0) && ((current & MMU_ACC_EXECUTE) == 0))
+        if (((res & MMU_ACC_EXECUTE) == MMU_ACC_EXECUTE) && ((current & MMU_ACC_EXECUTE) == 0))
             return MMU_FORBIDEN_EXECUTE;
 
-        return 0;
+        return MMU_OK;
     }
-
-    // const uint32_t getVirtualAddress(const uint32_t& vAddress, const uint32_t& pid, const uint8_t& opp) { // opp RWX
-
-    //     // Virtual Page Number (VPN)
-    //     const uint32_t vAddressHi = vAddress & 0xFFFFF000;
-    //     const uint32_t offset = 0xfff & vAddress;
-
-    //     // Confere o Translation Lookaside Buffer (TLB)
-    //     for (uint8_t i; i < MAX_TLB; i++) {
-    //         const uint32_t virtualPage = tlb[i].pte & 0xFFFFF000;
-    //         if (virtualPage == vAddressHi) {
-    //             // TODO: testar se bit's de status RO, changed, valid estao validos
-
-    //             // TLB hit (encontrou no TLB)
-    //             return tlb[i].framePage;
-    //         }
-    //     }
-
-    //     // TLB Miss (procura nas tables)
-    //     const uint32_t lv1 = (vAddressHi >> 22) & 0x3FF;
-    //     const uint32_t lv0 = (vAddressHi >> 12) & 0x3FF;
-
-    //     ProcPage* page = &pages[pid];
-
-    //     TablePage* ptrVirtualPageLv0 = page->virtualPageLv1[lv1];
-
-    //     if (ptrVirtualPageLv0 == nullptr) {
-    //         // TODO: implementar page fault
-    //     } else {
-    //         const uint32_t indexPTE = ptrVirtualPageLv0->pages[lv0];
-    //         const uint32_t pte = page->pte[indexPTE];
-
-    //         // TODO: verifica se esta disponoivel e se é possivel fazer a operação
-    //         if (pte & 01) {
-    //             // TODO: adicionar entrada a TLB!
-
-    //             // 0xffc; 0x3ff; 0xfff
-
-    //             // PTE
-    //             // Controller mask 0x01f (12 bits -> 0000 000U XWRV
-    //             // V -> valid mask 0x001
-    //             // R -> reader     0x002
-    //             // W -> writer     0x004
-    //             // X -> executable 0x008
-    //             // U -> usermode   0x010
-    //             //
-    //             // obs: faltam os bits (necessarios para swap):
-    //             // - modificada (pagina sofreu modificação)
-    //             // - referenciada (pagina foi lida recentemente)
-    //             //
-    //             // physical page number mask 0xfffff000 (20 upper bits)
-
-    //             return ((pte & 0xfffff000) | offset); // page hit (entrada encontrada na tables)
-    //         } else {
-    //             // TODO: implementar page fault e swap-in
-    //         }
-    //     }
-
-    //     return 0;
-    // }
 
     // const bool write(const uint32_t& vAddress, const MemoryAccessWidth& width, const uint32_t& reg) {
 

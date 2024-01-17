@@ -1,6 +1,7 @@
 #pragma once
 #include "MMU.hpp"
 #include "Memory.hpp"
+#include <iostream>
 #include <map>
 #include <string>
 
@@ -33,30 +34,48 @@ class Bus {
         return false;
     }
 
+    void getVal(const std::tuple<int32_t, uint32_t> v) {
+        std::cout << "Code: " << std::get<0>(v) << " Val: " << std::get<1>(v) << std::endl;
+    }
+
     const std::optional<uint32_t> load(const uint32_t& address, const MemoryAccessWidth& width,
                                        const bool& signedVal = false) {
 
-        uint32_t aaa = address;
-        uint32_t virtualAdd = 0;
-    GGGG: // just test please
-        const auto retValTLB = mmu.getTLB(aaa, MMU_ACC_EXECUTE);
-        if (std::get<0>(retValTLB) == MMU_TLB_MISS) {
+        getVal(mmu.createEntry(0x00000, 0, MMU_ACC_EXECUTE | MMU_ACC_SUPER));
+        getVal(mmu.createEntry(0x40000, 0, MMU_ACC_READ | MMU_ACC_WRITE));
+        getVal(mmu.createEntry(0x80000, 0, MMU_ACC_READ | MMU_ACC_WRITE | MMU_ACC_SUPER));
+        getVal(mmu.createEntry(0xC0000, 0, MMU_ACC_EXECUTE));
+        getVal(mmu.createEntry(0xF0000, 0, MMU_ACC_EXECUTE | MMU_ACC_READ | MMU_ACC_WRITE | MMU_ACC_SUPER));
 
-            auto [codeErro, vpn] = mmu.getTables(aaa, 0, MMU_ACC_EXECUTE);
+        // ---
+        getVal(mmu.getPhysicalAddress(0x0002, 0, MMU_ACC_EXECUTE | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0x0002, 0, MMU_ACC_EXECUTE));
+        getVal(mmu.getPhysicalAddress(0x0002, 0, MMU_ACC_READ | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0x0002, 0, MMU_ACC_WRITE | MMU_ACC_SUPER));
 
-            if (codeErro == MMU_PAGE_FAULT) {
-                mmu.createEntry(aaa, 0, MMU_ACC_EXECUTE);
-            }
+        getVal(mmu.getPhysicalAddress(0x4002, 0, MMU_ACC_READ));
+        getVal(mmu.getPhysicalAddress(0x4002, 0, MMU_ACC_WRITE));
+        getVal(mmu.getPhysicalAddress(0x4002, 0, MMU_ACC_EXECUTE));
+        getVal(mmu.getPhysicalAddress(0x4002, 0, MMU_ACC_READ | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0x4002, 0, MMU_ACC_WRITE | MMU_ACC_SUPER));
 
-            goto GGGG;
+        getVal(mmu.getPhysicalAddress(0x8002, 0, MMU_ACC_READ));
+        getVal(mmu.getPhysicalAddress(0x8002, 0, MMU_ACC_WRITE));
+        getVal(mmu.getPhysicalAddress(0x8002, 0, MMU_ACC_READ | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0x8002, 0, MMU_ACC_WRITE | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0x8002, 0, MMU_ACC_EXECUTE | MMU_ACC_SUPER));
 
-        } else {
+        getVal(mmu.getPhysicalAddress(0xC002, 0, MMU_ACC_EXECUTE | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0xC002, 0, MMU_ACC_EXECUTE));
+        getVal(mmu.getPhysicalAddress(0xC002, 0, MMU_ACC_READ));
+        getVal(mmu.getPhysicalAddress(0xC002, 0, MMU_ACC_WRITE));
 
-            virtualAdd = std::get<1>(retValTLB);
-        }
+        getVal(mmu.getPhysicalAddress(0xF000, 0, MMU_ACC_EXECUTE | MMU_ACC_SUPER));
+        getVal(mmu.getPhysicalAddress(0xF000, 0, MMU_ACC_EXECUTE));
+        getVal(mmu.getPhysicalAddress(0xF000, 0, MMU_ACC_READ));
+        getVal(mmu.getPhysicalAddress(0xF000, 0, MMU_ACC_WRITE));
 
-        aaa = 0x2000;
-        goto GGGG;
+        // const auto retVal7 = mmu.getPhysicalAddress(0, 0, MMU_ACC_READ);
 
         const uint32_t size = static_cast<uint32_t>(width);
         for (auto& v : banks) {
