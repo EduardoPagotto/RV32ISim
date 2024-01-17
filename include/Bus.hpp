@@ -1,6 +1,6 @@
 #pragma once
-#include "MMU.hpp"
 #include "Memory.hpp"
+#include "mmu/MMU.hpp"
 #include <iostream>
 #include <map>
 #include <string>
