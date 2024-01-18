@@ -11,13 +11,13 @@ struct VirtualPageLv0 {
 struct ProcessData {
     ProcessData() = default;
     VirtualPageLv0* virtualPageLv1[MAX_PAGES] = {nullptr};
+    TablePageEntry* mapped[MAX_PTE] = {nullptr};
 };
 
 class MMU {
   private:
     TLB tlb;
     ProcessData procs[MAX_PROC];
-    bool memPages[MAX_PTE] = {false};
     uint32_t last_pid{0}, page_fault{0}, page_hit{0}, page_forbiden{0};
 
   public:
@@ -56,8 +56,8 @@ class MMU {
 
         if (!tablePage.valid) {
             for (uint32_t j{0}; j < MAX_PTE; j++) {
-                if (memPages[j] == false) {
-                    memPages[j] = true;
+                if (proc->mapped[j] == nullptr) {
+                    proc->mapped[j] = &tablePage;
 
                     tablePage.valid = true;
                     tablePage.referenced = 0;
@@ -67,6 +67,12 @@ class MMU {
                     tlb.save(tablePage, page);
 
                     return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(j, vAddress));
+                } else {
+                    if (tablePage.referenced < minimalRef) {
+                        minimalRef = tablePage.referenced;
+                        indiceMininmal = j;
+                        // FIXME: por causa do TLB este valor é baixo, muito baixo, alternativas ???
+                    }
                 }
             }
 
