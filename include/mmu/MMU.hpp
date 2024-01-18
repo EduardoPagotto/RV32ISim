@@ -21,6 +21,8 @@ class MMU {
 
     uint32_t last_pid{0};
     uint32_t page_fault{0};
+    uint32_t page_hit{0};
+    uint32_t page_forbiden{0};
 
   public:
     MMU() = default;
@@ -70,11 +72,12 @@ class MMU {
                     return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(j, vAddress));
                 }
             }
+
+            // TODO: Aqui a memoria acaba e precisaremos fazer o swap!!!!
         }
 
-        // FIXME:
-        page_fault++;
-        return std::make_tuple(MMU_PAGE_FAULT, 0);
+        page_forbiden++;
+        return std::make_tuple(MMU_FORBIDEN_ACCESS, 0);
     }
 
     const std::tuple<int32_t, uint32_t> getPhysicalAddress(const uint32_t& vAddress, const uint32_t& pid,
@@ -82,7 +85,8 @@ class MMU {
 
         // verifica o TLB
         auto result = tlb.find(vAddress, access);
-        if (std::get<0>(result) == MMU_TLB_MISS) {
+        const int32_t error = std::get<0>(result);
+        if (error == MMU_TLB_MISS) {
 
             // Procura nos pages disponiveis
             auto result2 = this->getFromTables(vAddress, pid, access);
@@ -94,6 +98,8 @@ class MMU {
             }
 
             return result2;
+        } else if (error < 0) {
+            page_forbiden++;
         }
 
         // TLB_hit ou Forbiden
@@ -138,36 +144,12 @@ class MMU {
             tlb.save(tablePage, MMU_GET_PAGE(vAddress));
 
             // physical memory address
+            page_hit++;
             return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(tablePage.framePage, vAddress));
+        } else {
+            page_forbiden++;
         }
 
         return std::make_tuple(v, 0); // Forbiden Access
     }
-
-    // const bool write(const uint32_t& vAddress, const MemoryAccessWidth& width, const uint32_t& reg) {
-
-    //     // const uint32_t size = static_cast<uint32_t>(width);
-    //     // for (auto& v : banks) {
-    //     //     if (v->validRange(vAddress, size))
-    //     //         return v->write(vAddress, size, reg);
-    //     // }
-
-    //     return false;
-    // }
-
-    // const std::optional<uint32_t> read(const uint32_t& vAddress, const MemoryAccessWidth& width,
-    //                                    const bool& signedVal = false) {
-
-    //     // const uint32_t size = static_cast<uint32_t>(width);
-    //     // for (auto& v : banks) {
-    //     //     if (v->validRange(vAddress, size)) {
-    //     //         auto oValue = v->read(vAddress, size, signedVal);
-    //     //         if (oValue.has_value()) {
-    //     //             return oValue;
-    //     //         }
-    //     //     }
-    //     // }
-
-    //     return {};
-    // }
 };

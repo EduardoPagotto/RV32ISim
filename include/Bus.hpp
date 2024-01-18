@@ -75,8 +75,6 @@ class Bus {
         getVal(mmu.getPhysicalAddress(0xF000, 0, MMU_ACC_READ));
         getVal(mmu.getPhysicalAddress(0xF000, 0, MMU_ACC_WRITE));
 
-        // const auto retVal7 = mmu.getPhysicalAddress(0, 0, MMU_ACC_READ);
-
         const uint32_t size = static_cast<uint32_t>(width);
         for (auto& v : banks) {
             if (v->validRange(address, size)) {

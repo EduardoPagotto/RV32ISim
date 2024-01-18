@@ -9,6 +9,7 @@ class TLB {
         bool valid{false}, changed{false}; // entrada no TLB valida
         uint8_t protection{0};             // URWX
         uint32_t page{0}, framePage{0};
+        uint32_t references{0};
     };
 
     __TLB_data bufer[MAX_TLB];
@@ -25,32 +26,37 @@ class TLB {
             bufer[i].protection = 0;
             bufer[i].page = 0;
             bufer[i].framePage = 0;
+            bufer[i].references = 0;
         }
     }
 
     void save(const TablePageEntry& pte, const uint32_t& page) {
+
+        uint32_t minimalRef{0xFFFFFFFF};
+        uint32_t entryMinimal{0};
+
         for (uint32_t i{0}; i < MAX_TLB; i++) {
             if (!bufer[i].valid) {
                 bufer[i].valid = true;
                 bufer[i].changed = pte.changed;
-                // bufer[i].refed = pte.refed;
+                bufer[i].references = 0;
                 bufer[i].protection = pte.protection;
                 bufer[i].page = page;
                 bufer[i].framePage = pte.framePage;
+                return;
+            } else {
+                if (bufer[i].references < minimalRef) {
+                    minimalRef = bufer[i].references;
+                    entryMinimal = i;
+                }
             }
         }
 
-        // sem espaco, procurar mais antiga // FIXME: ver algoritimo de ref sem accesso
-        // for (uint8_t i; i < MAX_TLB; i++) {
-        //     if (!tlb[i].refed) {
-        //         tlb[i].valid = true;
-        //         tlb[i].changed = pte.changed;
-        //         tlb[i].protection = pte.protection;
-        //         tlb[i].page = page;
-        //         tlb[i].framePage = pte.framePage;
-        //         return;
-        //     }
-        // }
+        bufer[entryMinimal].changed = pte.changed;
+        bufer[entryMinimal].references = minimalRef + 1;
+        bufer[entryMinimal].protection = pte.protection;
+        bufer[entryMinimal].page = page;
+        bufer[entryMinimal].framePage = pte.framePage;
     }
 
     /**
@@ -72,6 +78,7 @@ class TLB {
                 if (v == 0) {
                     // TLB hit (encontrou no TLB)
                     tlb_hit++;
+                    bufer[i].references++;
                     return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(bufer[i].framePage, vAddress));
                 }
 
