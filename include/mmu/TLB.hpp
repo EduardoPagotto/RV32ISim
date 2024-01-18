@@ -5,11 +5,9 @@ class TLB {
   private:
     struct __TLB_data {
         __TLB_data() = default;
-
         bool valid{false}, changed{false}; // entrada no TLB valida
         uint8_t protection{0};             // URWX
-        uint32_t page{0}, framePage{0};
-        uint32_t references{0};
+        uint32_t page{0}, framePage{0}, references{0};
     };
 
     __TLB_data bufer[MAX_TLB];

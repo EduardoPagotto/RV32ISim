@@ -58,7 +58,7 @@ int32_t checkPermission(const uint8_t& current, const uint8_t& access) {
 
 struct TablePageEntry { // (PTE)
     TablePageEntry() = default;
-    bool valid{false}, changed{false}, refed{false};
+    bool valid{false}, changed{false};
     uint8_t protection{0};
-    uint32_t framePage{0};
+    uint32_t referenced{0}, framePage{0};
 };

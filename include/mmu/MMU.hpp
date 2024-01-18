@@ -18,11 +18,7 @@ class MMU {
     TLB tlb;
     ProcessData procs[MAX_PROC];
     bool memPages[MAX_PTE] = {false};
-
-    uint32_t last_pid{0};
-    uint32_t page_fault{0};
-    uint32_t page_hit{0};
-    uint32_t page_forbiden{0};
+    uint32_t last_pid{0}, page_fault{0}, page_hit{0}, page_forbiden{0};
 
   public:
     MMU() = default;
@@ -55,16 +51,17 @@ class MMU {
 
         TablePageEntry& tablePage = ptrVirtualPageLv0->ptes[lv0];
 
+        uint32_t minimalRef{0xffffffff};
+        uint32_t indiceMininmal{0};
+
         if (!tablePage.valid) {
-
-            tablePage.valid = true;
-            tablePage.refed = true;
-            tablePage.protection = access;
-
             for (uint32_t j{0}; j < MAX_PTE; j++) {
                 if (memPages[j] == false) {
-
                     memPages[j] = true;
+
+                    tablePage.valid = true;
+                    tablePage.referenced = 0;
+                    tablePage.protection = access;
                     tablePage.framePage = j;
 
                     tlb.save(tablePage, page);
@@ -74,6 +71,7 @@ class MMU {
             }
 
             // TODO: Aqui a memoria acaba e precisaremos fazer o swap!!!!
+            // ir no tables
         }
 
         page_forbiden++;
@@ -140,7 +138,7 @@ class MMU {
 
         uint8_t v = checkPermission(tablePage.protection, access);
         if (v == 0) {
-            tablePage.refed = true;
+            tablePage.referenced++;
             tlb.save(tablePage, MMU_GET_PAGE(vAddress));
 
             // physical memory address
