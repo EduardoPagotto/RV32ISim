@@ -32,7 +32,7 @@ class InstructionTypeU : public InstructionType {
         }
     }
 
-    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
+    virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) override {
         return WriteBackData{rd, address, true};
     }
 };

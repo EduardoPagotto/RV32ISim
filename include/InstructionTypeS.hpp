@@ -51,7 +51,7 @@ class InstructionTypeS : public InstructionType {
         std::cout << Debug::alias[rs2] << ", " << imm << "(" << Debug::alias[rs1] << ")";
     }
 
-    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
+    virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) override {
 
         const bool isUnaligned = ((width == MemoryAccessWidth::Word && address & 0b11) ||
                                   (width == MemoryAccessWidth::HalfWord && address & 0b01));
@@ -61,9 +61,16 @@ class InstructionTypeS : public InstructionType {
             return WriteBackData{0, 0, false};
         }
 
-        if (bus.store(address, width, val_rs2) == false) {
+        const auto result = mmu.getPhysicalAddress(address, 0, MMU_ACC_WRITE | MMU_ACC_SUPER);
+        if (std::get<0>(result) == MMU_OK) {
+            auto [error, value] = bus.store(std::get<1>(result), width, val_rs2);
+            if (error != MMU_OK) { // FIXME: implementar corretamente
+                controller.trapException(Trap(controller.getPC(), MCause::StoreAMOAccessFault, opcode));
+            }
+        } else {
             controller.trapException(Trap(controller.getPC(), MCause::StoreAMOAccessFault, opcode));
         }
+
         return WriteBackData{0, 0, false};
     }
 };

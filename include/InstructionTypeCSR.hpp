@@ -23,7 +23,7 @@ class InstructionTypeCSR : public InstructionType {
         // returnFromTrap = data.decode.imm32 == 0x302;
     }
 
-    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
+    virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) override {
 
         uint32_t value{0};
         switch (funct3) {

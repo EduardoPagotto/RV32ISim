@@ -2,6 +2,7 @@
 #include "Bus.hpp"
 #include "Controller.hpp"
 #include "defs.hpp"
+#include "mmu/MMU.hpp"
 
 struct WriteBackData {
     uint8_t rd;
@@ -17,7 +18,7 @@ class InstructionType {
     InstructionType(const uint32_t& o) : opcode(o) {}
     virtual ~InstructionType() = default;
     virtual void execute(Controller& controller) = 0;
-    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) = 0;
+    virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) = 0;
 
     void writeBack(const WriteBackData& w, uint32_t* x) {
         if (w.isValid) {

@@ -48,7 +48,7 @@ class InstructionTypeI : public InstructionType {
         }
     }
 
-    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
+    virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) override {
 
         if (isLoadOpp) {
 
@@ -60,13 +60,15 @@ class InstructionTypeI : public InstructionType {
                 return WriteBackData{0, 0, false};
             }
 
-            auto retVal = bus.load(address, width, valSigned);
-            if (retVal.has_value()) {
-                address = retVal.value();
-            } else {
-                controller.trapException(Trap(address, MCause::LoadAccessFault, opcode));
-                return WriteBackData{0, 0, false};
+            const auto result = mmu.getPhysicalAddress(address, 0, MMU_ACC_READ | MMU_ACC_SUPER);
+            if (std::get<0>(result) == MMU_OK) {
+                const auto result2 = bus.load(std::get<1>(result), MemoryAccessWidth::Word);
+                if (std::get<0>(result2) == MMU_OK)
+                    return WriteBackData{rd, std::get<1>(result2), true};
             }
+
+            controller.trapException(Trap(address, MCause::LoadAccessFault, opcode));
+            return WriteBackData{0, 0, false};
         }
 
         return WriteBackData{rd, address, true};

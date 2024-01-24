@@ -73,7 +73,7 @@ class InstructionTypeB : public InstructionType {
                   << Debug::int_to_hex(controller.getPC() + imm);
     }
 
-    virtual const WriteBackData memoryAccess(Bus& bus, Controller& controller) override {
+    virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) override {
         return WriteBackData{0, 0, false};
     }
 };

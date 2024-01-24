@@ -9,56 +9,69 @@
 #include "InstructionTypeR.hpp"
 #include "InstructionTypeS.hpp"
 #include "InstructionTypeU.hpp"
+#include "mmu/MMU.hpp"
 
 class Riscv32 {
   private:
     uint32_t x[32] = {0}; // CPU
-    Bus bus;
     Controller controller;
 
   public:
     Riscv32(const uint32_t& startupAddr) { controller.setStartUpAddr(startupAddr); }
+    virtual ~Riscv32() = default;
 
-    virtual ~Riscv32() {}
-    Bus& getBus() { return bus; }
     void reset() { controller.reset(); }
 
-    bool step() {
+    bool step(Bus& bus, MMU& mmu) {
 
         if (controller.noWaitTrap()) {
             controller.step();
 
-            uint32_t instr = this->fetch();
-            Debug::printAsHex(controller.getPC(), instr);
+            // FETCH
+            const auto result = mmu.getPhysicalAddress(controller.getPC(), 0, MMU_ACC_EXECUTE | MMU_ACC_SUPER);
+            if (std::get<0>(result) == MMU_OK) {
+                const auto result2 = bus.load(std::get<1>(result), MemoryAccessWidth::Word);
 
-            InstructionType* pipeline = this->decode(instr);
-            if (pipeline == nullptr)
-                return true; // TRAP
+                if (std::get<0>(result2) == MMU_OK) {
 
-            pipeline->execute(controller);
+                    const int32_t instr = std::get<1>(result2);
+                    Debug::printAsHex(controller.getPC(), instr);
 
-            WriteBackData w = pipeline->memoryAccess(bus, controller);
-            pipeline->writeBack(w, x);
+                    // DECODE
+                    InstructionType* pipeline = this->decode(instr);
+                    if (pipeline == nullptr) {
+                        controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, (instr & 0x7f)));
+                        return true;
+                    }
 
-            Debug::newline();
+                    // EXECUTE
+                    pipeline->execute(controller);
 
-            delete pipeline;
-            pipeline = nullptr;
+                    // MEMORY
+                    WriteBackData w = pipeline->memoryAccess(bus, mmu, controller);
+
+                    // WRITEBACK
+                    pipeline->writeBack(w, x);
+
+                    Debug::newline();
+
+                    delete pipeline;
+                    pipeline = nullptr;
+                } else {
+                    // FIXME: Trap!!!
+                    throw std::string("Fora da memoria: " + Debug::int_to_hex(controller.getPC()));
+                }
+
+            } else {
+                // FIXME: Trap!!!
+                throw std::string("Fora da memoria: " + Debug::int_to_hex(controller.getPC()));
+            }
         }
 
         return true;
     }
 
   private:
-    uint32_t fetch() {
-        auto v = bus.load(controller.getPC(), MemoryAccessWidth::Word);
-        if (v.has_value()) {
-            return v.value();
-        } else {
-            throw std::string("Fora da memoria: " + Debug::int_to_hex(controller.getPC()));
-        }
-    }
-
     InstructionType* decode(const uint32_t& i) {
 
         if (controller.getResetSignal()) {
@@ -90,7 +103,6 @@ class Riscv32 {
                         return new InstructionTypeCSR(i, x);
                     }
                 default:
-                    controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, opcode));
                     break;
             }
         }

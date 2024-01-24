@@ -12,10 +12,20 @@ class TLB {
 
     __TLB_data bufer[MAX_TLB];
 
-    uint32_t tlb_hit{0}, tlb_miss{0};
+    uint32_t tlb_hit{0}, tlb_miss{0}, pid{0};
 
   public:
     TLB() = default;
+
+    bool set(const uint32_t& pid) {
+
+        if (this->pid == pid)
+            return false;
+
+        this->flush();
+        this->pid = pid;
+        return true;
+    }
 
     void flush() {
         for (uint32_t i{0}; i < MAX_TLB; i++) {
@@ -63,16 +73,16 @@ class TLB {
      * TLB miss -> nao esta na TLB
      *
      * @param vAddress Virtual Address
-     * @param access bits protection URWX
+     * @param protection bits protection URWX
      * @return const std::tuple<int32_t, uint32_t> (MMU_OK, physic addr) | (MMU_TLB_MISS, 0) | (MMU_FORBIDEN_*, 0)
      */
-    const std::tuple<int32_t, uint32_t> find(const uint32_t& vAddress, const uint8_t& access) {
+    const std::tuple<int32_t, uint32_t> find(const uint32_t& vAddress, const uint8_t& protection) {
 
         // Confere o Translation Lookaside Buffer (TLB)
         for (uint8_t i{0}; i < MAX_TLB; i++) {
 
             if ((bufer[i].valid) && (MMU_GET_PAGE(vAddress) == bufer[i].page)) { // entrada existe e é valida
-                int32_t v = checkPermission(bufer[i].protection, access);        // verifica se acesso e permitido
+                int32_t v = checkPermission(bufer[i].protection, protection);    // verifica se acesso e permitido
                 if (v == 0) {
                     // TLB hit (encontrou no TLB)
                     tlb_hit++;

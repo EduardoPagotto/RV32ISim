@@ -1,11 +1,10 @@
 #pragma once
-#include "Memory2.hpp"
 #include "TLB.hpp"
 #include "defs.hpp"
 
 struct VirtualPageLv0 {
     VirtualPageLv0() = default;
-    TablePageEntry ptes[MAX_PAGES] = {0};
+    TablePageEntry ptes[MAX_PAGES];
 };
 
 struct ProcessData {
@@ -18,7 +17,7 @@ class MMU {
   private:
     TLB tlb;
     ProcessData procs[MAX_PROC];
-    uint32_t last_pid{0}, page_fault{0}, page_hit{0}, page_forbiden{0};
+    uint32_t page_fault{0}, page_hit{0}, page_forbiden{0};
 
   public:
     MMU() = default;
@@ -29,18 +28,17 @@ class MMU {
      *
      * @param vAddress Virtual Address
      * @param pid PID do processo
-     * @param access bits protection URWX
+     * @param protection bits protection URWX
      * @return std::tuple<int32_t, uint32_t> (MMU_OK, physic addr) | (MMU_FORBIDEN_*, 0) | (MMU_PAGE_FAULT, 0)
      */
-    std::tuple<int32_t, uint32_t> createEntry(const uint32_t& vAddress, const uint32_t& pid, const uint32_t& access) {
+    std::tuple<int32_t, uint32_t> createEntry(const uint32_t& vAddress, const uint32_t& pid,
+                                              const uint8_t& protection) {
 
         const uint32_t page{MMU_GET_PAGE(vAddress)};
         const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
         const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
 
-        if (pid != last_pid) {
-            tlb.flush();
-        }
+        tlb.set(pid);
 
         ProcessData* proc = &procs[pid];
         VirtualPageLv0* ptrVirtualPageLv0 = proc->virtualPageLv1[lv1];
@@ -61,7 +59,7 @@ class MMU {
 
                     tablePage.valid = true;
                     tablePage.referenced = 0;
-                    tablePage.protection = access;
+                    tablePage.protection = protection;
                     tablePage.framePage = j;
 
                     tlb.save(tablePage, page);
@@ -84,20 +82,29 @@ class MMU {
         return std::make_tuple(MMU_FORBIDEN_ACCESS, 0);
     }
 
+    /**
+     * @brief Get the Physical Address object
+     *
+     * @param vAddress virtual address
+     * @param pid pid of app
+     * @param protection bits protection URWX
+     * @return const std::tuple<int32_t, uint32_t> (MMU_OK, physic addr) | (MMU_FORBIDEN_*, 0) | (MMU_PAGE_FAULT, 0)
+     */
     const std::tuple<int32_t, uint32_t> getPhysicalAddress(const uint32_t& vAddress, const uint32_t& pid,
-                                                           const uint8_t& access) { // access URWX
+                                                           const uint8_t& protection) { // protection URWX
 
         // verifica o TLB
-        auto result = tlb.find(vAddress, access);
+        tlb.set(pid);
+        auto result = tlb.find(vAddress, protection);
         const int32_t error = std::get<0>(result);
         if (error == MMU_TLB_MISS) {
 
             // Procura nos pages disponiveis
-            auto result2 = this->getFromTables(vAddress, pid, access);
+            auto result2 = this->getFromTables(vAddress, pid, protection);
             if (std::get<0>(result2) == MMU_PAGE_FAULT) {
 
-                // cria nova entrada
-                auto result3 = this->createEntry(vAddress, pid, access);
+                // FIXME: cria nova entrada no SO nao aqui!!!!
+                auto result3 = this->createEntry(vAddress, pid, protection);
                 return result3;
             }
 
@@ -111,20 +118,16 @@ class MMU {
     }
 
   private:
-    // Page fault -> frame memory sem mapeamento, verificar swap
-    // Page hit -> frame memory encontrado
-    // Access fail -> tentativa de acesso nao autorizado ou nao existente
-
     /**
      * @brief Get physical address from Tables
      *
      * @param vAddress Virtual Address
      * @param pid PID do processo
-     * @param access bits protection URWX
+     * @param protection bits protection URWX
      * @return const std::tuple<int32_t, uint32_t>  (MMU_OK, physic addr) | MMU_PAGE_FAULT,0 |(MMU_FORBIDEN_*, 0)
      */
     const std::tuple<int32_t, uint32_t> getFromTables(const uint32_t& vAddress, const uint32_t& pid,
-                                                      const uint8_t& access) { // access URWX
+                                                      const uint8_t& protection) { // protection URWX
         const uint32_t page{MMU_GET_PAGE(vAddress)};
         const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
         const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
@@ -142,7 +145,7 @@ class MMU {
             return std::make_tuple(MMU_PAGE_FAULT, 0);
         }
 
-        uint8_t v = checkPermission(tablePage.protection, access);
+        uint8_t v = checkPermission(tablePage.protection, protection);
         if (v == 0) {
             tablePage.referenced++;
             tlb.save(tablePage, MMU_GET_PAGE(vAddress));
