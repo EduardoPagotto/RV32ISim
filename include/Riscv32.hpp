@@ -4,12 +4,15 @@
 #include "InstructAtom.hpp"
 #include "InstructB.hpp"
 #include "InstructCSR.hpp"
-#include "InstructI.hpp"
+#include "InstructIJALR.hpp"
+#include "InstructILoad.hpp"
+#include "InstructIULAI.hpp"
 #include "InstructInterrupt.hpp"
 #include "InstructJ.hpp"
 #include "InstructR.hpp"
 #include "InstructS.hpp"
-#include "InstructU.hpp"
+#include "InstructUAUIPC.hpp"
+#include "InstructULUI.hpp"
 #include "mmu/MMU.hpp"
 
 class Riscv32 {
@@ -83,12 +86,15 @@ class Riscv32 {
                 case OPC_ULA:
                     return new InstructR(opcode, i, x); // Instrucoes tipo R
                 case OPC_LOAD:
+                    return new InstructILoad(opcode, i, x); // Instrucoes tipo I
                 case OPC_ULAI:
+                    return new InstructIULAI(opcode, i, x); // Instrucoes tipo I
                 case OPC_JALR:
-                    return new InstructI(opcode, i, x); // Instrucoes tipo I
+                    return new InstructIJALR(opcode, i, x); // Instrucoes tipo I
                 case OPC_AUIPC:
+                    return new InstructUAUPC(opcode, i); // Instrucoes tipo U
                 case OPC_LUI:
-                    return new InstructU(opcode, i); // Instrucoes tipo U
+                    return new InstructULUI(opcode, i); // Instrucoes tipo U
                 case OPC_SAVE:
                     return new InstructS(opcode, i, x); // Instrucoes tipo S
                 case OPC_BRANCH:
