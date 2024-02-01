@@ -10,13 +10,13 @@ struct WriteBackData {
     bool isValid;
 };
 
-class InstructionType {
+class Instruct {
   protected:
     uint32_t opcode;
 
   public:
-    InstructionType(const uint32_t& o) : opcode(o) {}
-    virtual ~InstructionType() = default;
+    Instruct(const uint32_t& o) : opcode(o) {}
+    virtual ~Instruct() = default;
     virtual void execute(Controller& controller) = 0;
     virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) = 0;
 

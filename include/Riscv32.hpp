@@ -1,15 +1,15 @@
 #pragma once
 #include "Bus.hpp"
 #include "Debug.hpp"
-#include "InstructionTypeAtomic.hpp"
-#include "InstructionTypeB.hpp"
-#include "InstructionTypeCSR.hpp"
-#include "InstructionTypeI.hpp"
-#include "InstructionTypeInt.hpp"
-#include "InstructionTypeJ.hpp"
-#include "InstructionTypeR.hpp"
-#include "InstructionTypeS.hpp"
-#include "InstructionTypeU.hpp"
+#include "InstructAtom.hpp"
+#include "InstructB.hpp"
+#include "InstructCSR.hpp"
+#include "InstructI.hpp"
+#include "InstructInterrupt.hpp"
+#include "InstructJ.hpp"
+#include "InstructR.hpp"
+#include "InstructS.hpp"
+#include "InstructU.hpp"
 #include "mmu/MMU.hpp"
 
 class Riscv32 {
@@ -39,7 +39,7 @@ class Riscv32 {
                     Debug::printAsHex(controller.getPC(), instr);
 
                     // DECODE
-                    InstructionType* pipeline = this->decode(instr);
+                    Instruct* pipeline = this->decode(instr);
                     if (pipeline == nullptr) {
                         controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, (instr & 0x7f)));
                         return true;
@@ -73,7 +73,7 @@ class Riscv32 {
     }
 
   private:
-    InstructionType* decode(const uint32_t& i) {
+    Instruct* decode(const uint32_t& i) {
 
         if (controller.getResetSignal()) {
             // TODO: implementar
@@ -81,29 +81,29 @@ class Riscv32 {
             uint32_t opcode = (i & 0x7f);
             switch (opcode) {
                 case OPC_ULA:
-                    return new InstructionTypeR(opcode, i, x); // Instrucoes tipo R
+                    return new InstructR(opcode, i, x); // Instrucoes tipo R
                 case OPC_LOAD:
                 case OPC_ULAI:
                 case OPC_JALR:
-                    return new InstructionTypeI(opcode, i, x); // Instrucoes tipo I
+                    return new InstructI(opcode, i, x); // Instrucoes tipo I
                 case OPC_AUIPC:
                 case OPC_LUI:
-                    return new InstructionTypeU(opcode, i); // Instrucoes tipo U
+                    return new InstructU(opcode, i); // Instrucoes tipo U
                 case OPC_SAVE:
-                    return new InstructionTypeS(opcode, i, x); // Instrucoes tipo S
+                    return new InstructS(opcode, i, x); // Instrucoes tipo S
                 case OPC_BRANCH:
-                    return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B
+                    return new InstructB(opcode, i, x); // Instrucoes tipo B
                 case OPC_JAL:
-                    return new InstructionTypeJ(opcode, i); // Instrucoes tipo J
+                    return new InstructJ(opcode, i); // Instrucoes tipo J
                     // case OPC_FENCE: // TODO: ler doc
                     //     break;
                 case OPC_ATOMIC:
-                    return new InstructionTypeAtomic(opcode, i, x); // RV32A (Atomic instrution)
+                    return new InstructAtom(opcode, i, x); // RV32A (Atomic instrution)
                 case OPC_SYSTEM:
-                    if (InstructionType::calcFunct3(i) == 0) {
-                        return new InstructionTypeInt(i, x);
+                    if (Instruct::calcFunct3(i) == 0) {
+                        return new InstructInterrupt(i, x);
                     } else {
-                        return new InstructionTypeCSR(i, x);
+                        return new InstructCSR(i, x);
                     }
                 default:
                     break;

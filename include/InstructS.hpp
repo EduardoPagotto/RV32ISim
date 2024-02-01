@@ -1,7 +1,7 @@
 #pragma once
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeS : public InstructionType {
+class InstructS : public Instruct {
   private:
     uint8_t rs1{0}, rs2{0}, funct3{0};
     int32_t imm{0};
@@ -13,7 +13,7 @@ class InstructionTypeS : public InstructionType {
     MemoryAccessWidth width;
 
   public:
-    InstructionTypeS(const uint32_t& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructS(const uint32_t& o, const uint32_t& i, uint32_t* x) : Instruct(o) {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);

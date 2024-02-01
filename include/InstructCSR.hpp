@@ -1,8 +1,8 @@
 #pragma once
 #include "Debug.hpp"
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeCSR : public InstructionType {
+class InstructCSR : public Instruct {
   private:
     uint8_t rd{0}, rs1{0}, funct3{0}; // FIXME ver se zimm ??
     int32_t imm;
@@ -10,7 +10,7 @@ class InstructionTypeCSR : public InstructionType {
     uint32_t val_rd{0};
 
   public:
-    InstructionTypeCSR(const uint32_t& o, uint32_t* x) : InstructionType(o) {
+    InstructCSR(const uint32_t& o, uint32_t* x) : Instruct(o) {
         rd = calcRd(o);
         rs1 = calcRs1(o);
         val_rs1 = x[rs1];

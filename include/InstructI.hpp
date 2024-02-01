@@ -1,8 +1,8 @@
 #pragma once
 #include "Debug.hpp"
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeI : public InstructionType {
+class InstructI : public Instruct {
   private:
     uint8_t rd{0}, funct3{0}, rs1{0};
     int32_t imm{0};
@@ -15,7 +15,7 @@ class InstructionTypeI : public InstructionType {
     bool valSigned{false};
 
   public:
-    InstructionTypeI(const uint32_t& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructI(const uint32_t& o, const uint32_t& i, uint32_t* x) : Instruct(o) {
 
         rd = calcRd(i);
         funct3 = calcFunct3(i);

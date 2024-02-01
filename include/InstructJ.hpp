@@ -1,7 +1,7 @@
 #pragma once
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeJ : public InstructionType {
+class InstructJ : public Instruct {
   private:
     uint8_t rd{0};
     int32_t imm{0};
@@ -9,7 +9,7 @@ class InstructionTypeJ : public InstructionType {
     uint32_t address{0};
 
   public:
-    InstructionTypeJ(const uint32_t& o, const uint32_t& i) : InstructionType(o) {
+    InstructJ(const uint32_t& o, const uint32_t& i) : Instruct(o) {
         rd = calcRd(i);
         imm = ((i >> 30) << 20) |          //  instr[20]
               (((i >> 12) & 0xff) << 12) | //  instr[19:12]

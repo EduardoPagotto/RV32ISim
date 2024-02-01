@@ -1,10 +1,10 @@
 #pragma once
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeInt : public InstructionType {
+class InstructInterrupt : public Instruct {
 
   public:
-    InstructionTypeInt(const uint32_t& o, uint32_t* x) : InstructionType(o) {}
+    InstructInterrupt(const uint32_t& o, uint32_t* x) : Instruct(o) {}
 
     virtual void execute(Controller& controller) override {
 

@@ -1,8 +1,8 @@
 #pragma once
 #include "Debug.hpp"
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeAtomic : public InstructionType {
+class InstructAtom : public Instruct {
   private:
     uint8_t rd{0}, funct3{0}, funct5{0}, rs1{0}, rs2{0};
     uint32_t val_rs1{0}, val_rs2{0};
@@ -14,7 +14,7 @@ class InstructionTypeAtomic : public InstructionType {
     uint32_t address{0};
 
   public:
-    InstructionTypeAtomic(const uint32_t& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructAtom(const uint32_t& o, const uint32_t& i, uint32_t* x) : Instruct(o) {
         rd = calcRd(i);
         funct3 = calcFunct3(i);
         funct5 = calcFunct5(i);

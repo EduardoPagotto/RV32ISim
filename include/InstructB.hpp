@@ -1,14 +1,14 @@
 #pragma once
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeB : public InstructionType {
+class InstructB : public Instruct {
   private:
     uint8_t rs1{0}, rs2{0}, funct3{0};
     int32_t imm{0};
     uint32_t val_rs1{0}, val_rs2{0};
 
   public:
-    InstructionTypeB(const uint32_t& o, const uint32_t& i, uint32_t* x) : InstructionType(o) {
+    InstructB(const uint32_t& o, const uint32_t& i, uint32_t* x) : Instruct(o) {
         funct3 = calcFunct3(i);
         rs1 = calcRs1(i);
         rs2 = calcRs2(i);

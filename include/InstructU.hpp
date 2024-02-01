@@ -1,15 +1,15 @@
 #pragma once
 #include "Debug.hpp"
-#include "InstructionType.hpp"
+#include "Instruct.hpp"
 
-class InstructionTypeU : public InstructionType {
+class InstructU : public Instruct {
   private:
     uint8_t rd{0};
     int32_t imm{0};
     uint32_t address{0};
 
   public:
-    InstructionTypeU(const uint32_t& o, const uint32_t& i) : InstructionType(o) {
+    InstructU(const uint32_t& o, const uint32_t& i) : Instruct(o) {
         rd = calcRd(i);
         imm = ((i >> 12) & 0xfffff) << 12;
     }
