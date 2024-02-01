@@ -36,4 +36,5 @@ class InstructionType {
     static inline uint8_t calcRs1(const uint32_t& i) { return (i >> 15) & 0x1f; }
     static inline uint8_t calcRs2(const uint32_t& i) { return (i >> 20) & 0x1f; }
     static inline uint8_t calcFunct7(const uint32_t& i) { return ((i >> 25) & 0x7f); }
+    static inline uint8_t calcFunct5(const uint32_t i) { return i >> 27; }
 };

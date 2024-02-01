@@ -52,3 +52,11 @@ riscv64-unknow-elf-objcopy -O ihex hello hello.hex
 
 qemu-system-riscv32 -machine help
 qemu-system-riscv32 -machine sifive_e -nographic -bios none -kenel teste -->
+
+
+
+
+
+carregue atomicamente um valor de dados sinalizado de 32 bits do endereço em rs1, coloque o valor no registro rd, 
+troque o valor carregado e o valor original sinalizado de 32 bits em rs2 e, 
+em seguida, armazene o resultado de volta no endereço em rs1.

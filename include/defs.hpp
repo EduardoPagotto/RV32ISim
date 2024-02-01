@@ -12,6 +12,7 @@
 #define OPC_JAL 0x6f
 #define OPC_FENCE 0x0f
 #define OPC_SYSTEM 0x73
+#define OPC_ATOMIC 0x2f // RV32A
 
 // OpCode Interrupt
 #define OPC_ECALL 0b00000000000000000000000001110011  // syscall

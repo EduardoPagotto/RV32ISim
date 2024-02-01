@@ -1,6 +1,7 @@
 #pragma once
 #include "Bus.hpp"
 #include "Debug.hpp"
+#include "InstructionTypeAtomic.hpp"
 #include "InstructionTypeB.hpp"
 #include "InstructionTypeCSR.hpp"
 #include "InstructionTypeI.hpp"
@@ -94,8 +95,10 @@ class Riscv32 {
                     return new InstructionTypeB(opcode, i, x); // Instrucoes tipo B
                 case OPC_JAL:
                     return new InstructionTypeJ(opcode, i); // Instrucoes tipo J
-                // case OPC_FENCE: // TODO: ler doc
-                //     break;
+                    // case OPC_FENCE: // TODO: ler doc
+                    //     break;
+                case OPC_ATOMIC:
+                    return new InstructionTypeAtomic(opcode, i, x); // RV32A (Atomic instrution)
                 case OPC_SYSTEM:
                     if (InstructionType::calcFunct3(i) == 0) {
                         return new InstructionTypeInt(i, x);
