@@ -1,8 +1,23 @@
 #pragma once
 #include "Bus.hpp"
 #include "Controller.hpp"
-#include "defs.hpp"
 #include "mmu/MMU.hpp"
+
+// OpCode RV32I
+#define OPC_LOAD 0x03
+#define OPC_ULAI 0x13
+#define OPC_AUIPC 0x17
+#define OPC_SAVE 0x23
+#define OPC_ULA 0x33
+#define OPC_LUI 0x37
+#define OPC_BRANCH 0x63
+#define OPC_JALR 0x67
+#define OPC_JAL 0x6f
+#define OPC_FENCE 0x0f
+#define OPC_SYSTEM 0x73
+
+// OpCode RV32A
+#define OPC_ATOMIC 0x2f
 
 struct WriteBackData {
     uint8_t rd;

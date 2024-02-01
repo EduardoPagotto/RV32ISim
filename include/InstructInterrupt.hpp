@@ -1,6 +1,13 @@
 #pragma once
 #include "Instruct.hpp"
 
+// OpCode Interrupt
+#define OPC_ECALL 0b00000000000000000000000001110011  // syscall
+#define OPC_EBREAK 0b00000000000100000000000001110011 // syscall
+#define OPC_SRET 0b00010000001000000000000001110011   // trap return
+#define OPC_MRET 0b00110000001000000000000001110011   // trap return
+#define OPC_WFI 0b00010000010100000000000001110011    // Wait for Interruption
+
 class InstructInterrupt : public Instruct {
 
   public:

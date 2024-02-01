@@ -2,6 +2,14 @@
 #include "Debug.hpp"
 #include "Instruct.hpp"
 
+// OpCode CSRs
+#define OPC_CSRRW 0x01 // in func3
+#define OPC_CSRRS 0x02
+#define OPC_CSRRC 0x03
+#define OPC_CSRRWI 0x05
+#define OPC_CSRRSI 0x06
+#define OPC_CSRRCI 0x07
+
 class InstructCSR : public Instruct {
   private:
     uint8_t rd{0}, rs1{0}, funct3{0}; // FIXME ver se zimm ??
