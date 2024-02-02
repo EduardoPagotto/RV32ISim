@@ -17,6 +17,13 @@ class TLB {
   public:
     TLB() = default;
 
+    /**
+     * @brief Flush TLB if change of pid
+     *
+     * @param pid
+     * @return true Different pid flush entire TLB
+     * @return false Same pid no changes
+     */
     bool set(const uint32_t& pid) {
 
         if (this->pid == pid)
@@ -27,6 +34,10 @@ class TLB {
         return true;
     }
 
+    /**
+     * @brief Flush entire TLB
+     *
+     */
     void flush() {
         for (uint32_t i{0}; i < MAX_TLB; i++) {
             bufer[i].valid = false;
@@ -38,6 +49,12 @@ class TLB {
         }
     }
 
+    /**
+     * @brief Save in TLS availble
+     *
+     * @param pte TablePageEntry
+     * @param page Page
+     */
     void save(const TablePageEntry& pte, const uint32_t& page) {
 
         uint32_t minimalRef{0xFFFFFFFF};

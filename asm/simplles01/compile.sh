@@ -2,10 +2,10 @@
 mkdir -p ./build
 
 # Compile
-clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -static -c -o ./build/app01.o app01.s
+clang --target=riscv32 -march=rv32ia -nostdlib -mabi=ilp32 -static -c -o ./build/app01.o app01.s
 
 # Link
-clang --target=riscv32 -march=rv32i -nostdlib -mabi=ilp32 -L. -Wl,-T,mem_cfg.ld -o ./build/app01 ./build/app01.o 
+clang --target=riscv32 -march=rv32ia -nostdlib -mabi=ilp32 -L. -Wl,-T,mem_cfg.ld -o ./build/app01 ./build/app01.o 
 
 ## Utils from ELF
 llvm-objdump -D ./build/app01  > ./build/app01_dump.s # dissasembler

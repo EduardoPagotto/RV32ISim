@@ -82,7 +82,7 @@ class InstructILoad : public Instruct {
 
         const auto result = mmu.getPhysicalAddress(address, 0, MMU_ACC_READ | MMU_ACC_SUPER);
         if (std::get<0>(result) == MMU_OK) {
-            const auto result2 = bus.load(std::get<1>(result), MemoryAccessWidth::Word, valSigned);
+            const auto result2 = bus.load(std::get<1>(result), width, valSigned);
             if (std::get<0>(result2) == MMU_OK)
                 return WriteBackData{rd, std::get<1>(result2), true};
         }

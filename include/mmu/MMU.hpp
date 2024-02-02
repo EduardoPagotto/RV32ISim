@@ -15,9 +15,9 @@ struct ProcessData {
 
 class MMU {
   private:
-    TLB tlb;
-    ProcessData procs[MAX_PROC];
-    uint32_t page_fault{0}, page_hit{0}, page_forbiden{0};
+    TLB m_tlb;
+    ProcessData m_procs[MAX_PROC];
+    uint32_t m_page_fault{0}, m_page_hit{0}, m_page_forbiden{0};
 
   public:
     MMU() = default;
@@ -38,9 +38,9 @@ class MMU {
         const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
         const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
 
-        tlb.set(pid);
+        m_tlb.set(pid);
 
-        ProcessData* proc = &procs[pid];
+        ProcessData* proc = &m_procs[pid];
         VirtualPageLv0* ptrVirtualPageLv0 = proc->virtualPageLv1[lv1];
         if (ptrVirtualPageLv0 == nullptr) {
             ptrVirtualPageLv0 = new VirtualPageLv0;
@@ -62,7 +62,7 @@ class MMU {
                     tablePage.protection = protection;
                     tablePage.framePage = j;
 
-                    tlb.save(tablePage, page);
+                    m_tlb.save(tablePage, page);
 
                     return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(j, vAddress));
                 } else {
@@ -78,7 +78,7 @@ class MMU {
             // ir no tables
         }
 
-        page_forbiden++;
+        m_page_forbiden++;
         return std::make_tuple(MMU_FORBIDEN_ACCESS, 0);
     }
 
@@ -94,8 +94,8 @@ class MMU {
                                                            const uint8_t& protection) { // protection URWX
 
         // verifica o TLB
-        tlb.set(pid);
-        auto result = tlb.find(vAddress, protection);
+        m_tlb.set(pid);
+        auto result = m_tlb.find(vAddress, protection);
         const int32_t error = std::get<0>(result);
         if (error == MMU_TLB_MISS) {
 
@@ -110,7 +110,7 @@ class MMU {
 
             return result2;
         } else if (error < 0) {
-            page_forbiden++;
+            m_page_forbiden++;
         }
 
         // TLB_hit ou Forbiden
@@ -132,7 +132,7 @@ class MMU {
         const uint32_t lv1{MMU_GET_LV1_INDEX(page)};
         const uint32_t lv0{MMU_GET_LV0_INDEX(page)};
 
-        ProcessData* proc = &procs[pid];
+        ProcessData* proc = &m_procs[pid];
         VirtualPageLv0* ptrVirtualPageLv0 = proc->virtualPageLv1[lv1];
         if (ptrVirtualPageLv0 == nullptr) {
             ptrVirtualPageLv0 = new VirtualPageLv0;
@@ -141,20 +141,20 @@ class MMU {
 
         TablePageEntry& tablePage = ptrVirtualPageLv0->ptes[lv0];
         if (!tablePage.valid) {
-            page_fault++;
+            m_page_fault++;
             return std::make_tuple(MMU_PAGE_FAULT, 0);
         }
 
         uint8_t v = checkPermission(tablePage.protection, protection);
         if (v == 0) {
             tablePage.referenced++;
-            tlb.save(tablePage, MMU_GET_PAGE(vAddress));
+            m_tlb.save(tablePage, MMU_GET_PAGE(vAddress));
 
             // physical memory address
-            page_hit++;
+            m_page_hit++;
             return std::make_tuple(MMU_OK, MMU_GET_MEM_ADDRESS(tablePage.framePage, vAddress));
         } else {
-            page_forbiden++;
+            m_page_forbiden++;
         }
 
         return std::make_tuple(v, 0); // Forbiden Access

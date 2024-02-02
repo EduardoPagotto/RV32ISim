@@ -4,6 +4,15 @@
 _start:
     la sp,_stack_top
 
+    la s1, _free_ram
+
+    nop
+    li a5, 01
+    amoswap.w.aq a5, a5, (s1)
+    nop
+
+
+
     la t0, data01
     lw t1, 4(t0)
     lw t2, -4(t0)
