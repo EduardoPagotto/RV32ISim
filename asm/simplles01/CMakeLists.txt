@@ -12,7 +12,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-set(GENERATED_FILES app01.s)
+set(GENERATED_FILES src/app01.s)
 set(EXECUTABLE ${PROJECT_NAME}.elf)
 
 add_executable(${EXECUTABLE} ${GENERATED_FILES})
@@ -30,17 +30,17 @@ target_compile_options(${EXECUTABLE} PRIVATE
 )
 
 target_link_options(${EXECUTABLE} PRIVATE
-        -T${CMAKE_SOURCE_DIR}/mem_cfg.ld
+        -T${CMAKE_SOURCE_DIR}/src/mem_cfg.ld
         --target=riscv32
         -march=rv32ia
         -nostdlib
         -mabi=ilp32
         -L.
         -Wl
-        # #-Wl,-Map=${PROJECT_NAME}.map,--cref
-        # -Wl,--gc-sections
+        #-Map=${PROJECT_NAME}.map
+        # --cref
+        #--gc-sections
 )
-
 
 # Create aux files
 add_custom_command(TARGET ${EXECUTABLE}
