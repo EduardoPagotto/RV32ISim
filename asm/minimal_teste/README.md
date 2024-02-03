@@ -18,7 +18,7 @@ clang --target=riscv64 -march=rv64i -nostdlib  -static -T linker.ld -nostdlib ke
 
 ## Runing
 ```bash
-qemu-system-riscv64 -machine virt -bios none -kernel kernel.elf -serial mon:stdio
+qemu-system-riscv64 -cpu rv64 -machine virt -bios none -kernel kernel.elf -serial mon:stdio
 ```
 
 refs:
