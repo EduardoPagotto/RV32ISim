@@ -8,11 +8,17 @@ class InstructAtom : public Instruct {
     uint32_t val_rs1{0}, val_rs2{0};
 
     bool aq{false}, rl{false};
-    MemoryAccessWidth width;
     bool valSigned{false};
     uint32_t* regs;
 
     // saida
+    void debug_flags() {
+        if (aq)
+            std::cout << ".aq";
+
+        if (rl)
+            std::cout << ".rl";
+    }
 
   public:
     InstructAtom(const uint32_t& o, const uint32_t& i, uint32_t* x) : Instruct(o) {
@@ -39,95 +45,104 @@ class InstructAtom : public Instruct {
             switch (funct5) {
                 case 0b00010: { // LR.W
 
-                    // FIXME: implementar trava no acesso a memoria
-                    // address = val_rs1;
-                    width = MemoryAccessWidth::Word;
                     valSigned = true;
 
                     std::cout << "LR.W";
-                    if (aq)
-                        std::cout << ".aq";
-
-                    if (rl)
-                        std::cout << ".rl";
-
+                    this->debug_flags();
                     std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs1];
-
                 } break;
 
                 case 0b00011: { // SC.W
 
-                    // FIXME: implementar trava na memoria
-                    // address = val_rs1;
-                    width = MemoryAccessWidth::Word;
-
                     std::cout << "SC.W";
-                    if (aq)
-                        std::cout << ".aq";
-
-                    if (rl)
-                        std::cout << ".rl";
-
+                    this->debug_flags();
                     std::cout << " " << Debug::alias[rd] << ", (" << Debug::alias[rs1] << "), " << Debug::alias[rs2];
-
                 } break;
 
                 case 0b00001: { // AMOSWAP.W
 
-                    // TODO: implementar
-                    // address = val_rs1;
-                    width = MemoryAccessWidth::Word;
                     valSigned = true;
 
                     std::cout << "AMOSWAP.W";
-                    if (aq)
-                        std::cout << ".aq";
-
-                    if (rl)
-                        std::cout << ".rl";
-
+                    this->debug_flags();
                     std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
                               << ")";
                 } break;
 
                 case 0b00000: // AMOADD.W
-                              // TODO: implementar
+
+                    // TODO: implementar
+                    valSigned = true;
+
                     std::cout << "AMOADD.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
                     break;
 
                 case 0b00100: // AMOXOR.W
-                              // TODO: implementar
+
+                    // TODO: implementar
+
                     std::cout << "AMOXOR.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
                     break;
 
                 case 0b01100: // AMOAND.W
-                              // TODO: implementar
+
+                    // TODO: implementar
+
                     std::cout << "AMOAND.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
                     break;
 
                 case 0b01000: // AMOOR.W
                               // TODO: implementar
                     std::cout << "AMOOR.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
+
                     break;
 
                 case 0b10000: // AMOMIN.W
                               // TODO: implementar
                     std::cout << "AMOMIN.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
+
                     break;
 
                 case 0b10100: // AMOMAX.W
                               // TODO: implementar
                     std::cout << "AMOMAX.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
+
                     break;
 
                 case 0b11000: // AMOMIMU.W
                               // TODO: implementar
                     std::cout << "AMOMIMU.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
+
                     break;
 
                 case 0b11100: // AMOMAXU.W
                               // TODO: implementar
                     std::cout << "AMOMAXU.W ";
+                    this->debug_flags();
+                    std::cout << " " << Debug::alias[rd] << ", " << Debug::alias[rs2] << ", (" << Debug::alias[rs1]
+                              << ")";
+
                     break;
 
                 default:
@@ -136,14 +151,11 @@ class InstructAtom : public Instruct {
                     break;
             }
         }
-
-        std::cout << Debug::alias[rd] << ", " << Debug::alias[rs1] << ", " << Debug::alias[rs2 & 0x1f];
     }
 
     virtual const WriteBackData memoryAccess(Bus& bus, MMU& mmu, Controller& controller) override {
 
-        if (((width == MemoryAccessWidth::Word && val_rs1 & 0b11) ||
-             (width == MemoryAccessWidth::HalfWord && val_rs1 & 0b01))) {
+        if (val_rs1 & 0b11) {
 
             controller.trapException(Trap(val_rs1, MCause::LoadAddressMisaligned, opcode));
             return WriteBackData{0, 0, false};
@@ -155,43 +167,85 @@ class InstructAtom : public Instruct {
             switch (funct5) {
                 case 0b00010: // LR.W
                 {
-                    // FIXME: verificar trava
-                    const auto [erro, value] = bus.load(vAddress, width, valSigned);
-
+                    // FIXME: falta a trava do memoria
+                    const auto [erro, value] = bus.load(vAddress, MemoryAccessWidth::Word, valSigned);
                     if (erro == MMU_OK)
                         return WriteBackData{rd, value, true};
+
                 } break;
 
                 case 0b00011: // SC.W
                 {
                     // FIXME: falta a trava do memoria
-                    auto [error, value] = bus.store(vAddress, width, val_rs2);
-
-                    if (error == MMU_OK) { // FIXME: implementar corretamente
+                    auto [error, value] = bus.store(vAddress, MemoryAccessWidth::Word, val_rs2);
+                    if (error == MMU_OK) { //
                         // FIXME: se trava falhar rd deve ser diferente de zero!!!!
                         return WriteBackData{rd, 0, true};
                     }
 
                 } break;
-                case 0b00001: { // AMOSWAP.W
-
-                    // FIXME: verificar trava e sinal
-                    const auto [erro, valLoad] = bus.load(vAddress, width, valSigned);
+                case 0b00001: // AMOSWAP.W
+                {
+                    // FIXME: falta a trava do memoria
+                    const auto [erro, valLoad] = bus.load(vAddress, MemoryAccessWidth::Word, valSigned);
 
                     if (erro == MMU_OK) {
-
-                        // FIXME: falta a trava do memoria
-                        const auto [erro, _] = bus.store(vAddress, width, val_rs2);
+                        const auto [erro, _] = bus.store(vAddress, MemoryAccessWidth::Word, val_rs2);
 
                         if (erro == MMU_OK) { // FIXME: implementar corretamente
-
-                            // val_rs2 = valLoad;
                             regs[rs2] = valLoad;
-
                             return WriteBackData{rd, valLoad, true};
                         }
                     }
                 }
+                case 0b00000: // AMOADD.W
+                {
+                    // FIXME: falta a trava do memoria
+                    const auto [erro, valLoad] = bus.load(vAddress, MemoryAccessWidth::Word, valSigned);
+
+                    if (erro == MMU_OK) {
+
+                        const auto [erro, _] = bus.store(vAddress, MemoryAccessWidth::Word, valLoad + val_rs2);
+                        if (erro == MMU_OK) // FIXME: implementar corretamente
+                            return WriteBackData{rd, valLoad, true};
+                    }
+
+                } break;
+
+                case 0b00100: // AMOXOR.W
+                    break;
+                case 0b01100: // AMOAND.W
+                {
+                    // FIXME: falta a trava do memoria
+                    const auto [erro, valLoad] = bus.load(vAddress, MemoryAccessWidth::Word, valSigned);
+
+                    if (erro == MMU_OK) {
+
+                        const auto [erro, _] = bus.store(vAddress, MemoryAccessWidth::Word, valLoad & val_rs2);
+                        if (erro == MMU_OK) // FIXME: implementar corretamente
+                            return WriteBackData{rd, valLoad, true};
+                    }
+
+                } break;
+                case 0b01000: // AMOOR.W
+                {
+                    // FIXME: falta a trava do memoria
+                    const auto [erro, valLoad] = bus.load(vAddress, MemoryAccessWidth::Word, valSigned);
+                    if (erro == MMU_OK) {
+
+                        const auto [erro, _] = bus.store(vAddress, MemoryAccessWidth::Word, valLoad | val_rs2);
+                        if (erro == MMU_OK) // FIXME: implementar corretamente
+                            return WriteBackData{rd, valLoad, true};
+                    }
+                } break;
+                case 0b10000: // AMOMIN.W
+                    break;
+                case 0b10100: // AMOMAX.W
+                    break;
+                case 0b11000: // AMOMIMU.W
+                    break;
+                case 0b11100: // AMOMAXU.W
+                    break;
             }
         }
 

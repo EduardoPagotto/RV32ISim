@@ -19,6 +19,7 @@
 /VS/ChimeraEngine.VC.db
 /Debug
 /VS/ChimeraEngine.VC.VC.opendb
-/build
-/bin
-/oldcode
+
+build
+bin
+oldcode

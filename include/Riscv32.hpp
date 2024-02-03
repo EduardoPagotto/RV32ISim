@@ -43,10 +43,8 @@ class Riscv32 {
 
                     // DECODE
                     Instruct* pipeline = this->decode(instr);
-                    if (pipeline == nullptr) {
-                        controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, (instr & 0x7f)));
+                    if (pipeline == nullptr)
                         return true;
-                    }
 
                     // EXECUTE
                     pipeline->execute(controller);
@@ -112,6 +110,7 @@ class Riscv32 {
                         return new InstructCSR(i, x);
                     }
                 default:
+                    controller.trapException(Trap(controller.getPC(), MCause::IllegalInstruction, (i & 0x7f)));
                     break;
             }
         }

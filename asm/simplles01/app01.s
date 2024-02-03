@@ -5,6 +5,7 @@ _start:
     la sp,_stack_top
 
     la s1, _free_ram
+    sw zero, (s1)
 
     nop
     li a5, 01

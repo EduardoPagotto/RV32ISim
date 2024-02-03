@@ -61,16 +61,16 @@ class InstructS : public Instruct {
             return WriteBackData{0, 0, false};
         }
 
-        const auto result = mmu.getPhysicalAddress(address, 0, MMU_ACC_WRITE | MMU_ACC_SUPER);
-        if (std::get<0>(result) == MMU_OK) {
-            auto [error, value] = bus.store(std::get<1>(result), width, val_rs2);
-            if (error != MMU_OK) { // FIXME: implementar corretamente
-                controller.trapException(Trap(controller.getPC(), MCause::StoreAMOAccessFault, opcode));
+        const auto [erro, vAddress] = mmu.getPhysicalAddress(address, 0, MMU_ACC_WRITE | MMU_ACC_SUPER);
+        if (erro == MMU_OK) {
+
+            auto [error, _] = bus.store(vAddress, width, val_rs2);
+            if (error == MMU_OK) {
+                return WriteBackData{0, 0, false};
             }
-        } else {
-            controller.trapException(Trap(controller.getPC(), MCause::StoreAMOAccessFault, opcode));
         }
 
+        controller.trapException(Trap(controller.getPC(), MCause::StoreAMOAccessFault, opcode));
         return WriteBackData{0, 0, false};
     }
 };
