@@ -18,8 +18,10 @@ clang --target=riscv64 -march=rv64i -nostdlib  -static -T linker.ld -nostdlib ke
 
 ## Runing
 ```bash
-qemu-system-riscv64 -cpu rv64 -machine virt -bios none -kernel kernel.elf -serial mon:stdio
+qemu-system-riscv64 -machine virt -m 512 -bios none -kernel kernel.elf -serial mon:stdio 
 ```
+
+qemu-system-riscv64 -cpu rv64 -kernel kernel.elf
 
 refs:
 - https://wiki.osdev.org/RISC-V_Bare_Bones
