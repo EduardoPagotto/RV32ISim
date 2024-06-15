@@ -17,4 +17,5 @@ add_subdirectory(src)
 
 # clean
 add_custom_target (clean-all COMMAND rm -rf ${CMAKE_BINARY_DIR}/*
+                             COMMAND rm -rf ${CMAKE_BINARY_DIR}/.*
                              COMMAND rm -rf ${CMAKE_SOURCE_DIR}/bin/*)
