@@ -25,7 +25,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
                         --target=riscv64
                         -march=rv64i
                         -nostdlib
-                        -mabi=lp64
+                        -mabi=lp64d
                         -static
                         -Wall
                         -Wextra
@@ -38,7 +38,7 @@ target_link_options(${EXECUTABLE} PRIVATE
         --target=riscv64
         -march=rv64i
         -nostdlib
-        -mabi=lp64
+        -mabi=lp64d
         -L.
         -Wl
         #-Map=${PROJECT_NAME}.map
