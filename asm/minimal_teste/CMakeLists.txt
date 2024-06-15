@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.27.7)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/../toolchains/riscvclang.toolchain.cmake) 
+cmake_minimum_required(VERSION 3.28)
 
 PROJECT(kernel)
 
@@ -56,3 +55,8 @@ add_custom_command(TARGET ${EXECUTABLE}
         COMMAND ${RISCV_OBJCOPY} -O binary ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.bin
         COMMAND ${RISCV_OBJDUMP} -d ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXECUTABLE} -l > ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/dissasembler.s
 )
+
+# clean
+add_custom_target (clean-all 
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/*
+        COMMAND rm -rf ${CMAKE_SOURCE_DIR}/bin/*)

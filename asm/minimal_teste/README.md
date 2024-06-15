@@ -15,6 +15,12 @@ clang --target=riscv64 -march=rv64i -nostdlib  -static -c -o entry.o entry.s
 clang --target=riscv64 -march=rv64i -nostdlib  -static -T linker.ld -nostdlib kernel.o entry.o -o kernel.elf
 #riscv64-elf-ld -T linker.ld -lgcc -nostdlib kernel.o entry.o -o kernel.elf
 ```
+## Compiling with cmake
+```bash
+mkdir builld
+cd build
+cmake ../ -DCMAKE_TOOLCHAIN_FILE=../../toolchains/riscv64.cmake
+```
 
 ## Runing
 ```bash

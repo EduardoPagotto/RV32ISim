@@ -6,9 +6,20 @@
 	],
 	"settings": {
 		"editor.formatOnSave": true,
-		"clang-format.executable": "clang-format",
 		"editor.minimap.enabled": false,
+		"editor.fontFamily": "JetBrains Mono Light",
+		"editor.fontSize": 15,
+		"editor.fontWeight": "normal",
+		"editor.fontLigatures": true,
+		"editor.letterSpacing": 0.4,
+		"editor.lineHeight": 1.7,
+		"editor.smoothScrolling": true,
+		"clang-format.executable": "clang-format",
 		"cmake.configureOnOpen": true,
+		"C_Cpp.intelliSenseEngineFallback": "enabled",
+		"C_Cpp.configurationWarnings": "disabled",
+		"C_Cpp.intelliSenseEngine": "Tag Parser",
+		"C_Cpp.clang_format_path": "/usr/bin/clang-format",
 		"files.associations": {
 			"array": "cpp",
 			"atomic": "cpp",
@@ -62,6 +73,9 @@
 			"set": "cpp",
 			"optional": "cpp"
 		},
+		"lldb.showDisassembly": "auto",
+		"lldb.dereferencePointers": true,
+		"lldb.consoleMode": "commands",
 	},
 	"launch": {
 		"version": "0.2.0",
