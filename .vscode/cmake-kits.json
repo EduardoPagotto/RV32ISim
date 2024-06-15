@@ -1,0 +1,6 @@
+[
+    {
+        "name": "clang x64",
+        "toolchainFile": "./toolchain/clang.cmake"
+    }
+]
