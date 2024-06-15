@@ -15,7 +15,7 @@ set(RISCV_TOOLCHAIN_ROOT "${RISCV_TOOL_PATH}" CACHE PATH "RISC-V compiler path")
 # message(STATUS "Toolchain file in: ${RISCV_TOOLCHAIN_ROOT}.")
 
 set(CMAKE_C_COMPILER "${RISCV_TOOLCHAIN_ROOT}/bin/clang")
-set(CMAKE_C_COMPILER_ABI "rv64i")
+set(CMAKE_C_COMPILER_ABI "lp64i")
 
 set(CMAKE_CXX_COMPILER "${RISCV_TOOLCHAIN_ROOT}/bin/clang++")
 

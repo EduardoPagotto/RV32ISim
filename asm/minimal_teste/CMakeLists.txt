@@ -23,22 +23,20 @@ add_executable(${EXECUTABLE} ${GENERATED_FILES})
 
 target_compile_options(${EXECUTABLE} PRIVATE    
                         --target=riscv64
-                        -march=rv64i
+                        -march=rv64gc
                         -nostdlib
-                        -mabi=lp64d
                         -static
                         -Wall
                         -Wextra
-                        -mcmodel=medany
                         -c
+                        -mcmodel=medany
 )
 
 target_link_options(${EXECUTABLE} PRIVATE
         -T${CMAKE_SOURCE_DIR}/src/linker.ld
         --target=riscv64
-        -march=rv64i
+        -march=rv64gc
         -nostdlib
-        -mabi=lp64d
         -L.
         -Wl
         #-Map=${PROJECT_NAME}.map
