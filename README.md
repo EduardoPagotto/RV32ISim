@@ -20,9 +20,13 @@ Binary deve ser compilado como RISCV 32 ISA code.
 
 ## Compile llvm
 ```bash
+# CMake
+sudo dnf install cmake cmake-data cmake-rpm-macros
+# Install deps CLANG
+sudo dnf install clang clang-tools-extra 
 # Install deps os LLVM
-sudo apt install llvm lld
-#sudo dnf install llvm lld
+#sudo apt install llvm lld 
+sudo dnf install llvm lld libstdc++-static llvm-static llvm-devel llvm-test
 
 $ llvm-objdump --version | grep riscv
 riscv32    - 32-bit RISC-V
