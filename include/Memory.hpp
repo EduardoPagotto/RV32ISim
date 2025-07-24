@@ -4,9 +4,9 @@
 #include <vector>
 
 // Device access
-#define DEV_OPENED 0x01  // status bitwise 0b00000001
+#define DEV_OPENED  0x01 // status bitwise 0b00000001
 #define DEV_CHANGED 0x02 // status bitwise 0b00000010
-#define DEV_RW 0x04      // status bitwise 0b00000100
+#define DEV_RW      0x04 // status bitwise 0b00000100
 
 // PRIVILEGES
 #define PRIV_USER0 0x00

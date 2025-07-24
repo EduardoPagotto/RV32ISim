@@ -2,9 +2,9 @@
 #include <iostream>
 #include <stdint.h>
 
-#define MSTATUS_MIE_BIT 3
-#define MSTATUS_MIE_MASK (1 << MSTATUS_MIE_BIT)
-#define MSTATUS_MPIE_BIT 7
+#define MSTATUS_MIE_BIT   3
+#define MSTATUS_MIE_MASK  (1 << MSTATUS_MIE_BIT)
+#define MSTATUS_MPIE_BIT  7
 #define MSTATUS_MPIE_MASK (1 << MSTATUS_MPIE_BIT)
 
 enum class MCause : uint32_t {

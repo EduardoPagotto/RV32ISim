@@ -5,77 +5,124 @@
 		}
 	],
 	"settings": {
-		"editor.formatOnSave": true,
+		// open file with double click only
+		//"workbench.editor.enablePreview": false,
+		//"workbench.list.openMode": "doubleClick",
+		"workbench.colorCustomizations": {
+			"editorCursor.foreground": "#ffff00",
+			"editorCursor.background": "#ff0000",
+			"terminalCursor.foreground": "#ffff00",
+			"terminalCursor.background": "#ff0000"
+		},
+		// Remove editor distractions
+		"editor.cursorBlinking": "blink",
+		"editor.cursorSmoothCaretAnimation": "on",
+		"editor.cursorStyle": "line",
+		"editor.hover.enabled": false, // hover manual crt+k, crt+i
+		"editor.occurrencesHighlight": "off", // off disable highligh
+		"editor.selectionHighlight": false, // True show similar selectec
+		"editor.suggestOnTriggerCharacters": false,
+		"editor.acceptSuggestionOnEnter": "smart",
+		"editor.acceptSuggestionOnCommitCharacter": false,
+		"editor.bracketPairColorization.enabled": true,
+		"editor.guides.bracketPairs": true,
+		"editor.quickSuggestions": {
+			"other": "off",
+			"comments": "off",
+			"strings": "off"
+		},
+		"editor.inlineSuggest.enabled": false,
+		"editor.suggest.preview": false,
+		"editor.snippetSuggestions": "none",
+		"editor.wordBasedSuggestions": "off",
 		"editor.minimap.enabled": false,
-		"editor.fontFamily": "JetBrains Mono Light",
+		// Font settings
+		"editor.fontFamily": "JetBrains Mono",
 		"editor.fontSize": 15,
 		"editor.fontWeight": "normal",
 		"editor.fontLigatures": true,
-		"editor.letterSpacing": 0.4,
-		"editor.lineHeight": 1.7,
+		"editor.letterSpacing": 0.8,
+		"editor.lineHeight": 1.5,
+		// misc
+		"editor.rulers": [
+			120
+		],
+		"editor.formatOnSave": true,
+		"editor.tabSize": 4,
 		"editor.smoothScrolling": true,
-		"clang-format.executable": "clang-format",
-		"cmake.configureOnOpen": true,
-		"C_Cpp.intelliSenseEngineFallback": "enabled",
-		"C_Cpp.configurationWarnings": "disabled",
-		"C_Cpp.intelliSenseEngine": "Tag Parser",
-		"C_Cpp.clang_format_path": "/usr/bin/clang-format",
-		"files.associations": {
-			"array": "cpp",
-			"atomic": "cpp",
-			"bit": "cpp",
-			"*.tcc": "cpp",
-			"cctype": "cpp",
-			"clocale": "cpp",
-			"cmath": "cpp",
-			"compare": "cpp",
-			"concepts": "cpp",
-			"cstdarg": "cpp",
-			"cstddef": "cpp",
-			"cstdint": "cpp",
-			"cstdio": "cpp",
-			"cstdlib": "cpp",
-			"cwchar": "cpp",
-			"cwctype": "cpp",
-			"deque": "cpp",
-			"map": "cpp",
-			"string": "cpp",
-			"unordered_map": "cpp",
-			"vector": "cpp",
-			"exception": "cpp",
-			"algorithm": "cpp",
-			"functional": "cpp",
-			"iterator": "cpp",
-			"memory": "cpp",
-			"memory_resource": "cpp",
-			"numeric": "cpp",
-			"random": "cpp",
-			"string_view": "cpp",
-			"system_error": "cpp",
-			"tuple": "cpp",
-			"type_traits": "cpp",
-			"utility": "cpp",
-			"fstream": "cpp",
-			"initializer_list": "cpp",
-			"iosfwd": "cpp",
-			"iostream": "cpp",
-			"istream": "cpp",
-			"limits": "cpp",
-			"new": "cpp",
-			"numbers": "cpp",
-			"ostream": "cpp",
-			"stdexcept": "cpp",
-			"streambuf": "cpp",
-			"typeinfo": "cpp",
-			"ctime": "cpp",
-			"iomanip": "cpp",
-			"sstream": "cpp",
-			"set": "cpp",
-			"optional": "cpp"
+		// Terminal
+		"terminal.integrated.letterSpacing": 0.8,
+		"terminal.integrated.fontWeight": "normal",
+		"terminal.integrated.defaultProfile.windows": "Command Prompt",
+		"terminal.integrated.fontFamily": "JetBrains Mono",
+		"terminal.integrated.fontLigatures.enabled": true,
+		"terminal.integrated.lineHeight": 1.0,
+		"terminal.integrated.fontSize": 15,
+		"terminal.integrated.cursorStyle": "line",
+		"terminal.integrated.cursorBlinking": true,
+		"terminal.integrated.cursorStyleInactive": "block",
+		// Explorer
+		"explorer.compactFolders": false,
+		"explorer.confirmDragAndDrop": true,
+		"explorer.confirmDelete": true,
+		"explorer.copyRelativePathSeparator": "/",
+		// Files
+		"files.autoSave": "onFocusChange",
+		"files.insertFinalNewline": true,
+		"files.trimFinalNewlines": true,
+		"files.trimTrailingWhitespace": true,
+		// Git
+		"git.enableSmartCommit": true,
+		"git.autofetch": true,
+		"git.confirmSync": true,
+		"git.openRepositoryInParentFolders": "always",
+		// Error lens
+		"errorLens.enabled": true,
+		"errorLens.delay": 1000,
+		"errorLens.delayMode": "new",
+		"errorLens.enabledDiagnosticLevels": [
+			"error",
+			"warning"
+		],
+		"errorLens.problemRangeDecorationEnabled": true,
+		"errorLens.gutterIconsEnabled": true,
+		"errorLens.followCursor": "activeLine",
+		"errorLens.gutterIconsFollowCursorOverride": true,
+		"errorLens.decorations": {
+			"errorRange": {
+				"border": "1px dashed red",
+				"backgroundColor": "#ff000090",
+				"color": "#ffffff"
+			},
+			"warningRange": {
+				"border": "2px dotted #fa9121"
+			},
+			"infoRange": {
+				"textDecoration": ";background:linear-gradient(45deg,#ff8400,#00d9ff);background-clip:text;color:transparent;border-bottom:2px solid #00d9ff",
+				"backgroundColor": "#fff0"
+			},
+			"hintRange": {
+				"textDecoration": ";box-shadow:0 0 5px 3px #2faf6470;border-radius:0.25em"
+			}
 		},
+		// LLDB
 		"lldb.showDisassembly": "auto",
 		"lldb.dereferencePointers": true,
 		"lldb.consoleMode": "commands",
+		//"lldb-dap.executable-path": "/usr/bin/lldb-dap",
+		// CPP
+		"C_Cpp.intelliSenseCachePath": "${workspaceFolder}/build/vscode_cache",
+		//"C_Cpp.default.browse.path": [],
+		//"C_Cpp.loggingLevel": "Debug",
+		//"C_Cpp.intelliSenseEngineFallback": "enabled",
+		"C_Cpp.configurationWarnings": "enabled",
+		"C_Cpp.intelliSenseEngine": "Tag Parser",
+		"C_Cpp.clang_format_path": "/usr/bin/clang-format",
+		// CMAKE
+		"cmake.configureOnOpen": true,
+		"cmake.options.statusBarVisibility": "visible",
+		"cmake.useCMakePresets": "never",
+		// OTHERS
 	},
 	"launch": {
 		"version": "0.2.0",
